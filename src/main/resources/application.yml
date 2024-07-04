@@ -1,0 +1,37 @@
+#spring.application.name=example-login-2
+
+spring:
+  token:
+    secret: m#MySecret5339T
+    issuer: BackendService
+---
+spring:
+  profiles:
+    active:
+      - dev
+---
+server:
+  port: 1150
+spring:
+  config:
+    activate:
+      on-profile:
+        - dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/login2
+    username: postgres
+    password: Tonpostgresql04
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+  kafka:
+    bootstrap-servers:
+      - localhost:9092
+    consumer:
+      group-id: "my-login-2-app"
+  jackson:
+    date-format: yyyy-MM-dd
