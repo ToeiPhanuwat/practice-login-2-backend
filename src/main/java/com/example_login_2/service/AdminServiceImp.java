@@ -57,5 +57,8 @@ public class AdminServiceImp implements AdminService {
         adminRepository.deleteById(id);
     }
 
-
+    @Override
+    public List<User> searchRoleUser(String role) {
+        return adminRepository.findByRoles(role);
+    }
 }

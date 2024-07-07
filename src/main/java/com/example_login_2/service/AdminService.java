@@ -21,5 +21,6 @@ public interface AdminService {
 
     void deleteUser(Long id);
 
+    List<User> searchRoleUser(String role);
 
 }

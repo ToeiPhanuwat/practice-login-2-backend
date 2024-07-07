@@ -92,4 +92,8 @@ public class AdminBusiness {
         adminService.deleteUser(id);
     }
 
+    public List<User> searchRoleUser(String role) {
+        return adminService.searchRoleUser(role);
+    }
+
 }

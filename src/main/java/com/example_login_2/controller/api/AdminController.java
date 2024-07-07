@@ -50,5 +50,8 @@ public class AdminController {
         adminBusiness.deleteUser(id);
     }
 
-
+    @GetMapping(path = "/search", params = "role")
+    public ResponseEntity<List<User>> searchByRole(@RequestParam String role) {
+        return ResponseEntity.ok(adminBusiness.searchRoleUser(role));
+    }
 }
