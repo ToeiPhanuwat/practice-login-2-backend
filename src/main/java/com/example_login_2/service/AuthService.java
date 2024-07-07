@@ -1,7 +1,7 @@
 package com.example_login_2.service;
 
 import com.example_login_2.controller.request.AuthRegisterRequest;
-import com.example_login_2.controller.request.AuthUpdateRequest;
+import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.User;
@@ -13,7 +13,7 @@ public interface AuthService {
 
     User updateUser(User user);
 
-    User updateUserRequest(User user, AuthUpdateRequest request);
+    User updateUserRequest(User user, UpdateRequest request);
 
     User updateEmailConfirmUser(User user, EmailConfirm emailConfirm);
 

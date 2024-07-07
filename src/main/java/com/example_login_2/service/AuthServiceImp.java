@@ -1,7 +1,7 @@
 package com.example_login_2.service;
 
 import com.example_login_2.controller.request.AuthRegisterRequest;
-import com.example_login_2.controller.request.AuthUpdateRequest;
+import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.ConflictException;
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.JwtToken;
@@ -30,11 +30,11 @@ public class AuthServiceImp implements AuthService {
     public User createUser(AuthRegisterRequest request) {
         if (authRepository.existsByEmail(request.getEmail())) throw ConflictException.createDuplicate();
 
-        final String role = "ROLE_USER";
+        final String ROLE = "ROLE_USER";
         User user = new User()
                 .setEmail(request.getEmail())
                 .setPassword(bCryptPasswordEncoder.encode(request.getPassword()))
-                .setRoles(new HashSet<>(Collections.singleton(role)));
+                .setRoles(new HashSet<>(Collections.singleton(ROLE)));
         return authRepository.save(user);
     }
 
@@ -44,7 +44,7 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public User updateUserRequest(User user, AuthUpdateRequest request) {
+    public User updateUserRequest(User user, UpdateRequest request) {
         user
                 .setFirstName(request.getFirstName())
                 .setLastName(request.getLastName())

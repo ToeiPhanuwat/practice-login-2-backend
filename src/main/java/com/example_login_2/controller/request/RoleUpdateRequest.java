@@ -3,7 +3,7 @@ package com.example_login_2.controller.request;
 import lombok.Getter;
 
 @Getter
-public class AuthActivateRequest {
+public class RoleUpdateRequest {
 
-    private String token;
+    private String role;
 }

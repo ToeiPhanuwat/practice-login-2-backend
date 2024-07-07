@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.util.Date;
 
 @Getter
-public class AuthUpdateRequest {
+public class UpdateRequest {
 
     private String firstName;
     private String lastName;
@@ -13,4 +13,12 @@ public class AuthUpdateRequest {
     private Date dateOfBirth;
     private String gender;
     private String profilePicture;
+
+    private String roles;
+
+    private String address;
+    private String city;
+    private String stateProvince;
+    private String postalCode;
+    private String country;
 }

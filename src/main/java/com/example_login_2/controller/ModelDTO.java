@@ -19,20 +19,21 @@ public class ModelDTO {
     //    private String password;
     private String firstName;
     private String lastName;
+    private String role;
     private String phoneNumber;
     private Date dateOfBirth;
     private String gender;
     private String profilePicture;
 
-    //    private String address;
-//    private String city;
-//    private String stateProvince;
-//    private String postalCode;
-//    private String country;
-//
-//    private String token;
+    private String address;
+    private String city;
+    private String stateProvince;
+    private String postalCode;
+    private String country;
+
+    //    private String token;
 //    private Date expiresAt;
-    private Boolean activated;
+    private boolean activated;
 
     private String jwtToken;
 //    private Date issuedAt;

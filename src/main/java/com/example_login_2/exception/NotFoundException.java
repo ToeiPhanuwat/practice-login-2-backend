@@ -37,4 +37,7 @@ public class NotFoundException extends RuntimeException {
         return new NotFoundException("User not found");
     }
 
+    public static NotFoundException addressNotFound() {
+        return new NotFoundException("The user address was not found.");
+    }
 }

@@ -12,4 +12,9 @@ public class ConflictException extends RuntimeException {
     public static ConflictException activateAlready() {
         return new ConflictException("Email already activated.");
     }
+
+    public static ConflictException userHasOneRole() {
+        return new ConflictException("Cannot delete the only role assigned to the user.");
+    }
+
 }

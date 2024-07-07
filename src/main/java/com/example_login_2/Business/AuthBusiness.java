@@ -94,7 +94,7 @@ public class AuthBusiness {
         Date tokenExpireAt = emailConfirm.getExpiresAt();
         if (now.after(tokenExpireAt)) throw GoneException.activateTokenExpire();
         emailConfirm.setActivated(true);
-        emailConfirmService.updateEmailConfirm(emailConfirm);
+        emailConfirmService.updateEmailConfirm(emailConfirm); //TODO: ต้องแก้ไขให้ set ข้อมูลใน Service
 
         ModelDTO modelDTO = new ModelDTO()
                 .setActivated(true);
@@ -125,6 +125,7 @@ public class AuthBusiness {
         User user = validateAndGetUser();
         ModelDTO modelDTO = new ModelDTO()
                 .setEmail(user.getEmail())
+                .setActivated(true)
                 .setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setPhoneNumber(user.getPhoneNumber())
@@ -133,7 +134,7 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<ModelDTO> updateUser(AuthUpdateRequest request) {
+    public ApiResponse<ModelDTO> updateUser(UpdateRequest request) { //TODO: ต้อง update address ด้วย
         User user = validateAndGetUser();
         authService.updateUserRequest(user, request);
 

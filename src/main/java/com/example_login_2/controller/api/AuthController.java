@@ -68,7 +68,7 @@ public class AuthController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping
-    public ResponseEntity<ApiResponse<ModelDTO>> editUser(@RequestBody AuthUpdateRequest request) {
+    public ResponseEntity<ApiResponse<ModelDTO>> editUser(@RequestBody UpdateRequest request) {
         return ResponseEntity.ok(authBusiness.updateUser(request));
     }
 

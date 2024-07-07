@@ -27,7 +27,7 @@ spring:
         format_sql: true
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   kafka:
     bootstrap-servers:
       - localhost:9092
