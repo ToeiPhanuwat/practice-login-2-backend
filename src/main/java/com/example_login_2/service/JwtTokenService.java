@@ -16,4 +16,6 @@ public interface JwtTokenService {
     DecodedJWT verify(String token);
 
     Optional<JwtToken> getJwtToken(String token);
+
+    JwtToken generateJwtToken(User user);
 }

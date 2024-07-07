@@ -33,7 +33,7 @@ public class ModelDTO {
 
     //    private String token;
 //    private Date expiresAt;
-    private boolean activated;
+    private String activated;
 
     private String jwtToken;
 //    private Date issuedAt;

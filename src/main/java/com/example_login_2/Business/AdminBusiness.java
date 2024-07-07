@@ -34,7 +34,7 @@ public class AdminBusiness {
         Address address = user.getAddress();
 
         ModelDTO modelDTO = new ModelDTO()
-                .setActivated(user.getEmailConfirm().isActivated())
+                .setActivated(String.valueOf(user.getEmailConfirm().isActivated()))
                 .setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setPhoneNumber(user.getPhoneNumber())

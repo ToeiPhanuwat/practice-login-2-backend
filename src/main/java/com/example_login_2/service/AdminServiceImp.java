@@ -4,7 +4,6 @@ import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.Address;
 import com.example_login_2.model.User;
 import com.example_login_2.repository.AdminRepository;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class AdminServiceImp implements AdminService {
 
     @Override
     public List<User> getAllUsers() {
-        return adminRepository.findAll(Sort.by(Sort.Direction.ASC, "email"));
+        return adminRepository.findAll();
     }
 
     @Override

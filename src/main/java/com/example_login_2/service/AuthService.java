@@ -15,7 +15,7 @@ public interface AuthService {
 
     User updateUserRequest(User user, UpdateRequest request);
 
-    User updateEmailConfirmUser(User user, EmailConfirm emailConfirm);
+    User updateEmailConfirm(User user, EmailConfirm emailConfirm);
 
     User updateJwtUser(User user, JwtToken jwtToken);
 

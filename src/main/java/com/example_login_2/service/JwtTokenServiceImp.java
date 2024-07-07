@@ -10,6 +10,7 @@ import com.example_login_2.repository.JwtTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -26,6 +27,14 @@ public class JwtTokenServiceImp implements JwtTokenService {
 
     public JwtTokenServiceImp(JwtTokenRepository jwtTokenRepository) {
         this.jwtTokenRepository = jwtTokenRepository;
+    }
+
+    @Override
+    public JwtToken generateJwtToken(User user) {
+        Instant now = Instant.now();
+        Instant expireAt = now.plus(Duration.ofMinutes(30));
+        String jwt = tokenize(user, now, expireAt);
+        return createJwtToken(user, jwt, now, expireAt);
     }
 
     @Override

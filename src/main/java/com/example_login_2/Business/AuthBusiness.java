@@ -15,11 +15,7 @@ import io.netty.util.internal.StringUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 @Log4j2
@@ -40,20 +36,14 @@ public class AuthBusiness {
     public ApiResponse<ModelDTO> register(AuthRegisterRequest request) {
         User user = authService.createUser(request);
         EmailConfirm emailConfirm = emailConfirmService.cerateEmailConfirm(user);
-        authService.updateEmailConfirmUser(user, emailConfirm);
+        authService.updateEmailConfirm(user, emailConfirm);
 
         sendEmail(user, emailConfirm);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setEmail(user.getEmail())
-                .setActivated(false);
+                .setActivated(String.valueOf(emailConfirm.isActivated()));
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
-    }
-
-    private Date nextHour() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 1);
-        return calendar.getTime();
     }
 
     private void sendEmail(User user, EmailConfirm emailConfirm) {
@@ -66,17 +56,15 @@ public class AuthBusiness {
     }
 
     public ApiResponse<ModelDTO> login(AuthLoginRequest request) {
-        Optional<User> optUser = authService.getUserByEmail(request.getEmail());
-        if (optUser.isEmpty()) throw NotFoundException.loginFailEmailNotFound();
+        User user = authService.getUserByEmail(request.getEmail())
+                .orElseThrow(NotFoundException::loginFailEmailNotFound);
 
-        User user = optUser.get();
         if (!authService.matchPassword(request.getPassword(), user.getPassword()))
             throw UnauthorizedException.loginFailPasswordIncorrect();
 
-        Optional<EmailConfirm> optEmailConfirm = emailConfirmService.getEmailConfirmByUserId(user.getId());
-        if (optEmailConfirm.isEmpty()) throw NotFoundException.activateNotFound();
+        EmailConfirm emailConfirm = emailConfirmService.getEmailConfirmByUserId(user.getId())
+                .orElseThrow(NotFoundException::activateNotFound);
 
-        EmailConfirm emailConfirm = optEmailConfirm.get();
         if (!emailConfirm.isActivated()) throw ForbiddenException.loginFailUserUnactivated();
 
         JwtToken jwtToken = createAndRevokeTokens(user);
@@ -87,27 +75,24 @@ public class AuthBusiness {
     }
 
     public ApiResponse<ModelDTO> activate(AuthActivateRequest request) {
-        String token = request.getToken();
-        EmailConfirm emailConfirm = validateAndGetEmailConfirm(token);
+        EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
 
         Date now = new Date();
         Date tokenExpireAt = emailConfirm.getExpiresAt();
         if (now.after(tokenExpireAt)) throw GoneException.activateTokenExpire();
-        emailConfirm.setActivated(true);
-        emailConfirmService.updateEmailConfirm(emailConfirm); //TODO: ต้องแก้ไขให้ set ข้อมูลใน Service
+
+        emailConfirm = emailConfirmService.updateEnableVerificationEmail(emailConfirm);
 
         ModelDTO modelDTO = new ModelDTO()
-                .setActivated(true);
+                .setActivated(String.valueOf(emailConfirm.isActivated()));
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
     public ApiResponse<String> resendActivationEmail(AuthResendActivationEmailRequest request) {
-        String token = request.getToken();
-        EmailConfirm emailConfirm = validateAndGetEmailConfirm(token);
-        emailConfirm
-                .setToken(SecurityUtil.generateToken())
-                .setExpiresAt(nextHour());
-        emailConfirmService.updateEmailConfirm(emailConfirm);
+        EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
+
+        emailConfirm = emailConfirmService.updateEmailConfirm(emailConfirm);
+
         sendEmail(emailConfirm.getUser(), emailConfirm);
         return new ApiResponse<>(true, "Activation email sent", null);
     }
@@ -124,8 +109,8 @@ public class AuthBusiness {
     public ApiResponse<ModelDTO> getUserById() {
         User user = validateAndGetUser();
         ModelDTO modelDTO = new ModelDTO()
+                .setActivated(String.valueOf(user.getEmailConfirm().isActivated()))
                 .setEmail(user.getEmail())
-                .setActivated(true)
                 .setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setPhoneNumber(user.getPhoneNumber())
@@ -134,7 +119,7 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<ModelDTO> updateUser(UpdateRequest request) { //TODO: ต้อง update address ด้วย
+    public ApiResponse<ModelDTO> updateUser(UpdateRequest request) {
         User user = validateAndGetUser();
         authService.updateUserRequest(user, request);
 
@@ -155,35 +140,26 @@ public class AuthBusiness {
 
     private JwtToken createAndRevokeTokens(User user) {
         user.revokeAllJwtToken();
-        authService.updateUser(user);
+        user = authService.updateUser(user);
 
-        Instant now = Instant.now();
-        Instant expireAt = now.plus(Duration.ofMinutes(30));
-        String jwt = jwtTokenService.tokenize(user, now, expireAt);
-        JwtToken jwtToken = jwtTokenService.createJwtToken(user, jwt, now, expireAt);
+        JwtToken jwtToken = jwtTokenService.generateJwtToken(user);
         authService.updateJwtUser(user, jwtToken);
         return jwtToken;
     }
 
     private User validateAndGetUser() {
-        Optional<Long> optId = SecurityUtil.getCurrentUserId();
-        if (optId.isEmpty()) throw UnauthorizedException.unauthorized();
+        Long userId = SecurityUtil.getCurrentUserId()
+                .orElseThrow(UnauthorizedException::unauthorized);
 
-        Long userId = optId.get();
-
-        Optional<User> optUser = authService.getUserById(userId);
-        if (optUser.isEmpty()) throw NotFoundException.notFound();
-
-        return optUser.get();
+        return authService.getUserById(userId).orElseThrow(NotFoundException::notFound);
     }
 
     private EmailConfirm validateAndGetEmailConfirm(String token) {
         if (StringUtil.isNullOrEmpty(token)) throw BadRequestException.requestNoToken();
 
-        Optional<EmailConfirm> optEmailConfirm = emailConfirmService.getEmailConfirmByToken(token);
-        if (optEmailConfirm.isEmpty()) throw NotFoundException.requestNotFound();
+        EmailConfirm emailConfirm = emailConfirmService.getEmailConfirmByToken(token)
+                .orElseThrow(NotFoundException::requestNotFound);
 
-        EmailConfirm emailConfirm = optEmailConfirm.get();
         if (emailConfirm.isActivated()) throw ConflictException.activateAlready();
 
         return emailConfirm;

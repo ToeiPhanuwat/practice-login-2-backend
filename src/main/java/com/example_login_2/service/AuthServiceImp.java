@@ -62,7 +62,7 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public User updateEmailConfirmUser(User user, EmailConfirm emailConfirm) {
+    public User updateEmailConfirm(User user, EmailConfirm emailConfirm) {
         user.setEmailConfirm(emailConfirm);
         return authRepository.save(user);
     }

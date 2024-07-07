@@ -1,5 +1,6 @@
 package com.example_login_2.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
@@ -18,6 +19,7 @@ import java.util.Date;
 public class EmailConfirm extends BaseModel {
 
     @OneToOne(mappedBy = "emailConfirm")
+    @JsonBackReference
     private User user;
 
     @Column

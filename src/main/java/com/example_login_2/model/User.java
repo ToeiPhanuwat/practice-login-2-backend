@@ -1,5 +1,6 @@
 package com.example_login_2.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,13 +50,16 @@ public class User extends BaseModel {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
+    @JsonManagedReference
     private Address address;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "email_confirm_id", referencedColumnName = "id")
+    @JsonManagedReference
     private EmailConfirm emailConfirm;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<JwtToken> jwtTokens = new HashSet<>();
 
     @PreRemove

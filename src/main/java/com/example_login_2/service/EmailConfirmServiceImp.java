@@ -46,7 +46,16 @@ public class EmailConfirmServiceImp implements EmailConfirmService {
     }
 
     @Override
+    public EmailConfirm updateEnableVerificationEmail(EmailConfirm emailConfirm) {
+        emailConfirm = emailConfirm.setActivated(true);
+        return emailConfirmRepository.save(emailConfirm);
+    }
+
+    @Override
     public EmailConfirm updateEmailConfirm(EmailConfirm emailConfirm) {
+        emailConfirm = emailConfirm
+                .setToken(SecurityUtil.generateToken())
+                .setExpiresAt(nextHour());
         return emailConfirmRepository.save(emailConfirm);
     }
 

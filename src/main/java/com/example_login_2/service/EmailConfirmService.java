@@ -16,4 +16,6 @@ public interface EmailConfirmService {
     Optional<EmailConfirm> getEmailConfirmByToken(String token);
 
     EmailConfirm updateEmailConfirm(EmailConfirm emailConfirm);
+
+    EmailConfirm updateEnableVerificationEmail(EmailConfirm emailConfirm);
 }
