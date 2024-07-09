@@ -17,7 +17,7 @@ public interface AuthService {
 
     User updateEmailConfirm(User user, EmailConfirm emailConfirm);
 
-    User updateJwtUser(User user, JwtToken jwtToken);
+    User updateJwtToken(User user, JwtToken jwtToken);
 
     Optional<User> getUserByEmail(String email);
 

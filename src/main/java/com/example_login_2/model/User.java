@@ -58,23 +58,13 @@ public class User extends BaseModel {
     @JsonManagedReference
     private EmailConfirm emailConfirm;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "jwt_token_id", referencedColumnName = "id")
     @JsonManagedReference
-    private Set<JwtToken> jwtTokens = new HashSet<>();
+    private JwtToken jwtToken;
 
     @PreRemove
     private void preRemove() {
         this.roles.clear();
-    }
-
-    public void addJwtToken(JwtToken jwtToken) { //ถ้าใช้ setJwtToken จะเป็นการแทนที่ค่าเดิม เลยต้องใช้ addJwtToken แทน
-        jwtToken.setUser(this);
-        this.jwtTokens.add(jwtToken);
-    }
-
-    public void revokeAllJwtToken() {
-        for (JwtToken jwtToken : this.jwtTokens) {
-            jwtToken.setRevoked(true);
-        }
     }
 }

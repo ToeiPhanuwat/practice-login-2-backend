@@ -1,7 +1,6 @@
 package com.example_login_2.config.Token;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example_login_2.model.JwtToken;
 import com.example_login_2.service.JwtTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,7 +18,6 @@ import org.springframework.web.filter.GenericFilterBean;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class TokenFilter extends GenericFilterBean {
 
@@ -49,12 +47,6 @@ public class TokenFilter extends GenericFilterBean {
 
         DecodedJWT decodedJWT = jwtTokenService.verify(token);
         if (decodedJWT == null) {
-            filterChain.doFilter(servletRequest, servletResponse);
-            return;
-        }
-
-        Optional<JwtToken> optJwtToken = jwtTokenService.getJwtToken(token);
-        if (optJwtToken.isPresent() && optJwtToken.get().isRevoked()) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }

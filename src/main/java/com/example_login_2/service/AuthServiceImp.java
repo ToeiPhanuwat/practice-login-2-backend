@@ -56,8 +56,8 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public User updateJwtUser(User user, JwtToken jwtToken) {
-        user.addJwtToken(jwtToken);
+    public User updateJwtToken(User user, JwtToken jwtToken) {
+        user.setJwtToken(jwtToken);
         return authRepository.save(user);
     }
 
@@ -86,4 +86,5 @@ public class AuthServiceImp implements AuthService {
     public void deleteUser(Long id) {
         authRepository.deleteById(id);
     }
+
 }

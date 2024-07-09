@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -57,6 +58,11 @@ public class EmailConfirmServiceImp implements EmailConfirmService {
                 .setToken(SecurityUtil.generateToken())
                 .setExpiresAt(nextHour());
         return emailConfirmRepository.save(emailConfirm);
+    }
+
+    @Override
+    public List<User> getUserActivatedFalse() {
+        return emailConfirmRepository.findByActivatedFalse();
     }
 
     private Date nextHour() {

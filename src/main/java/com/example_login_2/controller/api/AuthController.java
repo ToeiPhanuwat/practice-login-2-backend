@@ -1,6 +1,6 @@
 package com.example_login_2.controller.api;
 
-import com.example_login_2.Business.AuthBusiness;
+import com.example_login_2.business.AuthBusiness;
 import com.example_login_2.controller.ApiResponse;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.*;

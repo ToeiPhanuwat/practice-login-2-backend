@@ -3,8 +3,7 @@ package com.example_login_2.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,8 +18,7 @@ import java.time.Instant;
 @Entity
 public class JwtToken extends BaseModel {
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @OneToOne(mappedBy = "jwtToken")
     @JsonBackReference
     private User user;
 
@@ -32,7 +30,4 @@ public class JwtToken extends BaseModel {
 
     @Column(nullable = false)
     private Instant expiresAt;
-
-    @Column(nullable = false)
-    private boolean revoked;
 }

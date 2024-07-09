@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface JwtTokenService {
 
-    JwtToken createJwtToken(User user, String jwt, Instant now, Instant expireAt);
+    JwtToken createOrUpdateJwtToken(User user, String jwt, Instant now, Instant expireAt);
 
     String tokenize(User user, Instant now, Instant expireAt);
 
@@ -18,4 +18,5 @@ public interface JwtTokenService {
     Optional<JwtToken> getJwtToken(String token);
 
     JwtToken generateJwtToken(User user);
+
 }

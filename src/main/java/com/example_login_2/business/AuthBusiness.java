@@ -1,4 +1,4 @@
-package com.example_login_2.Business;
+package com.example_login_2.business;
 
 import com.example_login_2.controller.ApiResponse;
 import com.example_login_2.controller.ModelDTO;
@@ -67,7 +67,8 @@ public class AuthBusiness {
 
         if (!emailConfirm.isActivated()) throw ForbiddenException.loginFailUserUnactivated();
 
-        JwtToken jwtToken = createAndRevokeTokens(user);
+        JwtToken jwtToken = jwtTokenService.generateJwtToken(user);
+        authService.updateJwtToken(user, jwtToken);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setJwtToken(jwtToken.getJwtToken());
@@ -99,7 +100,8 @@ public class AuthBusiness {
 
     public ApiResponse<ModelDTO> refreshJwtToken() {
         User user = validateAndGetUser();
-        JwtToken jwtToken = createAndRevokeTokens(user);
+        JwtToken jwtToken = jwtTokenService.generateJwtToken(user);
+        authService.updateJwtToken(user, jwtToken);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setJwtToken(jwtToken.getJwtToken());
@@ -136,15 +138,6 @@ public class AuthBusiness {
     public void deleteUser() {
         User user = validateAndGetUser();
         authService.deleteUser(user.getId());
-    }
-
-    private JwtToken createAndRevokeTokens(User user) {
-        user.revokeAllJwtToken();
-        user = authService.updateUser(user);
-
-        JwtToken jwtToken = jwtTokenService.generateJwtToken(user);
-        authService.updateJwtUser(user, jwtToken);
-        return jwtToken;
     }
 
     private User validateAndGetUser() {

@@ -1,4 +1,4 @@
-package com.example_login_2.Business;
+package com.example_login_2.business;
 
 import com.example.login.common.EmailRequest;
 import com.example_login_2.exception.NotFoundException;

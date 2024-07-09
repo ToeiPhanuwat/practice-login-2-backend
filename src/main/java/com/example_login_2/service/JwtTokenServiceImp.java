@@ -32,19 +32,22 @@ public class JwtTokenServiceImp implements JwtTokenService {
     @Override
     public JwtToken generateJwtToken(User user) {
         Instant now = Instant.now();
-        Instant expireAt = now.plus(Duration.ofMinutes(30));
+        Instant expireAt = now.plus(Duration.ofDays(1));
         String jwt = tokenize(user, now, expireAt);
-        return createJwtToken(user, jwt, now, expireAt);
+        return createOrUpdateJwtToken(user, jwt, now, expireAt);
     }
 
     @Override
-    public JwtToken createJwtToken(User user, String jwt, Instant now, Instant expireAt) {
-        JwtToken jwtToken = new JwtToken()
-                .setUser(user)
+    public JwtToken createOrUpdateJwtToken(User user, String jwt, Instant now, Instant expireAt) {
+        JwtToken jwtToken = user.getJwtToken();
+        if (jwtToken == null) {
+            jwtToken = new JwtToken();
+            jwtToken.setUser(user);
+        }
+        jwtToken
                 .setJwtToken(jwt)
                 .setIssuedAt(now)
-                .setExpiresAt(expireAt)
-                .setRevoked(false);
+                .setExpiresAt(expireAt);
         return jwtTokenRepository.save(jwtToken);
     }
 
@@ -81,4 +84,6 @@ public class JwtTokenServiceImp implements JwtTokenService {
     public Optional<JwtToken> getJwtToken(String token) {
         return jwtTokenRepository.findByjwtToken(token);
     }
+
+
 }
