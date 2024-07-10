@@ -45,7 +45,6 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public User updateUserRequest(User user, UpdateRequest request) {
-
         user = user
                 .setFirstName(request.getFirstName())
                 .setLastName(request.getLastName())

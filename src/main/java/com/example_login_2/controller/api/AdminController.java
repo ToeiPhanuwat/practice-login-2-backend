@@ -9,6 +9,7 @@ import com.example_login_2.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -33,9 +34,11 @@ public class AdminController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ModelDTO>> editUser(
-            @RequestParam UpdateRequest request, @PathVariable long id) {
-        return ResponseEntity.ok(adminBusiness.updateUser(request, id));
+    public ResponseEntity<ApiResponse<ModelDTO>> putUser(
+            @RequestPart MultipartFile file,
+            @RequestPart UpdateRequest request,
+            @PathVariable long id) {
+        return ResponseEntity.ok(adminBusiness.updateUser(file, request, id));
     }
 
     @PutMapping("removeRole/{id}")
