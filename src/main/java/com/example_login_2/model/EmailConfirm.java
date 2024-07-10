@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Getter
@@ -16,7 +17,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Entity
-public class EmailConfirm extends BaseModel {
+public class EmailConfirm extends BaseModel implements Serializable {
 
     @OneToOne(mappedBy = "emailConfirm")
     @JsonBackReference

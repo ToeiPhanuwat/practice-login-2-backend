@@ -4,6 +4,7 @@ import com.example_login_2.controller.ApiResponse;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.*;
 import com.example_login_2.exception.*;
+import com.example_login_2.model.Address;
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.User;
@@ -114,16 +115,27 @@ public class AuthBusiness {
 
     public ApiResponse<ModelDTO> getUserById() {
         User user = validateAndGetUser();
+        Address address = user.getAddress();
 
-        ModelDTO modelDTO = new ModelDTO()
+        ModelDTO modelDTO = new ModelDTO();
+        modelDTO
                 .setActivated(String.valueOf(user.getEmailConfirm().isActivated()))
-                .setEmail(user.getEmail())
                 .setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setPhoneNumber(user.getPhoneNumber())
                 .setDateOfBirth(user.getDateOfBirth())
                 .setGender(user.getGender())
-                .setFileName(user.getFileName());
+                .setFileName(user.getFileName())
+                .setRole(user.getRoles().toString());
+
+        if (address != null) {
+            modelDTO
+                    .setAddress(address.getAddress())
+                    .setCity(address.getCity())
+                    .setStateProvince(address.getStateProvince())
+                    .setPostalCode(address.getPostalCode())
+                    .setCountry(address.getCountry());
+        }
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,7 +18,7 @@ import java.util.Set;
 @Accessors(chain = true)
 @Entity
 @Table(name = "`user`")
-public class User extends BaseModel {
+public class User extends BaseModel implements Serializable {
 
     @Column(nullable = false, unique = true, length = 60)
     private String email;

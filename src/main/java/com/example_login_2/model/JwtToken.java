@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 @Getter
@@ -16,7 +17,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Entity
-public class JwtToken extends BaseModel {
+public class JwtToken extends BaseModel implements Serializable {
 
     @OneToOne(mappedBy = "jwtToken")
     @JsonBackReference
