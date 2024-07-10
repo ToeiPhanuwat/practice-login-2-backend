@@ -20,4 +20,5 @@ public class BadRequestException extends RuntimeException {
     public static BadRequestException requestNoToken() {
         return new BadRequestException("Failed : Token is missing");
     }
+
 }

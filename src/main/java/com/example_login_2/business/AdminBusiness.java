@@ -10,6 +10,7 @@ import com.example_login_2.model.Address;
 import com.example_login_2.model.User;
 import com.example_login_2.service.AddressService;
 import com.example_login_2.service.AdminService;
+import com.example_login_2.service.StorageService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,10 +20,12 @@ public class AdminBusiness {
 
     private final AdminService adminService;
     private final AddressService addressService;
+    private final StorageService storageService;
 
-    public AdminBusiness(AdminService adminService, AddressService addressService) {
+    public AdminBusiness(AdminService adminService, AddressService addressService, StorageService storageService) {
         this.adminService = adminService;
         this.addressService = addressService;
+        this.storageService = storageService;
     }
 
     public List<User> getAllUser() { //TODO: BUC response ออกมาต่อๆกัน
@@ -40,6 +43,7 @@ public class AdminBusiness {
                 .setPhoneNumber(user.getPhoneNumber())
                 .setDateOfBirth(user.getDateOfBirth())
                 .setGender(user.getGender())
+                .setFileName(user.getFileName())
                 .setRole(user.getRoles().toString())
                 .setAddress(address.getAddress())
                 .setCity(address.getCity())
@@ -51,6 +55,12 @@ public class AdminBusiness {
 
     public ApiResponse<ModelDTO> updateUser(UpdateRequest request, Long id) {
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
+
+//        String fileName = storageService.uploadProfilePicture(request.getProfilePicture());
+//        if (fileName != null) {
+//            request.setFileName(fileName);
+//        }
+
         user = adminService.updateUserRequest(user, request);
 
         Address address = user.getAddress();
@@ -67,6 +77,7 @@ public class AdminBusiness {
                 .setPhoneNumber(request.getPhoneNumber())
                 .setDateOfBirth(request.getDateOfBirth())
                 .setGender(request.getGender())
+                .setFileName(request.getFileName())
                 .setRole(user.getRoles().toString())
                 .setAddress(request.getAddress())
                 .setCity(request.getCity())

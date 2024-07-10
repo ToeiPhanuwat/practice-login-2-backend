@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -68,8 +69,10 @@ public class AuthController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping
-    public ResponseEntity<ApiResponse<ModelDTO>> editUser(@RequestBody UpdateRequest request) {
-        return ResponseEntity.ok(authBusiness.updateUser(request));
+    public ResponseEntity<ApiResponse<ModelDTO>> putUser(
+            @RequestPart MultipartFile file,
+            @RequestPart UpdateRequest request) {
+        return ResponseEntity.ok(authBusiness.updateUser(file, request));
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

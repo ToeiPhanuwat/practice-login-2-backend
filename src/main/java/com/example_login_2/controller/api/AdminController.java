@@ -6,7 +6,6 @@ import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.User;
-import com.example_login_2.repository.EmailConfirmRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +34,7 @@ public class AdminController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ModelDTO>> editUser(
-            @RequestBody UpdateRequest request, @PathVariable long id) {
+            @RequestParam UpdateRequest request, @PathVariable long id) {
         return ResponseEntity.ok(adminBusiness.updateUser(request, id));
     }
 

@@ -1,6 +1,9 @@
 package com.example_login_2.controller.request;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -12,7 +15,10 @@ public class UpdateRequest {
     private String phoneNumber;
     private Date dateOfBirth;
     private String gender;
-    private String profilePicture;
+//    private MultipartFile file;
+
+    @Setter(AccessLevel.PUBLIC)
+    private String fileName;
 
     private String roles;
 

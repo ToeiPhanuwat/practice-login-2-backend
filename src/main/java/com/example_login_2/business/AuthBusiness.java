@@ -10,10 +10,12 @@ import com.example_login_2.model.User;
 import com.example_login_2.service.AuthService;
 import com.example_login_2.service.EmailConfirmService;
 import com.example_login_2.service.JwtTokenService;
+import com.example_login_2.service.StorageService;
 import com.example_login_2.util.SecurityUtil;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -24,13 +26,15 @@ public class AuthBusiness {
     private final AuthService authService;
     private final EmailConfirmService emailConfirmService;
     private final JwtTokenService jwtTokenService;
+    private final StorageService storageService;
     private final EmailBusiness emailBusiness;
 
-    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService) {
+    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService) {
         this.emailBusiness = emailBusiness;
         this.authService = authService;
         this.emailConfirmService = emailConfirmService;
         this.jwtTokenService = jwtTokenService;
+        this.storageService = storageService;
     }
 
     public ApiResponse<ModelDTO> register(AuthRegisterRequest request) {
@@ -110,6 +114,7 @@ public class AuthBusiness {
 
     public ApiResponse<ModelDTO> getUserById() {
         User user = validateAndGetUser();
+
         ModelDTO modelDTO = new ModelDTO()
                 .setActivated(String.valueOf(user.getEmailConfirm().isActivated()))
                 .setEmail(user.getEmail())
@@ -117,13 +122,19 @@ public class AuthBusiness {
                 .setLastName(user.getLastName())
                 .setPhoneNumber(user.getPhoneNumber())
                 .setDateOfBirth(user.getDateOfBirth())
-                .setGender(user.getGender());
+                .setGender(user.getGender())
+                .setFileName(user.getFileName());
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<ModelDTO> updateUser(UpdateRequest request) {
+    public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request) {
         User user = validateAndGetUser();
-        authService.updateUserRequest(user, request);
+
+        String fileName = storageService.uploadProfilePicture(file);
+        if (fileName != null) {
+            request.setFileName(fileName);
+        }
+        user = authService.updateUserRequest(user, request);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setEmail(user.getEmail())
@@ -131,7 +142,8 @@ public class AuthBusiness {
                 .setLastName(user.getLastName())
                 .setPhoneNumber(user.getPhoneNumber())
                 .setDateOfBirth(user.getDateOfBirth())
-                .setGender(user.getGender());
+                .setGender(user.getGender())
+                .setFileName(user.getFileName());
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 

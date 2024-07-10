@@ -45,25 +45,26 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public User updateUserRequest(User user, UpdateRequest request) {
-        user
+
+        user = user
                 .setFirstName(request.getFirstName())
                 .setLastName(request.getLastName())
                 .setPhoneNumber(request.getPhoneNumber())
                 .setDateOfBirth(request.getDateOfBirth())
                 .setGender(request.getGender())
-                .setProfilePicture(request.getProfilePicture());
+                .setFileName(request.getFileName());
         return authRepository.save(user);
     }
 
     @Override
     public User updateJwtToken(User user, JwtToken jwtToken) {
-        user.setJwtToken(jwtToken);
+        user = user.setJwtToken(jwtToken);
         return authRepository.save(user);
     }
 
     @Override
     public User updateEmailConfirm(User user, EmailConfirm emailConfirm) {
-        user.setEmailConfirm(emailConfirm);
+        user = user.setEmailConfirm(emailConfirm);
         return authRepository.save(user);
     }
 

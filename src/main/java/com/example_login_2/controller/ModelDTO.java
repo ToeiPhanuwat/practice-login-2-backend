@@ -23,7 +23,7 @@ public class ModelDTO {
     private String phoneNumber;
     private Date dateOfBirth;
     private String gender;
-    private String profilePicture;
+    private String fileName;
 
     private String address;
     private String city;

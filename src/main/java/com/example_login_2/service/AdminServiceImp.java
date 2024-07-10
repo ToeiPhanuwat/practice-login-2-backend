@@ -41,7 +41,7 @@ public class AdminServiceImp implements AdminService {
                 .setPhoneNumber(request.getPhoneNumber())
                 .setDateOfBirth(request.getDateOfBirth())
                 .setGender(request.getGender())
-                .setProfilePicture(request.getProfilePicture())
+                .setFileName(request.getFileName())
                 .getRoles().add(request.getRoles());
         return adminRepository.save(user);
     }

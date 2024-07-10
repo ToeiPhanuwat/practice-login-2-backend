@@ -5,6 +5,11 @@ spring:
     secret: m#MySecret5339T
     issuer: BackendService
 ---
+app:
+  upload:
+    path: images
+
+---
 spring:
   profiles:
     active:
@@ -28,6 +33,12 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+  servlet:
+    multipart:
+      max-file-size:
+        5MB
+      max-request-size:
+        6MB
   kafka:
     bootstrap-servers:
       - localhost:9092
