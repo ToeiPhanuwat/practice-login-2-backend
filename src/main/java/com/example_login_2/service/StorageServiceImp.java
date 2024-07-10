@@ -48,9 +48,9 @@ public class StorageServiceImp implements StorageService {
         String contentType = file.getContentType();
         if (contentType == null) throw BadRequestException.fileContentTypeIsNull();
 
-        List<String> supportedTypes = Arrays.asList("image/jpeg", "image/png");
-        if (!supportedTypes.contains(contentType))
-            throw BadRequestException.unsupported();
+//        List<String> supportedTypes = Arrays.asList("image/jpeg", "image/png");
+//        if (!supportedTypes.contains(contentType))
+//            throw BadRequestException.unsupported();
 
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename(), "File name must not be null"));
         try {
