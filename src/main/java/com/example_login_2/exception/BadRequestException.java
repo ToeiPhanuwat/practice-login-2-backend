@@ -18,7 +18,22 @@ public class BadRequestException extends RuntimeException {
     }
 
     public static BadRequestException requestNoToken() {
-        return new BadRequestException("Failed : Token is missing");
+        return new BadRequestException("Failed : Token is missing.");
     }
 
+    public static BadRequestException fileMaxSize() {
+        return new BadRequestException("File size must be less than 5 MB.");
+    }
+
+    public static BadRequestException fileContentTypeIsNull() {
+        return new BadRequestException("File content type must not be null.");
+    }
+
+    public static BadRequestException unsupported() {
+        return new BadRequestException("Unsupported file type. Only JPEG and PNG are allowed.");
+    }
+
+    public static BadRequestException currentDirectory() {
+        return new BadRequestException("Path outside current directory.");
+    }
 }

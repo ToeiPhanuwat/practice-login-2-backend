@@ -43,18 +43,18 @@ public class StorageServiceImp implements StorageService {
         if (file == null || file.isEmpty()) return null;
 
         final long limitFile = 1048576 * 5;
-        if (file.getSize() > limitFile) throw new BadRequestException("File size must be less than 5 MB");
+        if (file.getSize() > limitFile) throw BadRequestException.fileMaxSize();
 
         String contentType = file.getContentType();
-        if (contentType == null) throw new BadRequestException("File content type must not be null");
+        if (contentType == null) throw BadRequestException.fileContentTypeIsNull();
 
-//        List<String> supportedTypes = Arrays.asList("image/jpeg", "image/png");
-//        if (!supportedTypes.contains(contentType))
-//            throw new BadRequestException("Unsupported file type. Only JPEG and PNG are allowed");
+        List<String> supportedTypes = Arrays.asList("image/jpeg", "image/png");
+        if (!supportedTypes.contains(contentType))
+            throw BadRequestException.unsupported();
 
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename(), "File name must not be null"));
         try {
-            if (fileName.contains("..")) throw new BadRequestException("Path outside current directory");
+            if (fileName.contains("..")) throw BadRequestException.currentDirectory();
             fileName = UUID.randomUUID() + "." + fileName.substring(fileName.lastIndexOf(".") + 1);
 
             try (InputStream inputStream = file.getInputStream()) {
