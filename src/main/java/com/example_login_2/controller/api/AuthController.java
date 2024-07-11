@@ -2,6 +2,7 @@ package com.example_login_2.controller.api;
 
 import com.example_login_2.business.AuthBusiness;
 import com.example_login_2.controller.ApiResponse;
+import com.example_login_2.controller.AuthRequest.*;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.*;
 import com.example_login_2.exception.BadRequestException;
@@ -26,7 +27,7 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/registers")
     public ApiResponse<ModelDTO> register(
-            @Valid @RequestBody AuthRegisterRequest request,
+            @Valid @RequestBody RegisterRequest request,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             bindingResult.getFieldErrors().forEach(fieldError -> {
@@ -40,7 +41,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<ModelDTO>> login(
-            @Valid @RequestBody AuthLoginRequest request,
+            @Valid @RequestBody LoginRequest request,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             bindingResult.getFieldErrors().forEach(fieldError -> {
@@ -51,14 +52,24 @@ public class AuthController {
     }
 
     @PostMapping("/activate")
-    public ResponseEntity<ApiResponse<ModelDTO>> activate(@RequestBody AuthActivateRequest request) {
+    public ResponseEntity<ApiResponse<ModelDTO>> activate(@RequestBody ActivateRequest request) {
         ApiResponse<ModelDTO> response = authBusiness.activate(request);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/resend-activation-email")
-    public ResponseEntity<ApiResponse<String>> resendActivationEmail(@RequestBody AuthResendActivationEmailRequest request) {
+    public ResponseEntity<ApiResponse<String>> resendActivationEmail(@RequestBody ResendActivationEmailRequest request) {
         return ResponseEntity.ok(authBusiness.resendActivationEmail(request));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<ModelDTO>> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(authBusiness.forgotPassword(request));
+    }
+
+    @PutMapping("/reset-password")
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody PasswordResetRequest request) {
+        return ResponseEntity.ok(authBusiness.resetPassword(request));
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

@@ -1,13 +1,11 @@
 package com.example_login_2.business;
 
 import com.example_login_2.controller.ApiResponse;
+import com.example_login_2.controller.AuthRequest.*;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.*;
 import com.example_login_2.exception.*;
-import com.example_login_2.model.Address;
-import com.example_login_2.model.EmailConfirm;
-import com.example_login_2.model.JwtToken;
-import com.example_login_2.model.User;
+import com.example_login_2.model.*;
 import com.example_login_2.service.AuthService;
 import com.example_login_2.service.EmailConfirmService;
 import com.example_login_2.service.JwtTokenService;
@@ -15,9 +13,11 @@ import com.example_login_2.service.StorageService;
 import com.example_login_2.util.SecurityUtil;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
 import java.util.Date;
 
 @Service
@@ -38,20 +38,21 @@ public class AuthBusiness {
         this.storageService = storageService;
     }
 
-    public ApiResponse<ModelDTO> register(AuthRegisterRequest request) {
+    public ApiResponse<ModelDTO> register(RegisterRequest request) {
         User user = authService.createUser(request);
         EmailConfirm emailConfirm = emailConfirmService.cerateEmailConfirm(user);
         authService.updateEmailConfirm(user, emailConfirm);
 
-        sendEmail(user, emailConfirm);
+        sendActivationEmail(user, emailConfirm);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setEmail(user.getEmail())
+                .setActivationToken(emailConfirm.getToken())
                 .setActivated(String.valueOf(emailConfirm.isActivated()));
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    private void sendEmail(User user, EmailConfirm emailConfirm) {
+    private void sendActivationEmail(User user, EmailConfirm emailConfirm) {
         try {
             emailBusiness.sendActivateUserMail(user, emailConfirm);
         } catch (Exception ex) {
@@ -60,13 +61,15 @@ public class AuthBusiness {
         log.info("Token: " + emailConfirm.getToken());
     }
 
-    public ApiResponse<ModelDTO> login(AuthLoginRequest request) {
+    public ApiResponse<ModelDTO> login(LoginRequest request) {
         User user = authService.getUserByEmail(request.getEmail())
                 .orElseThrow(NotFoundException::loginFailEmailNotFound);
+        log.info("userId 1 : " + user.getId());
 
         if (!authService.matchPassword(request.getPassword(), user.getPassword()))
             throw UnauthorizedException.loginFailPasswordIncorrect();
 
+        log.info("userId 2 : " + user.getId());
         EmailConfirm emailConfirm = emailConfirmService.getEmailConfirmByUserId(user.getId())
                 .orElseThrow(NotFoundException::activateNotFound);
 
@@ -80,7 +83,7 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<ModelDTO> activate(AuthActivateRequest request) {
+    public ApiResponse<ModelDTO> activate(ActivateRequest request) {
         EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
 
         Date now = new Date();
@@ -94,13 +97,57 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<String> resendActivationEmail(AuthResendActivationEmailRequest request) {
+    public ApiResponse<String> resendActivationEmail(ResendActivationEmailRequest request) {
         EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
 
         emailConfirm = emailConfirmService.updateEmailConfirm(emailConfirm);
 
-        sendEmail(emailConfirm.getUser(), emailConfirm);
+        sendActivationEmail(emailConfirm.getUser(), emailConfirm);
         return new ApiResponse<>(true, "Activation email sent", null);
+    }
+
+    public ApiResponse<ModelDTO> forgotPassword(ForgotPasswordRequest request) {
+        String email = request.getEmail();
+        if (StringUtil.isNullOrEmpty(email)) throw BadRequestException.requestNullOrEmpty();
+
+        User user = authService.getUserByEmail(email).orElseThrow(NotFoundException::emailNotFound);
+
+        user = authService.updatePasswordResetToken(user);
+
+        PasswordResetToken passwordResetToken = user.getPasswordResetToken();
+
+        sendPasswordResetEmail(user, passwordResetToken);
+
+        ModelDTO modelDTO = new ModelDTO()
+                .setEmail(user.getEmail())
+                .setToken(passwordResetToken.getToken());
+        return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
+    }
+
+    private void sendPasswordResetEmail(User user, PasswordResetToken passwordResetToken) {
+        try {
+            emailBusiness.sendPasswordReset(user, passwordResetToken);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        log.info("Token: " + passwordResetToken.getToken());
+    }
+
+    public ApiResponse<String> resetPassword(PasswordResetRequest request) {
+        if (StringUtil.isNullOrEmpty(request.getToken())) throw BadRequestException.requestTokenNullOrEmpty();
+
+        if (StringUtil.isNullOrEmpty(request.getNewPassword())) throw BadRequestException.requestNewPasswordNullOrEmpty();
+
+        User user = authService.getByPasswordResetToken_Token(request.getToken())
+                .orElseThrow(NotFoundException::tokenNotFound);
+
+        PasswordResetToken passwordResetToken = user.getPasswordResetToken();
+        Instant now = Instant.now();
+        Instant passwordExpireAt = passwordResetToken.getExpiresAt();
+        if (now.isAfter(passwordExpireAt)) throw GoneException.activateTokenExpire();
+
+        authService.updateNewPassword(user, request.getNewPassword());
+        return new ApiResponse<>(true, "Password has been reset successfully.", null);
     }
 
     public ApiResponse<ModelDTO> refreshJwtToken() {
@@ -172,7 +219,7 @@ public class AuthBusiness {
     }
 
     private EmailConfirm validateAndGetEmailConfirm(String token) {
-        if (StringUtil.isNullOrEmpty(token)) throw BadRequestException.requestNoToken();
+        if (StringUtil.isNullOrEmpty(token)) throw BadRequestException.requestTokenNullOrEmpty();
 
         EmailConfirm emailConfirm = emailConfirmService.getEmailConfirmByToken(token)
                 .orElseThrow(NotFoundException::requestNotFound);

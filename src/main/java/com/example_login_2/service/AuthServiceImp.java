@@ -1,15 +1,19 @@
 package com.example_login_2.service;
 
-import com.example_login_2.controller.request.AuthRegisterRequest;
+import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.ConflictException;
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.JwtToken;
+import com.example_login_2.model.PasswordResetToken;
 import com.example_login_2.model.User;
 import com.example_login_2.repository.AuthRepository;
+import com.example_login_2.util.SecurityUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
@@ -27,7 +31,7 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public User createUser(AuthRegisterRequest request) {
+    public User createUser(RegisterRequest request) {
         if (authRepository.existsByEmail(request.getEmail())) throw ConflictException.createDuplicate();
 
         final String ROLE = "ROLE_USER";
@@ -68,6 +72,27 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
+    public User updatePasswordResetToken(User user) {
+        String token = SecurityUtil.generateToken();
+        Instant expiresAt = Instant.now().plus(Duration.ofMinutes(15));
+
+        PasswordResetToken passwordResetToken = new PasswordResetToken()
+                .setToken(token)
+                .setExpiresAt(expiresAt);
+
+        user = user.setPasswordResetToken(passwordResetToken);
+        return authRepository.save(user);
+    }
+
+    @Override
+    public void updateNewPassword(User user, String newPassword) {
+        user = user
+                .setPassword(bCryptPasswordEncoder.encode(newPassword))
+                .setPasswordResetToken(null);
+        authRepository.save(user);
+    }
+
+    @Override
     public Optional<User> getUserByEmail(String email) {
         return authRepository.findByEmail(email);
     }
@@ -80,6 +105,11 @@ public class AuthServiceImp implements AuthService {
     @Override
     public Optional<User> getUserById(Long id) {
         return authRepository.findById(id);
+    }
+
+    @Override
+    public Optional<User> getByPasswordResetToken_Token(String token) {
+        return authRepository.findByPasswordResetToken_Token(token);
     }
 
     @Override

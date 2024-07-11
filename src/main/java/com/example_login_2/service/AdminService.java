@@ -14,19 +14,19 @@ public interface AdminService {
 
     List<User> getAllUsers();
 
-    @Cacheable(value = "user", key = "#id", unless = "#result == null")
+//    @Cacheable(value = "user", key = "#id", unless = "#result == null")
     Optional<User> getUserById(Long id);
 
-    @CachePut(value = "user", key = "#user.id")
+//    @CachePut(value = "user", key = "#user.id")
     User updateUser(User user);
 
-    @CachePut(value = "user", key = "#user.id")
+//    @CachePut(value = "user", key = "#user.id")
     User updateUserRequest(User user, UpdateRequest request);
 
-    @CachePut(value = "user", key = "#user.id")
+//    @CachePut(value = "user", key = "#user.id")
     User updateAddress(User user, Address address);
 
-    @CacheEvict(value = "user", key = "#id")
+//    @CacheEvict(value = "user", key = "#id")
     void deleteUser(Long id);
 
     List<User> searchRoleUser(String role);
