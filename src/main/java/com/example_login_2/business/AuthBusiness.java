@@ -64,12 +64,10 @@ public class AuthBusiness {
     public ApiResponse<ModelDTO> login(LoginRequest request) {
         User user = authService.getUserByEmail(request.getEmail())
                 .orElseThrow(NotFoundException::loginFailEmailNotFound);
-        log.info("userId 1 : " + user.getId());
 
         if (!authService.matchPassword(request.getPassword(), user.getPassword()))
             throw UnauthorizedException.loginFailPasswordIncorrect();
 
-        log.info("userId 2 : " + user.getId());
         EmailConfirm emailConfirm = emailConfirmService.getEmailConfirmByUserId(user.getId())
                 .orElseThrow(NotFoundException::activateNotFound);
 

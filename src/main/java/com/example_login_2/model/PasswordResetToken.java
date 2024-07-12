@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 
 @Getter
@@ -13,7 +15,11 @@ import java.time.Instant;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Embeddable
-public class PasswordResetToken {
+public class PasswordResetToken implements Serializable {
+
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private String token;
 

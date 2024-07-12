@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Getter
@@ -17,6 +18,9 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @Entity
 public class Address extends BaseModel implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @OneToOne(mappedBy = "address")
     @JsonBackReference

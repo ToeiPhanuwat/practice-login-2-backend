@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -18,6 +19,9 @@ import java.util.Date;
 @Accessors(chain = true)
 @Entity
 public class EmailConfirm extends BaseModel implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @OneToOne(mappedBy = "emailConfirm")
     @JsonBackReference

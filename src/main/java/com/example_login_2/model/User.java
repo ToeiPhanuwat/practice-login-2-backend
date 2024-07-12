@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Date;
@@ -20,6 +21,9 @@ import java.util.Set;
 @Entity
 @Table(name = "`user`")
 public class User extends BaseModel implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Column(nullable = false, unique = true, length = 60)
     private String email;
