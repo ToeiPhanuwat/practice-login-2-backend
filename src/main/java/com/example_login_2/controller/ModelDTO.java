@@ -34,7 +34,7 @@ public class ModelDTO {
     private String country;
 
     private String activationToken;
-//    private Date expiresAt;
+    //    private Date expiresAt;
     private String activated;
 
     private String jwtToken;

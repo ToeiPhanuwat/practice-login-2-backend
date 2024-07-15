@@ -1,6 +1,5 @@
 package com.example_login_2.repository;
 
-import com.example_login_2.model.PasswordResetToken;
 import com.example_login_2.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

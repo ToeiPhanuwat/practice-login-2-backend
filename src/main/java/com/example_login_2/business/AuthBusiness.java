@@ -3,7 +3,7 @@ package com.example_login_2.business;
 import com.example_login_2.controller.ApiResponse;
 import com.example_login_2.controller.AuthRequest.*;
 import com.example_login_2.controller.ModelDTO;
-import com.example_login_2.controller.request.*;
+import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.*;
 import com.example_login_2.model.*;
 import com.example_login_2.service.AuthService;
@@ -11,9 +11,7 @@ import com.example_login_2.service.EmailConfirmService;
 import com.example_login_2.service.JwtTokenService;
 import com.example_login_2.service.StorageService;
 import com.example_login_2.util.SecurityUtil;
-import io.netty.util.internal.StringUtil;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -105,10 +103,9 @@ public class AuthBusiness {
     }
 
     public ApiResponse<ModelDTO> forgotPassword(ForgotPasswordRequest request) {
-        String email = request.getEmail();
-        if (StringUtil.isNullOrEmpty(email)) throw BadRequestException.requestNullOrEmpty();
 
-        User user = authService.getUserByEmail(email).orElseThrow(NotFoundException::emailNotFound);
+        User user = authService.getUserByEmail(request.getEmail())
+                .orElseThrow(NotFoundException::emailNotFound);
 
         user = authService.updatePasswordResetToken(user);
 
@@ -132,10 +129,6 @@ public class AuthBusiness {
     }
 
     public ApiResponse<String> resetPassword(PasswordResetRequest request) {
-        if (StringUtil.isNullOrEmpty(request.getToken())) throw BadRequestException.requestTokenNullOrEmpty();
-
-        if (StringUtil.isNullOrEmpty(request.getNewPassword())) throw BadRequestException.requestNewPasswordNullOrEmpty();
-
         User user = authService.getByPasswordResetToken_Token(request.getToken())
                 .orElseThrow(NotFoundException::tokenNotFound);
 
@@ -217,8 +210,6 @@ public class AuthBusiness {
     }
 
     private EmailConfirm validateAndGetEmailConfirm(String token) {
-        if (StringUtil.isNullOrEmpty(token)) throw BadRequestException.requestTokenNullOrEmpty();
-
         EmailConfirm emailConfirm = emailConfirmService.getEmailConfirmByToken(token)
                 .orElseThrow(NotFoundException::requestNotFound);
 

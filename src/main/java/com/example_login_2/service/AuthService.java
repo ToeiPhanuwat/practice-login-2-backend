@@ -4,7 +4,6 @@ import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.JwtToken;
-import com.example_login_2.model.PasswordResetToken;
 import com.example_login_2.model.User;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
