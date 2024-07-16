@@ -3,13 +3,10 @@ package com.example_login_2.service;
 import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.ConflictException;
-import com.example_login_2.exception.NotFoundException;
 import com.example_login_2.model.*;
 import com.example_login_2.repository.AuthRepository;
 import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 

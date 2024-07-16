@@ -8,8 +8,10 @@ System Login-2 ทำขึ้นเพื่อศึกษา Spring boot, Res
 * email (consumer)
 * common ทำหน้าที่เป็นตัวกลางเพื่อแชร์ข้อมูล email ให้กับ kafka
 
-**หลักการทำงานคร่าวๆ** เมื่อ user ทำการ register. server จะทำการบันทึกข้อมูลลง database ในขณะเดียวกัน server 
-จะส่งข้อมูลเกี่ยวกับ email ให้กับ kafka และ kafka จะทำหน้าที่ส่ง email ให้ user แทน และเมื่อ user ทำการยืนยันอีเมลเรียบร้อยแล้ว จึงสามารถเข้าสู่ระบบได้
+**หลักการทำงานคร่าวๆ** เมื่อ user ทำการ register. server จะทำการบันทึกข้อมูลลง database ในขณะเดียวกัน server
+จะส่งข้อมูลเกี่ยวกับ email ให้กับ kafka และ kafka จะทำหน้าที่ส่ง email ให้ user แทน และเมื่อ user
+ทำการยืนยันอีเมลเรียบร้อยแล้ว จึงสามารถเข้าสู่ระบบได้
+
 ## Features
 
 * Java 17
@@ -122,27 +124,27 @@ System Login-2 ทำขึ้นเพื่อศึกษา Spring boot, Res
 ## ตัวอย่าง Rest APIs
 
 ---
+
 ### Auth
 
-| Method   | Url                                  | Decription                     | Sample Valid <br/>Request Body |
-|:--------:|--------------------------------------|:------------------------------:|:------------------------------:|
-|  POST    | /api/v1/auth/registe                 |              Sign up           |                 JSON           |
-|  POST    | /api/v1/auth/login                   |              Log in            |                 JSON           | 
-|  POST    | /api/v1/auth/activate                |         Confirm email          |                 JSON           |
-|  POST    | /api/v1/auth/resend-activation-email | Resend activation email        |                 JSON           |
-|  GET     | /api/v1/auth                         |              Get by me         |                                |
-|  PUT     | /api/v1/auth                         |          Update by me          |  multipart/form-data, JSON     |
-|  DELETE  | /api/v1/auth                         |              Delete by me      |                                |
-|  GET     | /api/v1/auth/refresh-token           |      Refresh token             |                                |
-
+| Method | Url                                  |       Decription        | Sample Valid <br/>Request Body |
+|:------:|--------------------------------------|:-----------------------:|:------------------------------:|
+|  POST  | /api/v1/auth/registe                 |         Sign up         |              JSON              |
+|  POST  | /api/v1/auth/login                   |         Log in          |              JSON              | 
+|  POST  | /api/v1/auth/activate                |      Confirm email      |              JSON              |
+|  POST  | /api/v1/auth/resend-activation-email | Resend activation email |              JSON              |
+|  GET   | /api/v1/auth                         |        Get by me        |                                |
+|  PUT   | /api/v1/auth                         |      Update by me       |   multipart/form-data, JSON    |
+| DELETE | /api/v1/auth                         |      Delete by me       |                                |
+|  GET   | /api/v1/auth/refresh-token           |      Refresh token      |                                |
 
 ### Admin
 
-| Method  | Url                           | Decription                     | Sample Valid <br/>Request Body |
-|:-------:|-------------------------------|:------------------------------:|:------------------------------:|
-|  GET    | /api/v1/admin                 |              Get all           |                                |
-|  GET    | /api/v1/admin/{id}            |              Get by ID         |                                | 
-|  PUT    | /api/v1/admin/{id}            |              Update by ID      |  multipart/form-data, JSON     |
-|  PUT    | /api/v1/admin/removeRole/{id} |             Remove role        |            JSON                |
-|  DELETE | /api/v1/{id}                  |            Delete by ID        |                                |
-|  GET    | /api/v1/admin/search          |          Search role           |  Request Param                 |
+| Method | Url                           |  Decription  | Sample Valid <br/>Request Body |
+|:------:|-------------------------------|:------------:|:------------------------------:|
+|  GET   | /api/v1/admin                 |   Get all    |                                |
+|  GET   | /api/v1/admin/{id}            |  Get by ID   |                                | 
+|  PUT   | /api/v1/admin/{id}            | Update by ID |   multipart/form-data, JSON    |
+|  PUT   | /api/v1/admin/removeRole/{id} | Remove role  |              JSON              |
+| DELETE | /api/v1/{id}                  | Delete by ID |                                |
+|  GET   | /api/v1/admin/search          | Search role  |         Request Param          |
