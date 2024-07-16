@@ -1,5 +1,6 @@
 package com.example_login_2.service;
 
+import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.Address;
 import com.example_login_2.model.User;
@@ -30,8 +31,14 @@ public class AddressServiceImp implements AddressService {
     }
 
     @Override
-    public Address updateAddressUser(User user, Address address, UpdateRequest request) {
-        address
+    public Address createAddress(User user) {
+        Address address = new Address();
+        return addressRepository.save(address);
+    }
+
+    @Override
+    public Address updateAddress(User user, UpdateRequest request) {
+        Address address = user.getAddress()
                 .setUser(user)
                 .setAddress(request.getAddress())
                 .setCity(request.getCity())

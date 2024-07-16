@@ -17,8 +17,8 @@ public class BadRequestException extends RuntimeException {
         return new BadRequestException("Resending verification email failed: User does not have token.");
     }
 
-    public static BadRequestException requestNoToken() {
-        return new BadRequestException("Failed : Token is missing.");
+    public static BadRequestException requestTokenNullOrEmpty() {
+        return new BadRequestException("Token cannot be null or empty.");
     }
 
     public static BadRequestException fileMaxSize() {
@@ -35,5 +35,17 @@ public class BadRequestException extends RuntimeException {
 
     public static BadRequestException currentDirectory() {
         return new BadRequestException("Path outside current directory.");
+    }
+
+    public static BadRequestException requestNullOrEmpty() {
+        return new BadRequestException("Request cannot be null or empty.");
+    }
+
+    public static BadRequestException requestNull() {
+        return new BadRequestException("Request cannot be null.");
+    }
+
+    public static BadRequestException requestNewPasswordNullOrEmpty() {
+        return new BadRequestException("New password cannot be null or empty.");
     }
 }

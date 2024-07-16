@@ -3,14 +3,17 @@ package com.example_login_2.service;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.Address;
 import com.example_login_2.model.User;
+import org.springframework.cache.annotation.CachePut;
 
 import java.util.Optional;
 
 public interface AddressService {
 
     Address createAddress(User user, UpdateRequest request);
+    Address createAddress(User user);
 
-    Address updateAddressUser(User user, Address address, UpdateRequest request);
+//    @CachePut(value = "user", key = "#user.id")
+    Address updateAddress(User user, UpdateRequest request);
 
     Optional<Address> getAddressByUserId(Long userId);
 }

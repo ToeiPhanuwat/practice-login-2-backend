@@ -11,12 +11,13 @@ import com.example_login_2.model.User;
 import com.example_login_2.service.AddressService;
 import com.example_login_2.service.AdminService;
 import com.example_login_2.service.StorageService;
-import org.springframework.cache.annotation.CachePut;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Log4j2
 @Service
 public class AdminBusiness {
 
@@ -47,16 +48,12 @@ public class AdminBusiness {
                 .setDateOfBirth(user.getDateOfBirth())
                 .setGender(user.getGender())
                 .setFileName(user.getFileName())
-                .setRole(user.getRoles().toString());
-
-        if (address != null) {
-            modelDTO
-                    .setAddress(address.getAddress())
-                    .setCity(address.getCity())
-                    .setStateProvince(address.getStateProvince())
-                    .setPostalCode(address.getPostalCode())
-                    .setCountry(address.getCountry());
-        }
+                .setRole(user.getRoles().toString())
+                .setAddress(address.getAddress())
+                .setCity(address.getCity())
+                .setStateProvince(address.getStateProvince())
+                .setPostalCode(address.getPostalCode())
+                .setCountry(address.getCountry());
 
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
@@ -64,21 +61,12 @@ public class AdminBusiness {
     public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request, Long id) {
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
 
-        String fileName = storageService.uploadProfilePicture(file);
-        if (fileName != null) {
-            request.setFileName(fileName);
-        }
+        request.setFileName(storageService.uploadProfilePicture(file));
 
         user = adminService.updateUserRequest(user, request);
 
-        Address address = user.getAddress();
-        if (address == null) {
-            address = addressService.createAddress(user, request);
-        } else {
-            address = addressService.updateAddressUser(user, address, request);
-        }
+        Address address = addressService.updateAddress(user, request);
         user = adminService.updateAddress(user, address);
-
 
         ModelDTO modelDTO = new ModelDTO()
                 .setFirstName(user.getFirstName())
@@ -98,7 +86,7 @@ public class AdminBusiness {
 
     public ApiResponse<ModelDTO> removeUserRole(RoleUpdateRequest request, Long id) {
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
-        if (user.getRoles().size() <= 1) throw ConflictException.userHasOneRole();
+        if (user.getRoles().size() < 2) throw ConflictException.userHasOneRole();
         user.getRoles().remove(request.getRole());
         user = adminService.updateUser(user);
 

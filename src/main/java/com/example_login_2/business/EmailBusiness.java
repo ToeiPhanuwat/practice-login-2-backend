@@ -3,6 +3,7 @@ package com.example_login_2.business;
 import com.example.login.common.EmailRequest;
 import com.example_login_2.exception.NotFoundException;
 import com.example_login_2.model.EmailConfirm;
+import com.example_login_2.model.PasswordResetToken;
 import com.example_login_2.model.User;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -28,8 +29,9 @@ public class EmailBusiness {
 
     public void sendActivateUserMail(User user, EmailConfirm emailConfirm) {
         String html;
+        String classPath = "activate-user.html";
         try {
-            html = readEmailTemplate();
+            html = readEmailTemplate(classPath);
         } catch (IOException ex) {
             throw NotFoundException.templateNotFound();
         }
@@ -57,6 +59,38 @@ public class EmailBusiness {
         });
     }
 
+    public void sendPasswordReset(User user, PasswordResetToken passwordResetToken) {
+        String html;
+        String classPath = "reset-password.html";
+        try {
+            html = readEmailTemplate(classPath);
+        } catch (IOException ex) {
+            throw NotFoundException.templateNotFound();
+        }
+
+        log.info("Token = " + user.getPasswordResetToken());
+        log.info("Email User : " + user.getEmail());
+
+        String passwordResetLink = "http://localhost:3000/api/v1/auth/forgot-password/" + passwordResetToken.getToken();
+        html = html.replace("${P_NAME}", "Tonson");
+        html = html.replace("${EMAIL}", user.getEmail());
+        html = html.replace("${PASSWORD_RESET_LINK}", passwordResetLink);
+
+        EmailRequest emailRequest = new EmailRequest();
+        emailRequest.setTo(user.getEmail());
+        emailRequest.setSubject("Reset Password");
+        emailRequest.setContent(html);
+
+        CompletableFuture<SendResult<String, EmailRequest>> future = kafkaEmailTemplate.send("password-reset-email", emailRequest);
+        future.whenComplete((result, throwable) -> {
+            if (throwable != null) {
+                handleFailure(throwable);
+            } else {
+                handleSuccess(result);
+            }
+        });
+    }
+
     private void handleFailure(Throwable throwable) {
         log.error("Kafka failed to send message: " + throwable.getMessage());
     }
@@ -67,8 +101,8 @@ public class EmailBusiness {
         log.info("Offset: " + result.getRecordMetadata().offset());
     }
 
-    private String readEmailTemplate() throws IOException {
-        File file = ResourceUtils.getFile("classpath:email/email-activate-user.html");
+    private String readEmailTemplate(String classPath) throws IOException {
+        File file = ResourceUtils.getFile("classpath:email/" + classPath);
         return FileCopyUtils.copyToString(new FileReader(file));
     }
 }

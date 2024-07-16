@@ -1,23 +1,18 @@
 package com.example_login_2.business;
 
 import com.example_login_2.controller.ApiResponse;
+import com.example_login_2.controller.AuthRequest.*;
 import com.example_login_2.controller.ModelDTO;
-import com.example_login_2.controller.request.*;
+import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.*;
-import com.example_login_2.model.Address;
-import com.example_login_2.model.EmailConfirm;
-import com.example_login_2.model.JwtToken;
-import com.example_login_2.model.User;
-import com.example_login_2.service.AuthService;
-import com.example_login_2.service.EmailConfirmService;
-import com.example_login_2.service.JwtTokenService;
-import com.example_login_2.service.StorageService;
+import com.example_login_2.model.*;
+import com.example_login_2.service.*;
 import com.example_login_2.util.SecurityUtil;
-import io.netty.util.internal.StringUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
 import java.util.Date;
 
 @Service
@@ -28,30 +23,38 @@ public class AuthBusiness {
     private final EmailConfirmService emailConfirmService;
     private final JwtTokenService jwtTokenService;
     private final StorageService storageService;
+    private final AddressService addressService;
     private final EmailBusiness emailBusiness;
 
-    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService) {
+    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService, AddressService addressService) {
         this.emailBusiness = emailBusiness;
         this.authService = authService;
         this.emailConfirmService = emailConfirmService;
         this.jwtTokenService = jwtTokenService;
         this.storageService = storageService;
+        this.addressService = addressService;
     }
 
-    public ApiResponse<ModelDTO> register(AuthRegisterRequest request) {
+    public ApiResponse<ModelDTO> register(RegisterRequest request) {
         User user = authService.createUser(request);
-        EmailConfirm emailConfirm = emailConfirmService.cerateEmailConfirm(user);
-        authService.updateEmailConfirm(user, emailConfirm);
 
-        sendEmail(user, emailConfirm);
+        EmailConfirm emailConfirm = emailConfirmService.cerateEmailConfirm(user);
+        user = authService.updateEmailConfirm(user, emailConfirm);
+
+        Address address = addressService.createAddress(user);
+        user = authService.updateAddress(user, address);
+
+
+        sendActivationEmail(user, emailConfirm);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setEmail(user.getEmail())
+                .setActivationToken(emailConfirm.getToken())
                 .setActivated(String.valueOf(emailConfirm.isActivated()));
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    private void sendEmail(User user, EmailConfirm emailConfirm) {
+    private void sendActivationEmail(User user, EmailConfirm emailConfirm) {
         try {
             emailBusiness.sendActivateUserMail(user, emailConfirm);
         } catch (Exception ex) {
@@ -60,7 +63,7 @@ public class AuthBusiness {
         log.info("Token: " + emailConfirm.getToken());
     }
 
-    public ApiResponse<ModelDTO> login(AuthLoginRequest request) {
+    public ApiResponse<ModelDTO> login(LoginRequest request) {
         User user = authService.getUserByEmail(request.getEmail())
                 .orElseThrow(NotFoundException::loginFailEmailNotFound);
 
@@ -80,7 +83,7 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<ModelDTO> activate(AuthActivateRequest request) {
+    public ApiResponse<ModelDTO> activate(ActivateRequest request) {
         EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
 
         Date now = new Date();
@@ -94,13 +97,52 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<String> resendActivationEmail(AuthResendActivationEmailRequest request) {
+    public ApiResponse<String> resendActivationEmail(ResendActivationEmailRequest request) {
         EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
 
         emailConfirm = emailConfirmService.updateEmailConfirm(emailConfirm);
 
-        sendEmail(emailConfirm.getUser(), emailConfirm);
+        sendActivationEmail(emailConfirm.getUser(), emailConfirm);
         return new ApiResponse<>(true, "Activation email sent", null);
+    }
+
+    public ApiResponse<ModelDTO> forgotPassword(ForgotPasswordRequest request) {
+
+        User user = authService.getUserByEmail(request.getEmail())
+                .orElseThrow(NotFoundException::emailNotFound);
+
+        user = authService.updatePasswordResetToken(user);
+
+        PasswordResetToken passwordResetToken = user.getPasswordResetToken();
+
+        sendPasswordResetEmail(user, passwordResetToken);
+
+        ModelDTO modelDTO = new ModelDTO()
+                .setEmail(user.getEmail())
+                .setToken(passwordResetToken.getToken());
+        return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
+    }
+
+    private void sendPasswordResetEmail(User user, PasswordResetToken passwordResetToken) {
+        try {
+            emailBusiness.sendPasswordReset(user, passwordResetToken);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        log.info("Token: " + passwordResetToken.getToken());
+    }
+
+    public ApiResponse<String> resetPassword(PasswordResetRequest request) {
+        User user = authService.getByPasswordResetToken_Token(request.getToken())
+                .orElseThrow(NotFoundException::tokenNotFound);
+
+        PasswordResetToken passwordResetToken = user.getPasswordResetToken();
+        Instant now = Instant.now();
+        Instant passwordExpireAt = passwordResetToken.getExpiresAt();
+        if (now.isAfter(passwordExpireAt)) throw GoneException.activateTokenExpire();
+
+        authService.updateNewPassword(user, request.getNewPassword());
+        return new ApiResponse<>(true, "Password has been reset successfully.", null);
     }
 
     public ApiResponse<ModelDTO> refreshJwtToken() {
@@ -126,27 +168,27 @@ public class AuthBusiness {
                 .setDateOfBirth(user.getDateOfBirth())
                 .setGender(user.getGender())
                 .setFileName(user.getFileName())
-                .setRole(user.getRoles().toString());
+                .setRole(user.getRoles().toString())
+                .setAddress(address.getAddress())
+                .setCity(address.getCity())
+                .setStateProvince(address.getStateProvince())
+                .setPostalCode(address.getPostalCode())
+                .setCountry(address.getCountry());
 
-        if (address != null) {
-            modelDTO
-                    .setAddress(address.getAddress())
-                    .setCity(address.getCity())
-                    .setStateProvince(address.getStateProvince())
-                    .setPostalCode(address.getPostalCode())
-                    .setCountry(address.getCountry());
-        }
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
     public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request) {
         User user = validateAndGetUser();
-
-        String fileName = storageService.uploadProfilePicture(file);
-        if (fileName != null) {
-            request.setFileName(fileName);
+        log.info("userId of updateUser : " + user.getId());
+        if (file != null && !file.isEmpty()) {
+            request.setFileName(storageService.uploadProfilePicture(file));
         }
+
         user = authService.updateUserRequest(user, request);
+
+        Address address = addressService.updateAddress(user, request);
+        user = authService.updateAddress(user, address);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setEmail(user.getEmail())
@@ -155,7 +197,12 @@ public class AuthBusiness {
                 .setPhoneNumber(user.getPhoneNumber())
                 .setDateOfBirth(user.getDateOfBirth())
                 .setGender(user.getGender())
-                .setFileName(user.getFileName());
+                .setFileName(user.getFileName())
+                .setAddress(address.getAddress())
+                .setCity(address.getCity())
+                .setStateProvince(address.getStateProvince())
+                .setPostalCode(address.getPostalCode())
+                .setCountry(address.getCountry());
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
@@ -165,15 +212,15 @@ public class AuthBusiness {
     }
 
     private User validateAndGetUser() {
-        Long userId = SecurityUtil.getCurrentUserId()
+        long userId = SecurityUtil.getCurrentUserId()
                 .orElseThrow(UnauthorizedException::unauthorized);
-
-        return authService.getUserById(userId).orElseThrow(NotFoundException::notFound);
+        log.info("userId of validateAndGetUser : " + userId);
+        User user = authService.getUserById(userId).orElseThrow(NotFoundException::notFound);
+        log.info("userId of getUserById : " + user.getId());
+        return user;
     }
 
     private EmailConfirm validateAndGetEmailConfirm(String token) {
-        if (StringUtil.isNullOrEmpty(token)) throw BadRequestException.requestNoToken();
-
         EmailConfirm emailConfirm = emailConfirmService.getEmailConfirmByToken(token)
                 .orElseThrow(NotFoundException::requestNotFound);
 

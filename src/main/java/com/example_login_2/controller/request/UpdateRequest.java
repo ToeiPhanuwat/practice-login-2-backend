@@ -14,12 +14,11 @@ public class UpdateRequest {
     private String phoneNumber;
     private Date dateOfBirth;
     private String gender;
-//    private MultipartFile file;
 
-    @Setter(AccessLevel.PUBLIC)
+    @Setter
     private String fileName;
 
-    private String roles;
+    private String role;
 
     private String address;
     private String city;

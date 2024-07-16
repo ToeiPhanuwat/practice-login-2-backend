@@ -2,14 +2,13 @@ package com.example_login_2.controller.api;
 
 import com.example_login_2.business.AuthBusiness;
 import com.example_login_2.controller.ApiResponse;
+import com.example_login_2.controller.AuthRequest.*;
 import com.example_login_2.controller.ModelDTO;
-import com.example_login_2.controller.request.*;
-import com.example_login_2.exception.BadRequestException;
+import com.example_login_2.controller.request.UpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,40 +24,40 @@ public class AuthController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/registers")
-    public ApiResponse<ModelDTO> register(
-            @Valid @RequestBody AuthRegisterRequest request,
-            BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            bindingResult.getFieldErrors().forEach(fieldError -> {
-                throw BadRequestException.validateException(
-                        fieldError.getField() + " : " + fieldError.getDefaultMessage());
-            });
-        }
-
-        return authBusiness.register(request);
+    public ResponseEntity<ApiResponse<ModelDTO>> register(
+            @Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.ok(authBusiness.register(request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<ModelDTO>> login(
-            @Valid @RequestBody AuthLoginRequest request,
-            BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            bindingResult.getFieldErrors().forEach(fieldError -> {
-                throw BadRequestException.validateException(fieldError.getField() + " : " + fieldError.getDefaultMessage());
-            });
-        }
+            @Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authBusiness.login(request));
     }
 
     @PostMapping("/activate")
-    public ResponseEntity<ApiResponse<ModelDTO>> activate(@RequestBody AuthActivateRequest request) {
+    public ResponseEntity<ApiResponse<ModelDTO>> activate(
+            @Valid @RequestBody ActivateRequest request) {
         ApiResponse<ModelDTO> response = authBusiness.activate(request);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/resend-activation-email")
-    public ResponseEntity<ApiResponse<String>> resendActivationEmail(@RequestBody AuthResendActivationEmailRequest request) {
+    public ResponseEntity<ApiResponse<String>> resendActivationEmail(
+            @Valid @RequestBody ResendActivationEmailRequest request) {
         return ResponseEntity.ok(authBusiness.resendActivationEmail(request));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<ModelDTO>> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(authBusiness.forgotPassword(request));
+    }
+
+    @PutMapping("/reset-password")
+    public ResponseEntity<ApiResponse<String>> resetPassword(
+            @Valid @RequestBody PasswordResetRequest request) {
+        return ResponseEntity.ok(authBusiness.resetPassword(request));
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

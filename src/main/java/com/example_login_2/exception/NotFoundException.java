@@ -10,7 +10,7 @@ public class NotFoundException extends RuntimeException {
     }
 
     public static NotFoundException tokenNotFound() {
-        return new NotFoundException("Token not found for user.");
+        return new NotFoundException("The user's token was not found.");
     }
 
     public static NotFoundException activateFail() {
@@ -39,5 +39,9 @@ public class NotFoundException extends RuntimeException {
 
     public static NotFoundException addressNotFound() {
         return new NotFoundException("The user address was not found.");
+    }
+
+    public static NotFoundException emailNotFound() {
+        return new NotFoundException("The user email was not found.");
     }
 }

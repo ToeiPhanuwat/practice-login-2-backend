@@ -30,6 +30,12 @@ public class JwtTokenServiceImp implements JwtTokenService {
     }
 
     @Override
+    public JwtToken firstCreate(User user) {
+        JwtToken jwtToken = new JwtToken().setUser(user);
+        return jwtTokenRepository.save(jwtToken);
+    }
+
+    @Override
     public JwtToken generateJwtToken(User user) {
         Instant now = Instant.now();
         Instant expireAt = now.plus(Duration.ofDays(1));
@@ -56,7 +62,7 @@ public class JwtTokenServiceImp implements JwtTokenService {
         return JWT
                 .create()
                 .withIssuer(issuer)
-                .withClaim("principal", user.getId())
+                .withClaim("userId", user.getId())
                 .withClaim("roles", new ArrayList<>(user.getRoles()))
                 .withIssuedAt(now)
                 .withExpiresAt(expireAt)
@@ -82,7 +88,7 @@ public class JwtTokenServiceImp implements JwtTokenService {
 
     @Override
     public Optional<JwtToken> getJwtToken(String token) {
-        return jwtTokenRepository.findByjwtToken(token);
+        return jwtTokenRepository.findByJwtToken(token);
     }
 
 

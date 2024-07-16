@@ -6,6 +6,7 @@ import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.User;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class AdminController {
         this.adminBusiness = adminBusiness;
     }
 
-    @GetMapping //TODO: BUC
+    @GetMapping
     public ResponseEntity<List<User>> getUsers() {
         return ResponseEntity.ok(adminBusiness.getAllUser());
     }
@@ -35,7 +36,7 @@ public class AdminController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ModelDTO>> putUser(
-            @RequestPart MultipartFile file,
+            @Valid @RequestPart MultipartFile file,
             @RequestPart UpdateRequest request,
             @PathVariable long id) {
         return ResponseEntity.ok(adminBusiness.updateUser(file, request, id));
@@ -43,7 +44,7 @@ public class AdminController {
 
     @PutMapping("removeRole/{id}")
     public ResponseEntity<ApiResponse<ModelDTO>> removeUserRole(
-            @RequestBody RoleUpdateRequest request, @PathVariable long id) {
+            @Valid @RequestBody RoleUpdateRequest request, @PathVariable long id) {
         return ResponseEntity.ok(adminBusiness.removeUserRole(request, id));
     }
 

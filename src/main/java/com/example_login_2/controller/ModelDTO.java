@@ -25,14 +25,16 @@ public class ModelDTO {
     private String gender;
     private String fileName;
 
+    private String token;
+
     private String address;
     private String city;
     private String stateProvince;
     private String postalCode;
     private String country;
 
-    //    private String token;
-//    private Date expiresAt;
+    private String activationToken;
+    //    private Date expiresAt;
     private String activated;
 
     private String jwtToken;
