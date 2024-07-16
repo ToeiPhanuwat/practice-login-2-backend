@@ -13,9 +13,4 @@ public class ExampleLogin2Application {
     public static void main(String[] args) {
         SpringApplication.run(ExampleLogin2Application.class, args);
     }
-
-//    @Bean
-//    CommandLineRunner init(StorageService storageService) {
-//        return args -> storageService.init();
-//    }
 }

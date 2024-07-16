@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @Log4j2
@@ -180,7 +181,6 @@ public class AuthBusiness {
 
     public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request) {
         User user = validateAndGetUser();
-        log.info("userId of updateUser : " + user.getId());
         if (file != null && !file.isEmpty()) {
             request.setFileName(storageService.uploadProfilePicture(file));
         }
@@ -214,10 +214,7 @@ public class AuthBusiness {
     private User validateAndGetUser() {
         long userId = SecurityUtil.getCurrentUserId()
                 .orElseThrow(UnauthorizedException::unauthorized);
-        log.info("userId of validateAndGetUser : " + userId);
-        User user = authService.getUserById(userId).orElseThrow(NotFoundException::notFound);
-        log.info("userId of getUserById : " + user.getId());
-        return user;
+        return authService.getUserById(userId).orElseThrow(NotFoundException::notFound);
     }
 
     private EmailConfirm validateAndGetEmailConfirm(String token) {

@@ -9,10 +9,9 @@ import java.util.Optional;
 
 public interface AddressService {
 
-    Address createAddress(User user, UpdateRequest request);
     Address createAddress(User user);
 
-//    @CachePut(value = "user", key = "#user.id")
+    @CachePut(value = "user", key = "#user.id")
     Address updateAddress(User user, UpdateRequest request);
 
     Optional<Address> getAddressByUserId(Long userId);

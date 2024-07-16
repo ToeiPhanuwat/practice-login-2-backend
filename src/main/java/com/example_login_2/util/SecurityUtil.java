@@ -38,7 +38,6 @@ public class SecurityUtil {
         if (principal == null) return Optional.empty();
 
         if (principal instanceof CustomUserDetails userDetails) {
-            log.info("userId of SecurityUtil : " + userDetails.getUserId());
             return Optional.of(userDetails.getUserId());
         }
         return Optional.empty();
