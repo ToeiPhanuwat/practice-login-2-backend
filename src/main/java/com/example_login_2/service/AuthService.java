@@ -2,9 +2,11 @@ package com.example_login_2.service;
 
 import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.request.UpdateRequest;
+import com.example_login_2.model.Address;
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.User;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,10 +25,13 @@ public interface AuthService {
 
     User updateJwtToken(User user, JwtToken jwtToken);
 
-    @CachePut(value = "user", key = "#user.id")
+//    @CachePut(value = "user", key = "#user.id")
     void updateNewPassword(User user, String newPassword);
 
     User updatePasswordResetToken(User user);
+
+//    @CachePut(value = "user", key = "#user.id")
+    User updateAddress(User user, Address address);
 
     Optional<User> getUserByEmail(String email);
 

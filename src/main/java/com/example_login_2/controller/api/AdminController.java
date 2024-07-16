@@ -36,7 +36,7 @@ public class AdminController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ModelDTO>> putUser(
-            @RequestPart MultipartFile file,
+            @Valid @RequestPart MultipartFile file,
             @RequestPart UpdateRequest request,
             @PathVariable long id) {
         return ResponseEntity.ok(adminBusiness.updateUser(file, request, id));

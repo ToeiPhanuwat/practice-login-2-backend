@@ -1,5 +1,7 @@
 package com.example_login_2.util;
 
+import com.example_login_2.config.CustomUserDetails;
+import lombok.extern.log4j.Log4j2;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
@@ -10,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 public class SecurityUtil {
 
     public static String generateToken() {
@@ -34,7 +37,10 @@ public class SecurityUtil {
         Object principal = authentication.getPrincipal();
         if (principal == null) return Optional.empty();
 
-        Long userId = (Long) principal;
-        return Optional.of(userId);
+        if (principal instanceof CustomUserDetails userDetails) {
+            log.info("userId of SecurityUtil : " + userDetails.getUserId());
+            return Optional.of(userDetails.getUserId());
+        }
+        return Optional.empty();
     }
 }

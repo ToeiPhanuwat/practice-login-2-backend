@@ -3,12 +3,11 @@ package com.example_login_2.service;
 import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.ConflictException;
-import com.example_login_2.model.EmailConfirm;
-import com.example_login_2.model.JwtToken;
-import com.example_login_2.model.PasswordResetToken;
-import com.example_login_2.model.User;
+import com.example_login_2.exception.NotFoundException;
+import com.example_login_2.model.*;
 import com.example_login_2.repository.AuthRepository;
 import com.example_login_2.util.SecurityUtil;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +19,7 @@ import java.util.Optional;
 
 
 @Service
+@Log4j2
 public class AuthServiceImp implements AuthService {
 
     private final AuthRepository authRepository;
@@ -49,6 +49,9 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public User updateUserRequest(User user, UpdateRequest request) {
+        User existingUser = authRepository.findById(user.getId())
+                .orElseThrow(NotFoundException::notFound);
+
         user = user
                 .setFirstName(request.getFirstName())
                 .setLastName(request.getLastName())
@@ -90,6 +93,12 @@ public class AuthServiceImp implements AuthService {
                 .setPassword(bCryptPasswordEncoder.encode(newPassword))
                 .setPasswordResetToken(null);
         authRepository.save(user);
+    }
+
+    @Override
+    public User updateAddress(User user, Address address) {
+        user = user.setAddress(address);
+        return authRepository.save(user);
     }
 
     @Override

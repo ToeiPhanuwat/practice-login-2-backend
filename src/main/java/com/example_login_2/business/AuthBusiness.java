@@ -6,10 +6,7 @@ import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.*;
 import com.example_login_2.model.*;
-import com.example_login_2.service.AuthService;
-import com.example_login_2.service.EmailConfirmService;
-import com.example_login_2.service.JwtTokenService;
-import com.example_login_2.service.StorageService;
+import com.example_login_2.service.*;
 import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -26,20 +23,27 @@ public class AuthBusiness {
     private final EmailConfirmService emailConfirmService;
     private final JwtTokenService jwtTokenService;
     private final StorageService storageService;
+    private final AddressService addressService;
     private final EmailBusiness emailBusiness;
 
-    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService) {
+    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService, AddressService addressService) {
         this.emailBusiness = emailBusiness;
         this.authService = authService;
         this.emailConfirmService = emailConfirmService;
         this.jwtTokenService = jwtTokenService;
         this.storageService = storageService;
+        this.addressService = addressService;
     }
 
     public ApiResponse<ModelDTO> register(RegisterRequest request) {
         User user = authService.createUser(request);
+
         EmailConfirm emailConfirm = emailConfirmService.cerateEmailConfirm(user);
-        authService.updateEmailConfirm(user, emailConfirm);
+        user = authService.updateEmailConfirm(user, emailConfirm);
+
+        Address address = addressService.createAddress(user);
+        user = authService.updateAddress(user, address);
+
 
         sendActivationEmail(user, emailConfirm);
 
@@ -164,27 +168,27 @@ public class AuthBusiness {
                 .setDateOfBirth(user.getDateOfBirth())
                 .setGender(user.getGender())
                 .setFileName(user.getFileName())
-                .setRole(user.getRoles().toString());
+                .setRole(user.getRoles().toString())
+                .setAddress(address.getAddress())
+                .setCity(address.getCity())
+                .setStateProvince(address.getStateProvince())
+                .setPostalCode(address.getPostalCode())
+                .setCountry(address.getCountry());
 
-        if (address != null) {
-            modelDTO
-                    .setAddress(address.getAddress())
-                    .setCity(address.getCity())
-                    .setStateProvince(address.getStateProvince())
-                    .setPostalCode(address.getPostalCode())
-                    .setCountry(address.getCountry());
-        }
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
     public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request) {
         User user = validateAndGetUser();
-
-        String fileName = storageService.uploadProfilePicture(file);
-        if (fileName != null) {
-            request.setFileName(fileName);
+        log.info("userId of updateUser : " + user.getId());
+        if (file != null && !file.isEmpty()) {
+            request.setFileName(storageService.uploadProfilePicture(file));
         }
+
         user = authService.updateUserRequest(user, request);
+
+        Address address = addressService.updateAddress(user, request);
+        user = authService.updateAddress(user, address);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setEmail(user.getEmail())
@@ -193,7 +197,12 @@ public class AuthBusiness {
                 .setPhoneNumber(user.getPhoneNumber())
                 .setDateOfBirth(user.getDateOfBirth())
                 .setGender(user.getGender())
-                .setFileName(user.getFileName());
+                .setFileName(user.getFileName())
+                .setAddress(address.getAddress())
+                .setCity(address.getCity())
+                .setStateProvince(address.getStateProvince())
+                .setPostalCode(address.getPostalCode())
+                .setCountry(address.getCountry());
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
@@ -203,10 +212,12 @@ public class AuthBusiness {
     }
 
     private User validateAndGetUser() {
-        Long userId = SecurityUtil.getCurrentUserId()
+        long userId = SecurityUtil.getCurrentUserId()
                 .orElseThrow(UnauthorizedException::unauthorized);
-
-        return authService.getUserById(userId).orElseThrow(NotFoundException::notFound);
+        log.info("userId of validateAndGetUser : " + userId);
+        User user = authService.getUserById(userId).orElseThrow(NotFoundException::notFound);
+        log.info("userId of getUserById : " + user.getId());
+        return user;
     }
 
     private EmailConfirm validateAndGetEmailConfirm(String token) {
