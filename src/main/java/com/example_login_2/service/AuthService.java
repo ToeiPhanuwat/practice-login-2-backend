@@ -18,6 +18,9 @@ public interface AuthService {
 
     User updateUser(User user);
 
+    @Cacheable(value = "user", key = "#id", unless = "#result == null")
+    Optional<User> getUserById(Long id);
+
     @CachePut(value = "user", key = "#user.id")
     User updateUserRequest(User user, UpdateRequest request);
 
@@ -25,20 +28,17 @@ public interface AuthService {
 
     User updateJwtToken(User user, JwtToken jwtToken);
 
-//    @CachePut(value = "user", key = "#user.id")
+    @CachePut(value = "user", key = "#user.id")
     void updateNewPassword(User user, String newPassword);
 
     User updatePasswordResetToken(User user);
 
-//    @CachePut(value = "user", key = "#user.id")
+    @CachePut(value = "user", key = "#user.id")
     User updateAddress(User user, Address address);
 
     Optional<User> getUserByEmail(String email);
 
     Boolean matchPassword(String rawPassword, String encodedPassword);
-
-    @Cacheable(value = "user", key = "#id", unless = "#result == null")
-    Optional<User> getUserById(Long id);
 
     Optional<User> getByPasswordResetToken_Token(String token);
 

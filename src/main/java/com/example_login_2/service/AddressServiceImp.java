@@ -19,18 +19,6 @@ public class AddressServiceImp implements AddressService {
     }
 
     @Override
-    public Address createAddress(User user, UpdateRequest request) {
-        Address address = new Address()
-                .setUser(user)
-                .setAddress(request.getAddress())
-                .setCity(request.getCity())
-                .setStateProvince(request.getStateProvince())
-                .setPostalCode(request.getPostalCode())
-                .setCountry(request.getCountry());
-        return addressRepository.save(address);
-    }
-
-    @Override
     public Address createAddress(User user) {
         Address address = new Address();
         return addressRepository.save(address);
