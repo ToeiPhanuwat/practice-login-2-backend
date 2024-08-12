@@ -1,5 +1,6 @@
 package com.example_login_2.service;
 
+import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.Address;
 import com.example_login_2.model.User;
@@ -22,6 +23,9 @@ public interface AdminService {
 
     @CachePut(value = "user", key = "#user.id")
     User updateUserRequest(User user, UpdateRequest request);
+
+    @CachePut(value = "user", key = "#user.id")
+    User removeRoleAndUpdate(User user, RoleUpdateRequest role);
 
     @CachePut(value = "user", key = "#user.id")
     User updateAddress(User user, Address address);

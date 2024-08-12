@@ -1,9 +1,7 @@
 package com.example_login_2.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,16 +21,20 @@ public class JwtToken extends BaseModel implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @OneToOne(mappedBy = "jwtToken")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
 
-    @Column(nullable = false)
+    @Column
     private String jwtToken;
 
-    @Column(nullable = false)
+    @Column
     private Instant issuedAt;
 
-    @Column(nullable = false)
+    @Column
     private Instant expiresAt;
+
+    @Column
+    private boolean isRevoked;
 }

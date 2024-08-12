@@ -62,7 +62,7 @@ public class AuthController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
-    public ResponseEntity<ApiResponse<ModelDTO>> getUser() {
+    public ResponseEntity<ApiResponse<ModelDTO>> getMe() {
         return ResponseEntity.ok(authBusiness.getUserById());
     }
 

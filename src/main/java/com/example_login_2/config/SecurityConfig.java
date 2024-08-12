@@ -11,16 +11,20 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
     private final JwtTokenService jwtTokenService;
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
 
-    public SecurityConfig(JwtTokenService jwtTokenService) {
+    public SecurityConfig(JwtTokenService jwtTokenService, AuthenticationSuccessHandler authenticationSuccessHandler) {
         this.jwtTokenService = jwtTokenService;
+        this.authenticationSuccessHandler = authenticationSuccessHandler;
     }
 
     private TokenFilter tokenFilter() {
@@ -44,6 +48,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/admin").hasRole("ADMIN")
                         .requestMatchers(PUBLIC).permitAll().anyRequest().authenticated())
+//                .formLogin(formLogin ->
+//                        formLogin
+//                                .loginPage("/api/v1/auth/login")
+//                                .successHandler(authenticationSuccessHandler)
+//                )
+                .logout(logout ->
+                        logout
+                                .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/auth/logout"))
+                                .logoutSuccessUrl("/api/v1/auth/login?logout")
+                )
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(tokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(handling -> handling

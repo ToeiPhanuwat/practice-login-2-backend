@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Getter
 @NoArgsConstructor
 @MappedSuperclass
-public abstract class BaseModel  implements Serializable {
+public abstract class BaseModel implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

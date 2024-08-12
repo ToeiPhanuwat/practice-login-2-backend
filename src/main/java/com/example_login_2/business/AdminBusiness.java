@@ -61,6 +61,10 @@ public class AdminBusiness {
     public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request, Long id) {
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
 
+//        if (file != null && !file.isEmpty()) {
+//            request.setFileName(storageService.uploadProfilePicture(file));
+//        }
+
         request.setFileName(storageService.uploadProfilePicture(file));
 
         user = adminService.updateUserRequest(user, request);
@@ -84,11 +88,12 @@ public class AdminBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<ModelDTO> removeUserRole(RoleUpdateRequest request, Long id) {
+    public ApiResponse<ModelDTO> removeUserRole(RoleUpdateRequest role, Long id) {
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
         if (user.getRoles().size() < 2) throw ConflictException.userHasOneRole();
-        user.getRoles().remove(request.getRole());
-        user = adminService.updateUser(user);
+        user = adminService.removeRoleAndUpdate(user, role);
+//        user.getRoles().remove(request.getRole());
+//        user = adminService.updateUser(user);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setRole(user.getRoles().toString());

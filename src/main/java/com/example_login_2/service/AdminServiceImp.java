@@ -1,5 +1,6 @@
 package com.example_login_2.service;
 
+import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.Address;
 import com.example_login_2.model.User;
@@ -51,6 +52,12 @@ public class AdminServiceImp implements AdminService {
     @Override
     public User updateAddress(User user, Address address) {
         user = user.setAddress(address);
+        return adminRepository.save(user);
+    }
+
+    @Override
+    public User removeRoleAndUpdate(User user, RoleUpdateRequest role) {
+        user.getRoles().remove(role.getRole());
         return adminRepository.save(user);
     }
 

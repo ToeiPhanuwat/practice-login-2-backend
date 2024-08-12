@@ -11,6 +11,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -66,10 +67,9 @@ public class User extends BaseModel implements Serializable {
     @JsonManagedReference
     private EmailConfirm emailConfirm;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "jwt_token_id", referencedColumnName = "id")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private JwtToken jwtToken;
+    private List<JwtToken> jwtToken;
 
     @PreRemove
     private void preRemove() {

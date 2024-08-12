@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -40,20 +41,17 @@ public class JwtTokenServiceImp implements JwtTokenService {
         Instant now = Instant.now();
         Instant expireAt = now.plus(Duration.ofDays(1));
         String jwt = tokenize(user, now, expireAt);
-        return createOrUpdateJwtToken(user, jwt, now, expireAt);
+        return doGenerateJwtToken(user, jwt, now, expireAt);
     }
 
     @Override
-    public JwtToken createOrUpdateJwtToken(User user, String jwt, Instant now, Instant expireAt) {
-        JwtToken jwtToken = user.getJwtToken();
-        if (jwtToken == null) {
-            jwtToken = new JwtToken();
-            jwtToken.setUser(user);
-        }
-        jwtToken
+    public JwtToken doGenerateJwtToken(User user, String jwt, Instant now, Instant expireAt) {
+        JwtToken jwtToken = new JwtToken()
+                .setUser(user)
                 .setJwtToken(jwt)
                 .setIssuedAt(now)
-                .setExpiresAt(expireAt);
+                .setExpiresAt(expireAt)
+                .setRevoked(false);
         return jwtTokenRepository.save(jwtToken);
     }
 

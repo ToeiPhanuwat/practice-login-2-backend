@@ -3,13 +3,10 @@ package com.example_login_2.service;
 import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.ConflictException;
-import com.example_login_2.exception.NotFoundException;
 import com.example_login_2.model.*;
 import com.example_login_2.repository.AuthRepository;
 import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +14,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -36,7 +34,7 @@ public class AuthServiceImp implements AuthService {
     public User createUser(RegisterRequest request) {
         if (authRepository.existsByEmail(request.getEmail())) throw ConflictException.createDuplicate();
 
-        final String ROLE = "ROLE_USER";
+        final String ROLE = "ROLE_ADMIN";
         User user = new User()
                 .setEmail(request.getEmail())
                 .setPassword(bCryptPasswordEncoder.encode(request.getPassword()))
@@ -56,25 +54,49 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public User updateUserRequest(User user, UpdateRequest request) {
+        if (request.getFileName() != null) {
+            user.setFileName(request.getFileName());
+        }
         user = user
                 .setFirstName(request.getFirstName())
                 .setLastName(request.getLastName())
                 .setPhoneNumber(request.getPhoneNumber())
                 .setDateOfBirth(request.getDateOfBirth())
-                .setGender(request.getGender())
-                .setFileName(request.getFileName());
+                .setGender(request.getGender());
         return authRepository.save(user);
     }
 
     @Override
-    public User updateJwtToken(User user, JwtToken jwtToken) {
-        user = user.setJwtToken(jwtToken);
+    public User updateJwtToken(User user, JwtToken newJwtToken) {
+        List<JwtToken> tokens = user.getJwtToken();
+        tokens.add(newJwtToken);
+        return authRepository.save(user);
+    }
+
+    @Override
+    public void setRevoked(User user) {
+        List<JwtToken> tokens = user.getJwtToken();
+        for (JwtToken token : tokens) token.setRevoked(true);
+        authRepository.save(user);
+    }
+
+    @Override
+    public User updateEmailConfirmAndAddress(User user, EmailConfirm emailConfirm, Address address) {
+        user = user
+                .setEmailConfirm(emailConfirm)
+                .setAddress(address);
         return authRepository.save(user);
     }
 
     @Override
     public User updateEmailConfirm(User user, EmailConfirm emailConfirm) {
         user = user.setEmailConfirm(emailConfirm);
+        return authRepository.save(user);
+    }
+
+    @Override
+    public User updateAddress(User user, Address address) {
+        user = user.setAddress(address);
         return authRepository.save(user);
     }
 
@@ -97,12 +119,6 @@ public class AuthServiceImp implements AuthService {
                 .setPassword(bCryptPasswordEncoder.encode(newPassword))
                 .setPasswordResetToken(null);
         authRepository.save(user);
-    }
-
-    @Override
-    public User updateAddress(User user, Address address) {
-        user = user.setAddress(address);
-        return authRepository.save(user);
     }
 
     @Override

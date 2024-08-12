@@ -50,7 +50,7 @@ public class AdminController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable long id) { //TODO: BUC ลองเปลี่ยนเป็น Long id
+    public void deleteUser(@PathVariable long id) {
         adminBusiness.deleteUser(id);
     }
 

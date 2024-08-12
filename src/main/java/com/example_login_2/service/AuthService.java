@@ -6,7 +6,6 @@ import com.example_login_2.model.Address;
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.User;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,9 +23,13 @@ public interface AuthService {
     @CachePut(value = "user", key = "#user.id")
     User updateUserRequest(User user, UpdateRequest request);
 
+    User updateEmailConfirmAndAddress(User user, EmailConfirm emailConfirm, Address address);
+
     User updateEmailConfirm(User user, EmailConfirm emailConfirm);
 
     User updateJwtToken(User user, JwtToken jwtToken);
+
+    void setRevoked(User user);
 
     @CachePut(value = "user", key = "#user.id")
     void updateNewPassword(User user, String newPassword);
