@@ -23,9 +23,13 @@ public interface AuthService {
     @CachePut(value = "user", key = "#user.id")
     User updateUserRequest(User user, UpdateRequest request);
 
+    User updateEmailConfirmAndAddress(User user, EmailConfirm emailConfirm, Address address);
+
     User updateEmailConfirm(User user, EmailConfirm emailConfirm);
 
     User updateJwtToken(User user, JwtToken jwtToken);
+
+    void removeJwtToken(User user);
 
     @CachePut(value = "user", key = "#user.id")
     void updateNewPassword(User user, String newPassword);

@@ -11,7 +11,7 @@ public interface JwtTokenService {
 
     JwtToken firstCreate(User user);
 
-    JwtToken createOrUpdateJwtToken(User user, String jwt, Instant now, Instant expireAt);
+    JwtToken doGenerateJwtToken(User user, String jwt, Instant now, Instant expireAt);
 
     String tokenize(User user, Instant now, Instant expireAt);
 
@@ -20,5 +20,9 @@ public interface JwtTokenService {
     Optional<JwtToken> getJwtToken(String token);
 
     JwtToken generateJwtToken(User user);
+
+    JwtToken validateToken(String token);
+
+    void revokedToken(JwtToken jwtToken);
 
 }

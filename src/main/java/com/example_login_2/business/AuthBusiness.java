@@ -25,14 +25,16 @@ public class AuthBusiness {
     private final StorageService storageService;
     private final AddressService addressService;
     private final EmailBusiness emailBusiness;
+    private final JwtBlacklistService jwtBlacklistService;
 
-    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService, AddressService addressService) {
+    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService, AddressService addressService, JwtBlacklistService jwtBlacklistService) {
         this.emailBusiness = emailBusiness;
         this.authService = authService;
         this.emailConfirmService = emailConfirmService;
         this.jwtTokenService = jwtTokenService;
         this.storageService = storageService;
         this.addressService = addressService;
+        this.jwtBlacklistService = jwtBlacklistService;
     }
 
     public ApiResponse<ModelDTO> register(RegisterRequest request) {
@@ -44,6 +46,8 @@ public class AuthBusiness {
         Address address = addressService.createAddress(user);
         user = authService.updateAddress(user, address);
 
+//        JwtToken jwtToken = new JwtToken();
+//        user = authService.updateJwtToken(user, jwtToken);
 
         sendActivationEmail(user, emailConfirm);
 
@@ -75,11 +79,10 @@ public class AuthBusiness {
 
         if (!emailConfirm.isActivated()) throw ForbiddenException.loginFailUserUnactivated();
 
-        JwtToken jwtToken = jwtTokenService.generateJwtToken(user);
-        authService.updateJwtToken(user, jwtToken);
+        JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
 
         ModelDTO modelDTO = new ModelDTO()
-                .setJwtToken(jwtToken.getJwtToken());
+                .setJwtToken(newJwtToken.getJwtToken());
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
@@ -101,6 +104,8 @@ public class AuthBusiness {
         EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
 
         emailConfirm = emailConfirmService.updateEmailConfirm(emailConfirm);
+
+//        authService.updateEmailConfirm(emailConfirm.getUser(), emailConfirm);
 
         sendActivationEmail(emailConfirm.getUser(), emailConfirm);
         return new ApiResponse<>(true, "Activation email sent", null);
@@ -145,23 +150,36 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Password has been reset successfully.", null);
     }
 
-    public ApiResponse<ModelDTO> refreshJwtToken() {
-        User user = validateAndGetUser();
-        JwtToken jwtToken = jwtTokenService.generateJwtToken(user);
-        authService.updateJwtToken(user, jwtToken);
+    public ApiResponse<ModelDTO> refreshJwtToken(String token) {
+        if (token == null || token.isEmpty()) throw BadRequestException.tokenIsMissing();
+
+        String actualToken = token.replace("Bearer ", "");
+
+        JwtToken jwtToken = jwtTokenService.validateToken(actualToken);
+
+        jwtTokenService.revokedToken(jwtToken);
+
+        jwtBlacklistService.saveToBlacklist(jwtToken);
+
+        User user = jwtToken.getUser();
+        if (user == null) throw NotFoundException.handleNoUserInTheToken();
+        authService.removeJwtToken(user);
+
+        JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
 
         ModelDTO modelDTO = new ModelDTO()
-                .setJwtToken(jwtToken.getJwtToken());
+                .setJwtToken(newJwtToken.getJwtToken());
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
     public ApiResponse<ModelDTO> getUserById() {
         User user = validateAndGetUser();
         Address address = user.getAddress();
+        String isActivated = String.valueOf(user.getEmailConfirm().isActivated());
 
         ModelDTO modelDTO = new ModelDTO();
         modelDTO
-                .setActivated(String.valueOf(user.getEmailConfirm().isActivated()))
+                .setActivated(isActivated)
                 .setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setPhoneNumber(user.getPhoneNumber())
@@ -180,9 +198,12 @@ public class AuthBusiness {
 
     public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request) {
         User user = validateAndGetUser();
-        if (file != null && !file.isEmpty()) {
-            request.setFileName(storageService.uploadProfilePicture(file));
-        }
+
+//        if (file != null && !file.isEmpty()) {
+//            request.setFileName(storageService.uploadProfilePicture(file));
+//        }
+
+        request.setFileName(storageService.uploadProfilePicture(file));
 
         user = authService.updateUserRequest(user, request);
 

@@ -12,4 +12,17 @@ public class UnauthorizedException extends RuntimeException {
     public static UnauthorizedException unauthorized() {
         return new UnauthorizedException("User is unauthorized");
     }
+
+//    public static UnauthorizedException unauthorized() {
+//        return new UnauthorizedException("Invalid or expired token");
+//    }
+
+    public static UnauthorizedException handleExpiredToken() {
+        return new UnauthorizedException("Token has been expired");
+    }
+
+    public static UnauthorizedException handleRevokedToken() {
+        return new UnauthorizedException("Token has been revoked");
+    }
+
 }

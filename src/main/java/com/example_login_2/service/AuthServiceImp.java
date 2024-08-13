@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -33,7 +34,7 @@ public class AuthServiceImp implements AuthService {
     public User createUser(RegisterRequest request) {
         if (authRepository.existsByEmail(request.getEmail())) throw ConflictException.createDuplicate();
 
-        final String ROLE = "ROLE_USER";
+        final String ROLE = "ROLE_ADMIN";
         User user = new User()
                 .setEmail(request.getEmail())
                 .setPassword(bCryptPasswordEncoder.encode(request.getPassword()))
@@ -53,25 +54,48 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public User updateUserRequest(User user, UpdateRequest request) {
+        if (request.getFileName() != null) {
+            user.setFileName(request.getFileName());
+        }
         user = user
                 .setFirstName(request.getFirstName())
                 .setLastName(request.getLastName())
                 .setPhoneNumber(request.getPhoneNumber())
                 .setDateOfBirth(request.getDateOfBirth())
-                .setGender(request.getGender())
-                .setFileName(request.getFileName());
+                .setGender(request.getGender());
         return authRepository.save(user);
     }
 
     @Override
-    public User updateJwtToken(User user, JwtToken jwtToken) {
-        user = user.setJwtToken(jwtToken);
+    public User updateJwtToken(User user, JwtToken newJwtToken) {
+        List<JwtToken> tokens = user.getJwtToken();
+        tokens.add(newJwtToken);
+        return authRepository.save(user);
+    }
+
+    @Override
+    public void removeJwtToken(User user) {
+        user.getJwtToken().removeIf(JwtToken::isRevoked);
+        authRepository.save(user);
+    }
+
+    @Override
+    public User updateEmailConfirmAndAddress(User user, EmailConfirm emailConfirm, Address address) {
+        user = user
+                .setEmailConfirm(emailConfirm)
+                .setAddress(address);
         return authRepository.save(user);
     }
 
     @Override
     public User updateEmailConfirm(User user, EmailConfirm emailConfirm) {
         user = user.setEmailConfirm(emailConfirm);
+        return authRepository.save(user);
+    }
+
+    @Override
+    public User updateAddress(User user, Address address) {
+        user = user.setAddress(address);
         return authRepository.save(user);
     }
 
@@ -94,12 +118,6 @@ public class AuthServiceImp implements AuthService {
                 .setPassword(bCryptPasswordEncoder.encode(newPassword))
                 .setPasswordResetToken(null);
         authRepository.save(user);
-    }
-
-    @Override
-    public User updateAddress(User user, Address address) {
-        user = user.setAddress(address);
-        return authRepository.save(user);
     }
 
     @Override

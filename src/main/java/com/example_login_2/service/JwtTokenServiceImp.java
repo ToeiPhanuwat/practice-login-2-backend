@@ -4,18 +4,23 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import com.example_login_2.exception.NotFoundException;
+import com.example_login_2.exception.UnauthorizedException;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.User;
 import com.example_login_2.repository.JwtTokenRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
+@Log4j2
 public class JwtTokenServiceImp implements JwtTokenService {
 
     private final JwtTokenRepository jwtTokenRepository;
@@ -40,20 +45,17 @@ public class JwtTokenServiceImp implements JwtTokenService {
         Instant now = Instant.now();
         Instant expireAt = now.plus(Duration.ofDays(1));
         String jwt = tokenize(user, now, expireAt);
-        return createOrUpdateJwtToken(user, jwt, now, expireAt);
+        return doGenerateJwtToken(user, jwt, now, expireAt);
     }
 
     @Override
-    public JwtToken createOrUpdateJwtToken(User user, String jwt, Instant now, Instant expireAt) {
-        JwtToken jwtToken = user.getJwtToken();
-        if (jwtToken == null) {
-            jwtToken = new JwtToken();
-            jwtToken.setUser(user);
-        }
-        jwtToken
+    public JwtToken doGenerateJwtToken(User user, String jwt, Instant now, Instant expireAt) {
+        JwtToken jwtToken = new JwtToken()
+                .setUser(user)
                 .setJwtToken(jwt)
                 .setIssuedAt(now)
-                .setExpiresAt(expireAt);
+                .setExpiresAt(expireAt)
+                .setRevoked(false);
         return jwtTokenRepository.save(jwtToken);
     }
 
@@ -91,5 +93,21 @@ public class JwtTokenServiceImp implements JwtTokenService {
         return jwtTokenRepository.findByJwtToken(token);
     }
 
+    @Override
+    public JwtToken validateToken(String token) {
+        JwtToken jwtToken = jwtTokenRepository.findByJwtToken(token).orElseThrow(NotFoundException::tokenNotFound);
 
+        if (jwtToken.isRevoked()) throw UnauthorizedException.handleRevokedToken();
+
+        Instant now = Instant.now();
+        if (now.isAfter(jwtToken.getExpiresAt())) throw UnauthorizedException.handleExpiredToken();
+
+        return jwtToken;
+    }
+
+    @Override
+    public void revokedToken(JwtToken jwtToken) {
+        jwtToken.setRevoked(true);
+        jwtTokenRepository.save(jwtToken);
+    }
 }

@@ -62,7 +62,7 @@ public class AuthController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
-    public ResponseEntity<ApiResponse<ModelDTO>> getUser() {
+    public ResponseEntity<ApiResponse<ModelDTO>> getMe() {
         return ResponseEntity.ok(authBusiness.getUserById());
     }
 
@@ -81,9 +81,9 @@ public class AuthController {
         authBusiness.deleteUser();
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<ModelDTO>> refreshToken() {
-        return ResponseEntity.ok(authBusiness.refreshJwtToken());
+    public ResponseEntity<ApiResponse<ModelDTO>> refreshToken(
+            @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(authBusiness.refreshJwtToken(token));
     }
 }

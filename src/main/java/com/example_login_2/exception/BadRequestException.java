@@ -48,4 +48,8 @@ public class BadRequestException extends RuntimeException {
     public static BadRequestException requestNewPasswordNullOrEmpty() {
         return new BadRequestException("New password cannot be null or empty.");
     }
+
+    public static BadRequestException tokenIsMissing() {
+        return new BadRequestException("Token is missing.");
+    }
 }
