@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @Log4j2
@@ -25,14 +26,16 @@ public class AuthBusiness {
     private final StorageService storageService;
     private final AddressService addressService;
     private final EmailBusiness emailBusiness;
+    private final JwtBlacklistService jwtBlacklistService;
 
-    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService, AddressService addressService) {
+    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService, AddressService addressService, JwtBlacklistService jwtBlacklistService) {
         this.emailBusiness = emailBusiness;
         this.authService = authService;
         this.emailConfirmService = emailConfirmService;
         this.jwtTokenService = jwtTokenService;
         this.storageService = storageService;
         this.addressService = addressService;
+        this.jwtBlacklistService = jwtBlacklistService;
     }
 
     public ApiResponse<ModelDTO> register(RegisterRequest request) {
@@ -77,11 +80,10 @@ public class AuthBusiness {
 
         if (!emailConfirm.isActivated()) throw ForbiddenException.loginFailUserUnactivated();
 
-        authService.setRevoked(user);
-        JwtToken jwtToken = jwtTokenService.generateJwtToken(user);
+        JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
 
         ModelDTO modelDTO = new ModelDTO()
-                .setJwtToken(jwtToken.getJwtToken());
+                .setJwtToken(newJwtToken.getJwtToken());
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
@@ -149,13 +151,25 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Password has been reset successfully.", null);
     }
 
-    public ApiResponse<ModelDTO> refreshJwtToken() {
-        User user = validateAndGetUser();
-        authService.setRevoked(user);
-        JwtToken jwtToken = jwtTokenService.generateJwtToken(user);
+    public ApiResponse<ModelDTO> refreshJwtToken(String token) {
+        if (token == null || token.isEmpty()) throw BadRequestException.tokenIsMissing();
+
+        String actualToken = token.replace("Bearer ", "");
+
+        JwtToken jwtToken = jwtTokenService.validateToken(actualToken);
+
+        jwtTokenService.revokedToken(jwtToken);
+
+        jwtBlacklistService.saveToBlacklist(jwtToken);
+
+        User user = jwtToken.getUser();
+        if (user == null) throw NotFoundException.handleNoUserInTheToken();
+        authService.removeJwtToken(user);
+
+        JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
 
         ModelDTO modelDTO = new ModelDTO()
-                .setJwtToken(jwtToken.getJwtToken());
+                .setJwtToken(newJwtToken.getJwtToken());
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 

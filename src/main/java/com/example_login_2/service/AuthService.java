@@ -29,7 +29,7 @@ public interface AuthService {
 
     User updateJwtToken(User user, JwtToken jwtToken);
 
-    void setRevoked(User user);
+    void removeJwtToken(User user);
 
     @CachePut(value = "user", key = "#user.id")
     void updateNewPassword(User user, String newPassword);

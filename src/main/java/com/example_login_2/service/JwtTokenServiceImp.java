@@ -4,9 +4,12 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import com.example_login_2.exception.NotFoundException;
+import com.example_login_2.exception.UnauthorizedException;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.User;
 import com.example_login_2.repository.JwtTokenRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Log4j2
 public class JwtTokenServiceImp implements JwtTokenService {
 
     private final JwtTokenRepository jwtTokenRepository;
@@ -89,5 +93,21 @@ public class JwtTokenServiceImp implements JwtTokenService {
         return jwtTokenRepository.findByJwtToken(token);
     }
 
+    @Override
+    public JwtToken validateToken(String token) {
+        JwtToken jwtToken = jwtTokenRepository.findByJwtToken(token).orElseThrow(NotFoundException::tokenNotFound);
 
+        if (jwtToken.isRevoked()) throw UnauthorizedException.handleRevokedToken();
+
+        Instant now = Instant.now();
+        if (now.isAfter(jwtToken.getExpiresAt())) throw UnauthorizedException.handleExpiredToken();
+
+        return jwtToken;
+    }
+
+    @Override
+    public void revokedToken(JwtToken jwtToken) {
+        jwtToken.setRevoked(true);
+        jwtTokenRepository.save(jwtToken);
+    }
 }

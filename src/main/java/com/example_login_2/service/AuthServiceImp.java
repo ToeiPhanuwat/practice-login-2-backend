@@ -74,9 +74,8 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public void setRevoked(User user) {
-        List<JwtToken> tokens = user.getJwtToken();
-        for (JwtToken token : tokens) token.setRevoked(true);
+    public void removeJwtToken(User user) {
+        user.getJwtToken().removeIf(JwtToken::isRevoked);
         authRepository.save(user);
     }
 
