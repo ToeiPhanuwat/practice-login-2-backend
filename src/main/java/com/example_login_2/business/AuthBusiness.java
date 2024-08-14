@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 @Log4j2
@@ -121,7 +120,7 @@ public class AuthBusiness {
 
         PasswordResetToken passwordResetToken = user.getPasswordResetToken();
 
-        sendPasswordResetEmail(user, passwordResetToken);
+        sendEmailResetPassword(user, passwordResetToken);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setEmail(user.getEmail())
@@ -129,7 +128,7 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    private void sendPasswordResetEmail(User user, PasswordResetToken passwordResetToken) {
+    private void sendEmailResetPassword(User user, PasswordResetToken passwordResetToken) {
         try {
             emailBusiness.sendPasswordReset(user, passwordResetToken);
         } catch (Exception ex) {
@@ -152,8 +151,6 @@ public class AuthBusiness {
     }
 
     public ApiResponse<ModelDTO> refreshJwtToken(String token) {
-        if (token == null || token.isEmpty()) throw BadRequestException.tokenIsMissing();
-
         String actualToken = token.replace("Bearer ", "");
 
         JwtToken jwtToken = jwtTokenService.validateToken(actualToken);

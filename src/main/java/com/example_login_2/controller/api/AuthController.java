@@ -81,7 +81,7 @@ public class AuthController {
         authBusiness.deleteUser();
     }
 
-    @GetMapping("/refresh-token")
+    @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse<ModelDTO>> refreshToken(
             @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(authBusiness.refreshJwtToken(token));

@@ -62,7 +62,8 @@ public class SecurityConfig {
                 .addFilterBefore(tokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint(
-                                (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+                                (request, response, authException) -> response.sendError(
+                                        HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token2")
                         ));
         return http.build();
     }

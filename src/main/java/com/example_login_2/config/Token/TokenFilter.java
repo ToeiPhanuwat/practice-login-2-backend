@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
+
 public class TokenFilter extends GenericFilterBean {
 
     private final JwtTokenService jwtTokenService;
@@ -36,15 +38,25 @@ public class TokenFilter extends GenericFilterBean {
                          FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-        String authorization = request.getHeader("Authorization");
 
-        if (ObjectUtils.isEmpty(authorization) || !authorization.startsWith("Bearer")) {
+        String path = request.getRequestURI();
+        if (path.startsWith("/api/v1/auth")) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
 
-        String token = authorization.substring(7);
+        String authorization = request.getHeader("Authorization");
+        if (ObjectUtils.isEmpty(authorization) || !authorization.startsWith("Bearer")) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"error\": \"Authorization header is missing or invalid\"}");
+            return;
+        }
 
+        filterChain.doFilter(servletRequest, servletResponse);
+
+        String token = authorization.substring(7);
         try {
             DecodedJWT decodedJWT = jwtTokenService.verify(token);
             if (decodedJWT == null) {
@@ -69,7 +81,11 @@ public class TokenFilter extends GenericFilterBean {
             SecurityContext context = SecurityContextHolder.getContext();
             context.setAuthentication(authenticationToken);
         } catch (Exception ex) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token3");
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            response.setContentType("application/json");
+//            response.setCharacterEncoding("UTF-8");
+//            response.getWriter().write("{\"error\": \"Authorization header is missing or invalid\"}");
         }
 
         filterChain.doFilter(servletRequest, servletResponse);

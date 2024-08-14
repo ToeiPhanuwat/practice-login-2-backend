@@ -54,3 +54,10 @@ spring:
     type: redis
     redis:
       time-to-live: 60000
+#  mvc:
+#    log-request-details: true
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        web: DEBUG
