@@ -31,4 +31,5 @@ public class JwtBlacklistServiceImp implements JwtBlacklistService {
                 .setExpiresAt(jwtToken.getExpiresAt());
         jwtBlacklistRepository.save(newJwtBlacklist);
     }
+
 }

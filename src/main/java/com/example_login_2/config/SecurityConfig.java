@@ -1,6 +1,7 @@
 package com.example_login_2.config;
 
 import com.example_login_2.config.Token.TokenFilter;
+import com.example_login_2.exception.customImp.CustomAccessDeniedHandler;
 import com.example_login_2.service.JwtTokenService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
@@ -63,8 +64,9 @@ public class SecurityConfig {
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint(
                                 (request, response, authException) -> response.sendError(
-                                        HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token2")
-                        ));
+                                        HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token")
+                        )
+                        .accessDeniedHandler(new CustomAccessDeniedHandler()));
         return http.build();
     }
 }

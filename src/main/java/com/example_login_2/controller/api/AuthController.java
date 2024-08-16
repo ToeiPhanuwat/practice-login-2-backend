@@ -8,7 +8,6 @@ import com.example_login_2.controller.request.UpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,13 +59,11 @@ public class AuthController {
         return ResponseEntity.ok(authBusiness.resetPassword(request));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
-    public ResponseEntity<ApiResponse<ModelDTO>> getMe() {
+    public ResponseEntity<ApiResponse<ModelDTO>> getUserInfo() {
         return ResponseEntity.ok(authBusiness.getUserById());
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping
     public ResponseEntity<ApiResponse<ModelDTO>> putUser(
             @RequestPart MultipartFile file,
@@ -74,7 +71,6 @@ public class AuthController {
         return ResponseEntity.ok(authBusiness.updateUser(file, request));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping
     public void deleteUser() {
@@ -82,8 +78,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<ModelDTO>> refreshToken(
-            @RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(authBusiness.refreshJwtToken(token));
+    public ResponseEntity<ApiResponse<ModelDTO>> refreshToken() {
+        return ResponseEntity.ok(authBusiness.refreshJwtToken());
     }
 }
