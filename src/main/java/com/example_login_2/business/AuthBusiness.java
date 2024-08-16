@@ -152,28 +152,14 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Password has been reset successfully.", null);
     }
 
-//    public ApiResponse<ModelDTO> refreshJwtToken() {
-//        User user = validateAndGetUser();
-//
-//        JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
-//
-//        ModelDTO modelDTO = new ModelDTO()
-//                .setJwtToken(newJwtToken.getJwtToken());
-//        return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
-//    }
-
     public ApiResponse<ModelDTO> refreshJwtToken() {
-        CustomUserDetails customUserDetails = SecurityUtil.getCurrentUserDetails()
-                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("User not authenticated"));
-
-        JwtToken oldJwtToken = jwtTokenService.getJwtToken(customUserDetails.getToken())
-                .orElseThrow(NotFoundException::tokenNotFound);
+        JwtToken currentToken = validateAndGetToken();
 
         final String ACTION = "refresh_token";
-        jwtTokenService.revokedToken(oldJwtToken);
-        jwtBlacklistService.saveToBlacklist(oldJwtToken, ACTION);
+        jwtTokenService.revokedToken(currentToken);
+        jwtBlacklistService.saveToBlacklist(currentToken, ACTION);
 
-        User user = oldJwtToken.getUser();
+        User user = currentToken.getUser();
         if (user == null) throw NotFoundException.handleNoUserInTheToken();
         authService.removeJwtToken(user);
         JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
@@ -246,6 +232,17 @@ public class AuthBusiness {
         long userId = SecurityUtil.getCurrentUserId()
                 .orElseThrow(UnauthorizedException::unauthorized);
         return authService.getUserById(userId).orElseThrow(NotFoundException::notFound);
+    }
+
+    private JwtToken validateAndGetToken() {
+        String token = SecurityUtil.getCurrentToken()
+                .orElseThrow(UnauthorizedException::unauthorized);
+        return jwtTokenService.getJwtToken(token).orElseThrow(NotFoundException::tokenNotFound);
+    }
+
+    private CustomUserDetails validateAndGetUserDetails() {
+        return SecurityUtil.getCurrentUserDetails()
+                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("User not authenticated"));
     }
 
     private EmailConfirm validateAndGetEmailConfirm(String token) {
