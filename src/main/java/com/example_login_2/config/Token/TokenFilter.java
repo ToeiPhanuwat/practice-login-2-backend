@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
-
 public class TokenFilter extends GenericFilterBean {
 
     private final JwtTokenService jwtTokenService;

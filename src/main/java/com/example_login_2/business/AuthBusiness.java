@@ -152,7 +152,7 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Password has been reset successfully.", null);
     }
 
-//    public ApiResponse<ModelDTO> refreshJwtToken(String token) {
+    //    public ApiResponse<ModelDTO> refreshJwtToken(String token) {
 //        String actualToken = token.replace("Bearer ", "");
 //
 //        JwtToken jwtToken = jwtTokenService.validateToken(actualToken);
@@ -177,7 +177,7 @@ public class AuthBusiness {
         JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
 
         ModelDTO modelDTO = new ModelDTO()
-            .setJwtToken(newJwtToken.getJwtToken());
+                .setJwtToken(newJwtToken.getJwtToken());
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
