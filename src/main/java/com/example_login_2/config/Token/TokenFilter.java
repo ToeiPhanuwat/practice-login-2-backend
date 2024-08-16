@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TokenFilter extends GenericFilterBean {
 
@@ -66,13 +67,11 @@ public class TokenFilter extends GenericFilterBean {
             }
 
             Long userId = decodedJWT.getClaim("userId").asLong();
-            List<GrantedAuthority> authorities = new ArrayList<>();
             List<String> roles = Optional.ofNullable(decodedJWT.getClaim("roles").asList(String.class))
                     .orElse(new ArrayList<>());
-
-            for (String role : roles) {
-                authorities.add(new SimpleGrantedAuthority(role));
-            }
+            List<GrantedAuthority> authorities = roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
 
             CustomUserDetails userDetails = new CustomUserDetails(userId, token, authorities);
 
