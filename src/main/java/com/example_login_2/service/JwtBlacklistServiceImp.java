@@ -23,12 +23,13 @@ public class JwtBlacklistServiceImp implements JwtBlacklistService {
     }
 
     @Override
-    public void saveToBlacklist(JwtToken jwtToken) {
+    public void saveToBlacklist(JwtToken jwtToken, String action) {
         JwtBlacklist newJwtBlacklist = new JwtBlacklist()
                 .setToken(jwtToken.getJwtToken())
                 .setUserId(jwtToken.getUser().getId())
                 .setRevokedAt(Instant.now())
-                .setExpiresAt(jwtToken.getExpiresAt());
+                .setExpiresAt(jwtToken.getExpiresAt())
+                .setAction(action);
         jwtBlacklistRepository.save(newJwtBlacklist);
     }
 

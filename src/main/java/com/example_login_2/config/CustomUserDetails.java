@@ -12,6 +12,7 @@ import java.util.Collection;
 public class CustomUserDetails implements UserDetails {
 
     private Long userId;
+    private String token;
     private Collection<? extends GrantedAuthority> authorities;
 
     @Override

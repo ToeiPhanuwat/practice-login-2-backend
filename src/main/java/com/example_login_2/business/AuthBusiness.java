@@ -10,7 +10,7 @@ import com.example_login_2.model.*;
 import com.example_login_2.service.*;
 import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -152,18 +152,8 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Password has been reset successfully.", null);
     }
 
-    //    public ApiResponse<ModelDTO> refreshJwtToken(String token) {
-//        String actualToken = token.replace("Bearer ", "");
-//
-//        JwtToken jwtToken = jwtTokenService.validateToken(actualToken);
-//
-//        jwtTokenService.revokedToken(jwtToken);
-//
-//        jwtBlacklistService.saveToBlacklist(jwtToken);
-//
-//        User user = jwtToken.getUser();
-//        if (user == null) throw NotFoundException.handleNoUserInTheToken();
-//        authService.removeJwtToken(user);
+//    public ApiResponse<ModelDTO> refreshJwtToken() {
+//        User user = validateAndGetUser();
 //
 //        JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
 //
@@ -171,9 +161,21 @@ public class AuthBusiness {
 //                .setJwtToken(newJwtToken.getJwtToken());
 //        return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
 //    }
-    public ApiResponse<ModelDTO> refreshJwtToken() {
-        User user = validateAndGetUser();
 
+    public ApiResponse<ModelDTO> refreshJwtToken() {
+        CustomUserDetails customUserDetails = SecurityUtil.getCurrentUserDetails()
+                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("User not authenticated"));
+
+        JwtToken oldJwtToken = jwtTokenService.getJwtToken(customUserDetails.getToken())
+                .orElseThrow(NotFoundException::tokenNotFound);
+
+        final String ACTION = "refresh_token";
+        jwtTokenService.revokedToken(oldJwtToken);
+        jwtBlacklistService.saveToBlacklist(oldJwtToken, ACTION);
+
+        User user = oldJwtToken.getUser();
+        if (user == null) throw NotFoundException.handleNoUserInTheToken();
+        authService.removeJwtToken(user);
         JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
 
         ModelDTO modelDTO = new ModelDTO()
@@ -238,12 +240,6 @@ public class AuthBusiness {
     public void deleteUser() {
         User user = validateAndGetUser();
         authService.deleteUser(user.getId());
-    }
-
-    private User newValidate() {
-        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        long userId = customUserDetails.getUserId();
-        return authService.getUserById(userId).orElseThrow(NotFoundException::notFound);
     }
 
     private User validateAndGetUser() {

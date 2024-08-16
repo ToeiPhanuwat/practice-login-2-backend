@@ -74,7 +74,7 @@ public class TokenFilter extends GenericFilterBean {
                 authorities.add(new SimpleGrantedAuthority(role));
             }
 
-            CustomUserDetails userDetails = new CustomUserDetails(userId, authorities);
+            CustomUserDetails userDetails = new CustomUserDetails(userId, token, authorities);
 
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userDetails, null, authorities);

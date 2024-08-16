@@ -32,4 +32,7 @@ public class JwtBlacklist extends BaseModel implements Serializable {
 
     @Column(nullable = false)
     private Instant expiresAt;
+
+    @Column(nullable = false)
+    private String action;
 }
