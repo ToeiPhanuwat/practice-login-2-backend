@@ -1,5 +1,6 @@
 package com.example_login_2.service;
 
+import com.example_login_2.exception.ConflictException;
 import com.example_login_2.model.JwtBlacklist;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.repository.JwtBlacklistRepository;
@@ -24,6 +25,9 @@ public class JwtBlacklistServiceImp implements JwtBlacklistService {
 
     @Override
     public void saveToBlacklist(JwtToken jwtToken, String action) {
+        boolean existing = getJwtBlacklist(jwtToken.getJwtToken()).isPresent();
+        if (existing) throw ConflictException.handleJwtTokenDuplicate();
+
         JwtBlacklist newJwtBlacklist = new JwtBlacklist()
                 .setToken(jwtToken.getJwtToken())
                 .setUserId(jwtToken.getUser().getId())

@@ -41,6 +41,11 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout() {
+        return ResponseEntity.ok(authBusiness.logout());
+    }
+
     @PostMapping("/resend-activation-email")
     public ResponseEntity<ApiResponse<String>> resendActivationEmail(
             @Valid @RequestBody ResendActivationEmailRequest request) {
