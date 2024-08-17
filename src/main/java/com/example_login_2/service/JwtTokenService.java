@@ -27,6 +27,8 @@ public interface JwtTokenService {
 
     JwtToken generateJwtToken(User user);
 
+    void validateJwtToken();
+
     JwtToken validateToken(String token);
 
     void revokedToken(JwtToken jwtToken);

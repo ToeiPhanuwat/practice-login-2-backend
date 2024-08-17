@@ -25,4 +25,8 @@ public class UnauthorizedException extends RuntimeException {
         return new UnauthorizedException("Token has been revoked");
     }
 
+    public static UnauthorizedException handleTokenlNotFound() {
+        return new UnauthorizedException("Unauthorized: Token not found.");
+    }
+
 }

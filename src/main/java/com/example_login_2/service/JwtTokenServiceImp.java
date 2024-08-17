@@ -122,7 +122,7 @@ public class JwtTokenServiceImp implements JwtTokenService {
         String token = SecurityUtil.getCurrentToken()
                 .orElseThrow(UnauthorizedException::unauthorized);
         return jwtTokenRepository.findByJwtToken(token)
-                .orElseThrow(NotFoundException::tokenNotFound);
+                .orElseThrow(UnauthorizedException::handleTokenlNotFound);
     }
 
     @Override
@@ -130,6 +130,14 @@ public class JwtTokenServiceImp implements JwtTokenService {
         String token = SecurityUtil.getCurrentToken()
                 .orElseThrow(UnauthorizedException::unauthorized);
         return jwtTokenRepository.findUserByJwtToken(token)
-                .orElseThrow(NotFoundException::tokenNotFound);
+                .orElseThrow(UnauthorizedException::handleTokenlNotFound);
+    }
+
+    @Override
+    public void validateJwtToken() {
+        String token = SecurityUtil.getCurrentToken()
+                .orElseThrow(UnauthorizedException::unauthorized);
+        jwtTokenRepository.findUserByJwtToken(token)
+                .orElseThrow(UnauthorizedException::handleTokenlNotFound);
     }
 }
