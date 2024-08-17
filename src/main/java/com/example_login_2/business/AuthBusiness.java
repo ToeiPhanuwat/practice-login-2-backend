@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 @Log4j2
@@ -104,11 +103,15 @@ public class AuthBusiness {
     }
 
     public ApiResponse<String> logout() {
-        JwtToken currentToken = validateAndGetToken();
+        JwtToken currentToken = jwtTokenService.getCurrentToken();
 
         final String ACTION = "logout";
         jwtTokenService.revokedToken(currentToken);
         jwtBlacklistService.saveToBlacklist(currentToken, ACTION);
+
+        User user = currentToken.getUser();
+        if (user == null) throw NotFoundException.handleNoUserInTheToken();
+        authService.removeJwtToken(user);
 
         return new ApiResponse<>(true, "Logged out successfully!", null);
     }
@@ -164,7 +167,7 @@ public class AuthBusiness {
     }
 
     public ApiResponse<ModelDTO> refreshJwtToken() {
-        JwtToken currentToken = validateAndGetToken();
+        JwtToken currentToken = jwtTokenService.getCurrentToken();
 
         final String ACTION = "refresh_token";
         jwtTokenService.revokedToken(currentToken);
@@ -181,7 +184,7 @@ public class AuthBusiness {
     }
 
     public ApiResponse<ModelDTO> getUserById() {
-        User user = validateAndGetUser();
+        User user = jwtTokenService.getCurrentUserByToken();
         Address address = user.getAddress();
         String isActivated = String.valueOf(user.getEmailConfirm().isActivated());
 
@@ -204,32 +207,8 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-//    public ApiResponse<ModelDTO> getUserById() {
-//        User user = validateAndGetUser();
-//        Address address = user.getAddress();
-//        String isActivated = String.valueOf(user.getEmailConfirm().isActivated());
-//
-//        ModelDTO modelDTO = new ModelDTO();
-//        modelDTO
-//                .setActivated(isActivated)
-//                .setFirstName(user.getFirstName())
-//                .setLastName(user.getLastName())
-//                .setPhoneNumber(user.getPhoneNumber())
-//                .setDateOfBirth(user.getDateOfBirth())
-//                .setGender(user.getGender())
-//                .setFileName(user.getFileName())
-//                .setRole(user.getRoles().toString())
-//                .setAddress(address.getAddress())
-//                .setCity(address.getCity())
-//                .setStateProvince(address.getStateProvince())
-//                .setPostalCode(address.getPostalCode())
-//                .setCountry(address.getCountry());
-//
-//        return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
-//    }
-
     public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request) {
-        User user = validateAndGetUser();
+        User user = jwtTokenService.getCurrentUserByToken();
 
 //        if (file != null && !file.isEmpty()) {
 //            request.setFileName(storageService.uploadProfilePicture(file));
@@ -259,20 +238,8 @@ public class AuthBusiness {
     }
 
     public void deleteUser() {
-        User user = validateAndGetUser();
+        User user = jwtTokenService.getCurrentUserByToken();
         authService.deleteUser(user.getId());
-    }
-
-    private User validateAndGetUser() {
-        long userId = SecurityUtil.getCurrentUserId()
-                .orElseThrow(UnauthorizedException::unauthorized);
-        return authService.getUserById(userId).orElseThrow(NotFoundException::notFound);
-    }
-
-    private JwtToken validateAndGetToken() {
-        String token = SecurityUtil.getCurrentToken()
-                .orElseThrow(UnauthorizedException::unauthorized);
-        return jwtTokenService.getJwtToken(token).orElseThrow(NotFoundException::tokenNotFound);
     }
 
     private CustomUserDetails validateAndGetUserDetails() {
