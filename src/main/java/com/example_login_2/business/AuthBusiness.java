@@ -48,9 +48,6 @@ public class AuthBusiness {
         Address address = addressService.createAddress(user);
         user = authService.updateAddress(user, address);
 
-//        JwtToken jwtToken = new JwtToken();
-//        user = authService.updateJwtToken(user, jwtToken);
-
         sendActivationEmail(user, emailConfirm);
 
         ModelDTO modelDTO = new ModelDTO()

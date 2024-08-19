@@ -15,6 +15,5 @@ public interface JwtTokenRepository extends JpaRepository<JwtToken, Long> {
     @Query("SELECT j.user FROM JwtToken j WHERE j.jwtToken = :jwtToken")
     Optional<User> findUserByJwtToken(@Param("jwtToken") String jwtToken);
 
-
     Optional<JwtToken> findByUserId(Long userId);
 }
