@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface JwtBlacklistService {
 
-    void saveToBlacklist(JwtToken jwtToken);
+    void saveToBlacklist(JwtToken jwtToken, String action);
 
     Optional<JwtBlacklist> getJwtBlacklist(String token);
 }

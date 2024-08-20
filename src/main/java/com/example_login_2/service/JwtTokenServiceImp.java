@@ -9,6 +9,7 @@ import com.example_login_2.exception.UnauthorizedException;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.User;
 import com.example_login_2.repository.JwtTokenRepository;
+import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -94,8 +94,14 @@ public class JwtTokenServiceImp implements JwtTokenService {
     }
 
     @Override
+    public Optional<User> getUserByToken(String token) {
+        return jwtTokenRepository.findUserByJwtToken(token);
+    }
+
+    @Override
     public JwtToken validateToken(String token) {
-        JwtToken jwtToken = jwtTokenRepository.findByJwtToken(token).orElseThrow(NotFoundException::tokenNotFound);
+        JwtToken jwtToken = jwtTokenRepository.findByJwtToken(token)
+                .orElseThrow(NotFoundException::tokenNotFound);
 
         if (jwtToken.isRevoked()) throw UnauthorizedException.handleRevokedToken();
 
@@ -109,5 +115,29 @@ public class JwtTokenServiceImp implements JwtTokenService {
     public void revokedToken(JwtToken jwtToken) {
         jwtToken.setRevoked(true);
         jwtTokenRepository.save(jwtToken);
+    }
+
+    @Override
+    public JwtToken getCurrentToken() {
+        String token = SecurityUtil.getCurrentToken()
+                .orElseThrow(UnauthorizedException::unauthorized);
+        return jwtTokenRepository.findByJwtToken(token)
+                .orElseThrow(UnauthorizedException::handleTokenlNotFound);
+    }
+
+    @Override
+    public User getCurrentUserByToken() {
+        String token = SecurityUtil.getCurrentToken()
+                .orElseThrow(UnauthorizedException::unauthorized);
+        return jwtTokenRepository.findUserByJwtToken(token)
+                .orElseThrow(UnauthorizedException::handleTokenlNotFound);
+    }
+
+    @Override
+    public void validateJwtToken() {
+        String token = SecurityUtil.getCurrentToken()
+                .orElseThrow(UnauthorizedException::unauthorized);
+        jwtTokenRepository.findUserByJwtToken(token)
+                .orElseThrow(UnauthorizedException::handleTokenlNotFound);
     }
 }

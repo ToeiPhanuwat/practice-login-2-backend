@@ -1,5 +1,6 @@
 package com.example_login_2.business;
 
+import com.example_login_2.config.CustomUserDetails;
 import com.example_login_2.controller.ApiResponse;
 import com.example_login_2.controller.AuthRequest.*;
 import com.example_login_2.controller.ModelDTO;
@@ -9,6 +10,7 @@ import com.example_login_2.model.*;
 import com.example_login_2.service.*;
 import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,14 +42,11 @@ public class AuthBusiness {
     public ApiResponse<ModelDTO> register(RegisterRequest request) {
         User user = authService.createUser(request);
 
-        EmailConfirm emailConfirm = emailConfirmService.cerateEmailConfirm(user);
+        EmailConfirm emailConfirm = emailConfirmService.createEmailConfirm(user);
         user = authService.updateEmailConfirm(user, emailConfirm);
 
         Address address = addressService.createAddress(user);
         user = authService.updateAddress(user, address);
-
-//        JwtToken jwtToken = new JwtToken();
-//        user = authService.updateJwtToken(user, jwtToken);
 
         sendActivationEmail(user, emailConfirm);
 
@@ -100,6 +99,20 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
+    public ApiResponse<String> logout() {
+        JwtToken currentToken = jwtTokenService.getCurrentToken();
+
+        final String ACTION = "logout";
+        jwtTokenService.revokedToken(currentToken);
+        jwtBlacklistService.saveToBlacklist(currentToken, ACTION);
+
+        User user = currentToken.getUser();
+        if (user == null) throw NotFoundException.handleNoUserInTheToken();
+        authService.removeJwtToken(user);
+
+        return new ApiResponse<>(true, "Logged out successfully!", null);
+    }
+
     public ApiResponse<String> resendActivationEmail(ResendActivationEmailRequest request) {
         EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
 
@@ -120,7 +133,7 @@ public class AuthBusiness {
 
         PasswordResetToken passwordResetToken = user.getPasswordResetToken();
 
-        sendPasswordResetEmail(user, passwordResetToken);
+        sendEmailResetPassword(user, passwordResetToken);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setEmail(user.getEmail())
@@ -128,7 +141,7 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    private void sendPasswordResetEmail(User user, PasswordResetToken passwordResetToken) {
+    private void sendEmailResetPassword(User user, PasswordResetToken passwordResetToken) {
         try {
             emailBusiness.sendPasswordReset(user, passwordResetToken);
         } catch (Exception ex) {
@@ -150,21 +163,16 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Password has been reset successfully.", null);
     }
 
-    public ApiResponse<ModelDTO> refreshJwtToken(String token) {
-        if (token == null || token.isEmpty()) throw BadRequestException.tokenIsMissing();
+    public ApiResponse<ModelDTO> refreshJwtToken() {
+        JwtToken currentToken = jwtTokenService.getCurrentToken();
 
-        String actualToken = token.replace("Bearer ", "");
+        final String ACTION = "refresh_token";
+        jwtTokenService.revokedToken(currentToken);
+        jwtBlacklistService.saveToBlacklist(currentToken, ACTION);
 
-        JwtToken jwtToken = jwtTokenService.validateToken(actualToken);
-
-        jwtTokenService.revokedToken(jwtToken);
-
-        jwtBlacklistService.saveToBlacklist(jwtToken);
-
-        User user = jwtToken.getUser();
+        User user = currentToken.getUser();
         if (user == null) throw NotFoundException.handleNoUserInTheToken();
         authService.removeJwtToken(user);
-
         JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
 
         ModelDTO modelDTO = new ModelDTO()
@@ -173,7 +181,7 @@ public class AuthBusiness {
     }
 
     public ApiResponse<ModelDTO> getUserById() {
-        User user = validateAndGetUser();
+        User user = jwtTokenService.getCurrentUserByToken();
         Address address = user.getAddress();
         String isActivated = String.valueOf(user.getEmailConfirm().isActivated());
 
@@ -197,7 +205,7 @@ public class AuthBusiness {
     }
 
     public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request) {
-        User user = validateAndGetUser();
+        User user = jwtTokenService.getCurrentUserByToken();
 
 //        if (file != null && !file.isEmpty()) {
 //            request.setFileName(storageService.uploadProfilePicture(file));
@@ -227,14 +235,13 @@ public class AuthBusiness {
     }
 
     public void deleteUser() {
-        User user = validateAndGetUser();
+        User user = jwtTokenService.getCurrentUserByToken();
         authService.deleteUser(user.getId());
     }
 
-    private User validateAndGetUser() {
-        long userId = SecurityUtil.getCurrentUserId()
-                .orElseThrow(UnauthorizedException::unauthorized);
-        return authService.getUserById(userId).orElseThrow(NotFoundException::notFound);
+    private CustomUserDetails validateAndGetUserDetails() {
+        return SecurityUtil.getCurrentUserDetails()
+                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("User not authenticated"));
     }
 
     private EmailConfirm validateAndGetEmailConfirm(String token) {

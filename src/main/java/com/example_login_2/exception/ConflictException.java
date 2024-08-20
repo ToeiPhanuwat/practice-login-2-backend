@@ -17,4 +17,8 @@ public class ConflictException extends RuntimeException {
         return new ConflictException("Cannot delete the only role assigned to the user.");
     }
 
+    public static ConflictException handleJwtTokenDuplicate() {
+        return new ConflictException("JWT token is already blacklisted.");
+    }
+
 }

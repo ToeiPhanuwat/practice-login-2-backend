@@ -2,18 +2,17 @@ package com.example_login_2.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
 @Getter
-@Setter
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
     private Long userId;
+    private String token;
     private Collection<? extends GrantedAuthority> authorities;
 
     @Override

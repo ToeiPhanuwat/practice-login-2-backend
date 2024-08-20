@@ -19,7 +19,15 @@ public interface JwtTokenService {
 
     Optional<JwtToken> getJwtToken(String token);
 
+    Optional<User> getUserByToken(String token);
+
+    JwtToken getCurrentToken();
+
+    User getCurrentUserByToken();
+
     JwtToken generateJwtToken(User user);
+
+    void validateJwtToken();
 
     JwtToken validateToken(String token);
 

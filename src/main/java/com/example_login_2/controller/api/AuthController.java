@@ -8,7 +8,6 @@ import com.example_login_2.controller.request.UpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,6 +41,11 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout() {
+        return ResponseEntity.ok(authBusiness.logout());
+    }
+
     @PostMapping("/resend-activation-email")
     public ResponseEntity<ApiResponse<String>> resendActivationEmail(
             @Valid @RequestBody ResendActivationEmailRequest request) {
@@ -60,13 +64,11 @@ public class AuthController {
         return ResponseEntity.ok(authBusiness.resetPassword(request));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
-    public ResponseEntity<ApiResponse<ModelDTO>> getMe() {
+    public ResponseEntity<ApiResponse<ModelDTO>> getUserInfo() {
         return ResponseEntity.ok(authBusiness.getUserById());
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping
     public ResponseEntity<ApiResponse<ModelDTO>> putUser(
             @RequestPart MultipartFile file,
@@ -74,16 +76,14 @@ public class AuthController {
         return ResponseEntity.ok(authBusiness.updateUser(file, request));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping
     public void deleteUser() {
         authBusiness.deleteUser();
     }
 
-    @GetMapping("/refresh-token")
-    public ResponseEntity<ApiResponse<ModelDTO>> refreshToken(
-            @RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(authBusiness.refreshJwtToken(token));
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse<ModelDTO>> refreshToken() {
+        return ResponseEntity.ok(authBusiness.refreshJwtToken());
     }
 }

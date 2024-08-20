@@ -10,7 +10,6 @@ import lombok.experimental.Accessors;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 
 @Getter
 @Setter
@@ -33,4 +32,7 @@ public class JwtBlacklist extends BaseModel implements Serializable {
 
     @Column(nullable = false)
     private Instant expiresAt;
+
+    @Column(nullable = false)
+    private String action;
 }

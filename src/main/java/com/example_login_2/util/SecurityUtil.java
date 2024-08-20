@@ -42,4 +42,31 @@ public class SecurityUtil {
         }
         return Optional.empty();
     }
+
+    public static Optional<String> getCurrentToken() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) return Optional.empty();
+
+        Object principal = authentication.getPrincipal();
+        if (principal == null) return Optional.empty();
+
+        if (principal instanceof CustomUserDetails userDetails) {
+            return Optional.of(userDetails.getToken());
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<CustomUserDetails> getCurrentUserDetails() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) return Optional.empty();
+
+        Object principal = authentication.getPrincipal();
+        if (principal == null) return Optional.empty();
+
+        if (principal instanceof CustomUserDetails userDetails) {
+            return Optional.of(userDetails);
+        }
+        return Optional.empty();
+    }
+
 }

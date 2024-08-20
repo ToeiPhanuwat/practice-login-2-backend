@@ -10,6 +10,7 @@ import com.example_login_2.model.Address;
 import com.example_login_2.model.User;
 import com.example_login_2.service.AddressService;
 import com.example_login_2.service.AdminService;
+import com.example_login_2.service.JwtTokenService;
 import com.example_login_2.service.StorageService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -24,18 +25,22 @@ public class AdminBusiness {
     private final AdminService adminService;
     private final AddressService addressService;
     private final StorageService storageService;
+    private final JwtTokenService jwtTokenService;
 
-    public AdminBusiness(AdminService adminService, AddressService addressService, StorageService storageService) {
+    public AdminBusiness(AdminService adminService, AddressService addressService, StorageService storageService, JwtTokenService jwtTokenService) {
         this.adminService = adminService;
         this.addressService = addressService;
         this.storageService = storageService;
+        this.jwtTokenService = jwtTokenService;
     }
 
     public List<User> getAllUser() {
+        jwtTokenService.validateJwtToken();
         return adminService.getAllUsers();
     }
 
     public ApiResponse<ModelDTO> getUserById(Long id) {
+        jwtTokenService.validateJwtToken();
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
         Address address = user.getAddress();
 
@@ -59,6 +64,7 @@ public class AdminBusiness {
     }
 
     public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request, Long id) {
+        jwtTokenService.validateJwtToken();
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
 
 //        if (file != null && !file.isEmpty()) {
@@ -89,6 +95,7 @@ public class AdminBusiness {
     }
 
     public ApiResponse<ModelDTO> removeUserRole(RoleUpdateRequest role, Long id) {
+        jwtTokenService.validateJwtToken();
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
         if (user.getRoles().size() < 2) throw ConflictException.userHasOneRole();
         user = adminService.removeRoleAndUpdate(user, role);
@@ -101,6 +108,7 @@ public class AdminBusiness {
     }
 
     public void deleteUser(Long id) {
+        jwtTokenService.validateJwtToken();
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
         adminService.deleteUser(id);
     }

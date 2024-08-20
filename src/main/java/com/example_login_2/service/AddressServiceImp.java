@@ -19,7 +19,8 @@ public class AddressServiceImp implements AddressService {
 
     @Override
     public Address createAddress(User user) {
-        Address address = new Address();
+        Address address = new Address()
+                .setUser(user);
         return addressRepository.save(address);
     }
 

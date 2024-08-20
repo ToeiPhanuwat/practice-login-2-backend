@@ -17,7 +17,6 @@ import java.time.Instant;
 @Embeddable
 public class PasswordResetToken implements Serializable {
 
-
     @Serial
     private static final long serialVersionUID = 1L;
 

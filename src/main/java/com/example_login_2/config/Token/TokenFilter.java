@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TokenFilter extends GenericFilterBean {
 
@@ -36,15 +37,28 @@ public class TokenFilter extends GenericFilterBean {
                          FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-        String authorization = request.getHeader("Authorization");
 
+//        String path = request.getRequestURI();
+//        if (path.startsWith("/api/v1/auth")) {
+//            filterChain.doFilter(servletRequest, servletResponse);
+//            return;
+//        }
+
+//        if (ObjectUtils.isEmpty(authorization) || !authorization.startsWith("Bearer")) {
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            response.setContentType("application/json");
+//            response.setCharacterEncoding("UTF-8");
+//            response.getWriter().write("{\"error\": \"Authorization header is missing or invalid\"}");
+//            return;
+//        }
+
+        String authorization = request.getHeader("Authorization");
         if (ObjectUtils.isEmpty(authorization) || !authorization.startsWith("Bearer")) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
 
         String token = authorization.substring(7);
-
         try {
             DecodedJWT decodedJWT = jwtTokenService.verify(token);
             if (decodedJWT == null) {
@@ -53,15 +67,13 @@ public class TokenFilter extends GenericFilterBean {
             }
 
             Long userId = decodedJWT.getClaim("userId").asLong();
-            List<GrantedAuthority> authorities = new ArrayList<>();
             List<String> roles = Optional.ofNullable(decodedJWT.getClaim("roles").asList(String.class))
                     .orElse(new ArrayList<>());
+            List<GrantedAuthority> authorities = roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
 
-            for (String role : roles) {
-                authorities.add(new SimpleGrantedAuthority(role));
-            }
-
-            CustomUserDetails userDetails = new CustomUserDetails(userId, authorities);
+            CustomUserDetails userDetails = new CustomUserDetails(userId, token, authorities);
 
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userDetails, null, authorities);

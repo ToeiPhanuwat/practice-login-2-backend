@@ -13,7 +13,7 @@ app:
 spring:
   profiles:
     active:
-      - dev
+      - test
 ---
 server:
   port: 1150
@@ -54,3 +54,38 @@ spring:
     type: redis
     redis:
       time-to-live: 60000
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - test
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: TonsonDev!
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop # ใช้ create-drop เพื่อให้ schema ถูกสร้างใหม่และลบออกหลังทดสอบ
+
+  jackson:
+    date-format: yyyy-MM-dd
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60000
+
+# หาก Kafka ไม่จำเป็นในการทดสอบ สามารถปิดการใช้งานได้
+spring.kafka.consumer.auto-offset-reset: earliest
