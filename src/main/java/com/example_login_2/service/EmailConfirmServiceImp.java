@@ -21,7 +21,7 @@ public class EmailConfirmServiceImp implements EmailConfirmService {
     }
 
     @Override
-    public EmailConfirm cerateEmailConfirm(User user) {
+    public EmailConfirm createEmailConfirm(User user) {
         String token = SecurityUtil.generateToken();
         EmailConfirm emailConfirm = new EmailConfirm()
                 .setUser(user)

@@ -1,4 +1,4 @@
-package com.example_login_2;
+package com.example_login_2.RepositoryTest;
 
 import com.example_login_2.model.Address;
 import com.example_login_2.repository.AddressRepository;

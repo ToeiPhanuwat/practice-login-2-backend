@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface EmailConfirmService {
 
-    EmailConfirm cerateEmailConfirm(User user);
+    EmailConfirm createEmailConfirm(User user);
 
     Optional<User> getUserByToken(String token);
 

@@ -42,7 +42,7 @@ public class AuthBusiness {
     public ApiResponse<ModelDTO> register(RegisterRequest request) {
         User user = authService.createUser(request);
 
-        EmailConfirm emailConfirm = emailConfirmService.cerateEmailConfirm(user);
+        EmailConfirm emailConfirm = emailConfirmService.createEmailConfirm(user);
         user = authService.updateEmailConfirm(user, emailConfirm);
 
         Address address = addressService.createAddress(user);
