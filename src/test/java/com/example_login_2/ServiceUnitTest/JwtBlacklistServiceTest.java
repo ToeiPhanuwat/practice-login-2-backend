@@ -64,7 +64,7 @@ public class JwtBlacklistServiceTest {
     public void testGetJwtBlacklist() {
         when(repository.findByToken(anyString())).thenReturn(Optional.of(mockJwtBlacklist));
 
-        JwtBlacklist jwtBlacklist = serviceImp.getJwtBlacklist(anyString()).orElse(null);
+        JwtBlacklist jwtBlacklist = serviceImp.getJwtBlacklist(TestData.token).orElse(null);
 
         assertNotNull(jwtBlacklist);
         assertEquals(mockJwtBlacklist.getToken(), jwtBlacklist.getToken());
