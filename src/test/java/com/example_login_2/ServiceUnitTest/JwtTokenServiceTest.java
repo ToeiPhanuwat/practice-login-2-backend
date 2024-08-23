@@ -152,6 +152,69 @@ public class JwtTokenServiceTest {
         }
     }
 
+    @Test
+    public void testGetCurrentUserByToken_TokenNotFound() {
+        try (MockedStatic<SecurityUtil> mockedStatic = mockStatic(SecurityUtil.class)) {
+
+            mockedStatic.when(SecurityUtil::getCurrentToken).thenReturn(Optional.of(mockToken));
+            when(repository.findUserByJwtToken(mockToken)).thenReturn(Optional.empty());
+
+            assertThrows(UnauthorizedException.class, () -> serviceImp.getCurrentUserByToken());
+
+            verify(repository).findUserByJwtToken(mockToken);
+        }
+    }
+
+    @Test
+    public void testGetCurrentUserByToken_NoTokenPresent() {
+        try (MockedStatic<SecurityUtil> mockedStatic = mockStatic(SecurityUtil.class)) {
+
+            mockedStatic.when(SecurityUtil::getCurrentToken).thenReturn(Optional.empty());
+
+            assertThrows(UnauthorizedException.class, () -> serviceImp.getCurrentUserByToken());
+
+            verify(repository, never()).findUserByJwtToken(anyString());
+        }
+    }
+
+    @Test
+    public void testValidateJwtToken_Success() {
+        try (MockedStatic<SecurityUtil> mockedStatic = mockStatic(SecurityUtil.class)) {
+
+            mockedStatic.when(SecurityUtil::getCurrentToken).thenReturn(Optional.of(mockToken));
+            when(repository.findUserByJwtToken(mockToken)).thenReturn(Optional.of(mockUser));
+
+            serviceImp.validateJwtToken();
+
+            verify(repository).findUserByJwtToken(mockToken);
+        }
+    }
+
+    @Test
+    public void testValidateJwtToken_TokenNotFound() {
+        try (MockedStatic<SecurityUtil> mockedStatic = mockStatic(SecurityUtil.class)) {
+
+            mockedStatic.when(SecurityUtil::getCurrentToken).thenReturn(Optional.of(mockToken));
+            when(repository.findUserByJwtToken(mockToken)).thenReturn(Optional.empty());
+
+            assertThrows(UnauthorizedException.class, () -> serviceImp.validateJwtToken());
+
+            verify(repository).findUserByJwtToken(mockToken);
+        }
+    }
+
+    @Test
+    public void testValidateJwtToken_NoTokenPresent() {
+        try (MockedStatic<SecurityUtil> mockedStatic = mockStatic(SecurityUtil.class)) {
+
+            mockedStatic.when(SecurityUtil::getCurrentToken).thenReturn(Optional.empty());
+
+            assertThrows(UnauthorizedException.class, () -> serviceImp.validateJwtToken());
+
+            verify(repository, never()).findUserByJwtToken(anyString());
+        }
+    }
+
     interface TestData {
         Long id = 1L;
         String email = "test@email.com";
