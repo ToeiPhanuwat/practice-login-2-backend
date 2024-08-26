@@ -26,8 +26,8 @@ public class AuthBusiness {
     private final JwtTokenService jwtTokenService;
     private final StorageService storageService;
     private final AddressService addressService;
-    private final EmailBusiness emailBusiness;
     private final JwtBlacklistService jwtBlacklistService;
+    private final EmailBusiness emailBusiness;
 
     public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService, AddressService addressService, JwtBlacklistService jwtBlacklistService) {
         this.emailBusiness = emailBusiness;
@@ -35,8 +35,8 @@ public class AuthBusiness {
         this.emailConfirmService = emailConfirmService;
         this.jwtTokenService = jwtTokenService;
         this.storageService = storageService;
-        this.addressService = addressService;
         this.jwtBlacklistService = jwtBlacklistService;
+        this.addressService = addressService;
     }
 
     public ApiResponse<ModelDTO> register(RegisterRequest request) {
@@ -64,6 +64,7 @@ public class AuthBusiness {
             throw new RuntimeException(ex);
         }
         log.info("Token: " + emailConfirm.getToken());
+        log.info("The activation email has been successfully sent.");
     }
 
     public ApiResponse<ModelDTO> login(LoginRequest request) {
@@ -117,8 +118,6 @@ public class AuthBusiness {
         EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
 
         emailConfirm = emailConfirmService.updateEmailConfirm(emailConfirm);
-
-//        authService.updateEmailConfirm(emailConfirm.getUser(), emailConfirm);
 
         sendActivationEmail(emailConfirm.getUser(), emailConfirm);
         return new ApiResponse<>(true, "Activation email sent", null);
@@ -247,8 +246,10 @@ public class AuthBusiness {
     private EmailConfirm validateAndGetEmailConfirm(String token) {
         EmailConfirm emailConfirm = emailConfirmService.getEmailConfirmByToken(token)
                 .orElseThrow(NotFoundException::requestNotFound);
+        log.info("Token Email Confirm: " + token);
 
         if (emailConfirm.isActivated()) throw ConflictException.activateAlready();
+        log.info("Check email verification status: " + false);
 
         return emailConfirm;
     }

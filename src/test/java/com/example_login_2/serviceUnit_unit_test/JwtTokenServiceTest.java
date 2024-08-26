@@ -1,4 +1,4 @@
-package com.example_login_2.ServiceUnitTest;
+package com.example_login_2.serviceUnit_unit_test;
 
 import com.example_login_2.exception.UnauthorizedException;
 import com.example_login_2.model.JwtToken;

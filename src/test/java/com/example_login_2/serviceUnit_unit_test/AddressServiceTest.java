@@ -1,4 +1,4 @@
-package com.example_login_2.ServiceUnitTest;
+package com.example_login_2.serviceUnit_unit_test;
 
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.Address;

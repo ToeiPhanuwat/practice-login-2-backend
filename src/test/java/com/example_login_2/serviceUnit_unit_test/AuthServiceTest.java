@@ -1,4 +1,4 @@
-package com.example_login_2.ServiceUnitTest;
+package com.example_login_2.serviceUnit_unit_test;
 
 import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.request.UpdateRequest;
@@ -44,7 +44,6 @@ public class AuthServiceTest {
         mockUser.setId(TestData.id);
         mockUser.setEmail(TestData.email);
         mockUser.setPassword(TestData.encodedPassword);
-
     }
 
     @Test
@@ -243,9 +242,5 @@ public class AuthServiceTest {
         String tokenEmailConfirm = "token email confirm";
         String address = "15/7";
         String token = "token";
-        Instant expireAt = Instant.now().plus(Duration.ofMinutes(15));
-        String firstname = "Tonson";
-        String lastname = "Sungharut";
-        String Role = "ROLE_ADMIN";
     }
 }

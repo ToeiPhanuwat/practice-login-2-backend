@@ -1,4 +1,4 @@
-package com.example_login_2.ServiceUnitTest;
+package com.example_login_2.serviceUnit_unit_test;
 
 import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
@@ -9,8 +9,6 @@ import com.example_login_2.service.AdminServiceImp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
