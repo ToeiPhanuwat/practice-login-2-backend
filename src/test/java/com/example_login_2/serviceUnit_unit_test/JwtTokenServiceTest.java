@@ -36,6 +36,7 @@ public class JwtTokenServiceTest {
     private User mockUser;
     private JwtToken mockJwtToken;
     private String mockToken;
+
     @BeforeEach
     public void setUp() {
         mockUser = new User();
@@ -112,6 +113,7 @@ public class JwtTokenServiceTest {
             verify(repository).findByJwtToken(mockToken);
         }
     }
+
     @Test
     public void testGetCurrentToken_TokenNotFound() {
         try (MockedStatic<SecurityUtil> mockedStatic = mockStatic(SecurityUtil.class)) {

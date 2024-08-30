@@ -55,6 +55,7 @@ public class AuthBusinessTest {
     private ActivateRequest mockActivateRequest;
     private PasswordResetRequest mockPasswordResetRequest;
     private PasswordResetToken mockPasswordResetToken;
+
     @BeforeEach
     public void setUp() {
         mockUser = new User();
@@ -318,7 +319,8 @@ public class AuthBusinessTest {
     }
 
     @Test
-    public void testResetPassword_TokenNotFound() {;
+    public void testResetPassword_TokenNotFound() {
+        ;
         when(authService.getByPasswordResetToken_Token(anyString())).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> business.resetPassword(mockPasswordResetRequest));

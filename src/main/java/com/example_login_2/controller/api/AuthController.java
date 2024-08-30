@@ -70,7 +70,7 @@ public class AuthController {
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse<ModelDTO>> putUser(
+    public ResponseEntity<ApiResponse<ModelDTO>> updateUser(
             @RequestPart MultipartFile file,
             @RequestPart UpdateRequest request) {
         return ResponseEntity.ok(authBusiness.updateUser(file, request));
