@@ -1,4 +1,4 @@
-package com.example_login_2.RepositoryTest;
+package com.example_login_2.repository_unit_test;
 
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.User;

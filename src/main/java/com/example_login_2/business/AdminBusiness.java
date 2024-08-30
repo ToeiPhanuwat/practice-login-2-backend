@@ -67,10 +67,6 @@ public class AdminBusiness {
         jwtTokenService.validateJwtToken();
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
 
-//        if (file != null && !file.isEmpty()) {
-//            request.setFileName(storageService.uploadProfilePicture(file));
-//        }
-
         request.setFileName(storageService.uploadProfilePicture(file));
 
         user = adminService.updateUserRequest(user, request);
@@ -99,8 +95,6 @@ public class AdminBusiness {
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
         if (user.getRoles().size() < 2) throw ConflictException.userHasOneRole();
         user = adminService.removeRoleAndUpdate(user, role);
-//        user.getRoles().remove(request.getRole());
-//        user = adminService.updateUser(user);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setRole(user.getRoles().toString());

@@ -1,4 +1,4 @@
-package com.example_login_2.ServiceUnitTest;
+package com.example_login_2.serviceUnit_unit_test;
 
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.User;
@@ -20,8 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class EmailConfirmServiceTest {
@@ -134,6 +133,8 @@ public class EmailConfirmServiceTest {
         assertEquals(1, result.size());
         assertEquals(mockUser, result.get(0));
         assertFalse(result.get(0).getEmailConfirm().isActivated());
+
+        verify(repository, times(1)).findByActivatedFalse();
     }
 
     interface TestData {
