@@ -13,7 +13,7 @@ app:
 spring:
   profiles:
     active:
-      - test
+      - dev
 ---
 server:
   port: 1150
@@ -32,7 +32,7 @@ spring:
         format_sql: true
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   servlet:
     multipart:
       max-file-size:

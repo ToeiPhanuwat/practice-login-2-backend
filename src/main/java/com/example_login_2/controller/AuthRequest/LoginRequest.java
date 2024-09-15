@@ -2,6 +2,7 @@ package com.example_login_2.controller.AuthRequest;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,12 +11,12 @@ import lombok.Setter;
 @Setter
 public class LoginRequest {
 
-    @NotBlank
+    @NotEmpty
     @Size(min = 6, max = 30)
     @Email
     private String email;
 
-    @NotBlank
-    @Size(min = 8, max = 20)
+    @NotEmpty
+    @Size(min = 8, max = 30)
     private String password;
 }
