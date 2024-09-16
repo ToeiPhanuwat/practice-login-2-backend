@@ -104,20 +104,15 @@ public class AuthControllerTest {
 
     @Test
     public void testActivate() throws Exception {
-        ActivateRequest request = new ActivateRequest();
-        request.setToken("test-token-activate");
+        when(business.activate(anyString())).thenReturn(mockResponse);
 
-        when(business.activate(any(ActivateRequest.class))).thenReturn(mockResponse);
-
-        mockMvc.perform(post("/api/v1/auth/activate")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(get("/api/v1/auth/activate/{token}", TestDate.token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message))
                 .andExpect(jsonPath("$.data").exists());
 
-        verify(business, times(1)).activate(any(ActivateRequest.class));
+        verify(business, times(1)).activate(anyString());
     }
 
     @Test
@@ -135,21 +130,16 @@ public class AuthControllerTest {
 
     @Test
     public void testResendActivationEmail() throws Exception {
-        ResendActivationEmailRequest request = new ResendActivationEmailRequest();
-        request.setToken("test-resend-activation-email");
-
         ApiResponse<String> response = new ApiResponse<>(true, TestDate.message, null);
 
-        when(business.resendActivationEmail(any(ResendActivationEmailRequest.class))).thenReturn(response);
+        when(business.resendActivationEmail(anyString())).thenReturn(response);
 
-        mockMvc.perform(post("/api/v1/auth/resend-activation-email")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(get("/api/v1/auth/resend-activation-email/{token}", TestDate.token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message));
 
-        verify(business).resendActivationEmail(any(ResendActivationEmailRequest.class));
+        verify(business).resendActivationEmail(anyString());
     }
 
     @Test
@@ -258,6 +248,7 @@ public class AuthControllerTest {
     }
 
     interface TestDate {
+        String token = "token";
         String message = "Operation completed successfully";
     }
 }

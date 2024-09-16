@@ -86,8 +86,8 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<ModelDTO> activate(ActivateRequest request) {
-        EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
+    public ApiResponse<ModelDTO> activate(String token) {
+        EmailConfirm emailConfirm = validateAndGetEmailConfirm(token);
 
         Date now = new Date();
         Date tokenExpireAt = emailConfirm.getExpiresAt();
@@ -114,8 +114,8 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Logged out successfully!", null);
     }
 
-    public ApiResponse<String> resendActivationEmail(ResendActivationEmailRequest request) {
-        EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
+    public ApiResponse<String> resendActivationEmail(String token) {
+        EmailConfirm emailConfirm = validateAndGetEmailConfirm(token);
 
         emailConfirm = emailConfirmService.updateEmailConfirm(emailConfirm);
 

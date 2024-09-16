@@ -38,8 +38,8 @@ public class EmailBusiness {
 
         log.info("Token = " + emailConfirm.getToken());
 
-        String activateLink = "http://localhost:3000/api/v1/auth/activate/" + emailConfirm.getToken();
-        String reEmailLink = "http://localhost:3000/api/v1/auth/resend-activation-email/" + emailConfirm.getToken();
+        String activateLink = "http://localhost:3000/activate/" + emailConfirm.getToken();
+        String reEmailLink = "http://localhost:3000/resend-activation-email/" + emailConfirm.getToken();
         html = html.replace("${P_NAME}", "Tonson");
         html = html.replace("${ACTIVATE_LINK}", activateLink);
         html = html.replace("${RE_EMAIL_LINK}", reEmailLink);

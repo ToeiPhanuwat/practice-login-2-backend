@@ -53,6 +53,7 @@ public class AuthBusinessTest {
     private JwtToken mockJwt;
     private LoginRequest mockLoginRequest;
     private ActivateRequest mockActivateRequest;
+    private String mockToken;
     private PasswordResetRequest mockPasswordResetRequest;
     private PasswordResetToken mockPasswordResetToken;
 
@@ -81,6 +82,8 @@ public class AuthBusinessTest {
 
         mockActivateRequest = new ActivateRequest();
         mockActivateRequest.setToken(TestData.tokenEmailConfirm);
+
+        mockToken = TestData.tokenEmailConfirm;
 
         mockPasswordResetRequest = new PasswordResetRequest();
         mockPasswordResetRequest.setToken("Token reset password");
@@ -198,7 +201,7 @@ public class AuthBusinessTest {
         when(emailConfirmService.getEmailConfirmByToken(anyString())).thenReturn(Optional.of(emailConfirm));
         when(emailConfirmService.updateEnableVerificationEmail(any(EmailConfirm.class))).thenReturn(mockEmailConfirm);
 
-        ApiResponse<ModelDTO> response = business.activate(mockActivateRequest);
+        ApiResponse<ModelDTO> response = business.activate(mockToken);
 
         assertTrue(response.isSuccess());
         assertEquals("true", response.getData().getActivated());
@@ -211,7 +214,7 @@ public class AuthBusinessTest {
     public void testActivate_TokenNotFound() {
         when(emailConfirmService.getEmailConfirmByToken(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> business.activate(mockActivateRequest));
+        assertThrows(NotFoundException.class, () -> business.activate(mockToken));
 
         verify(emailConfirmService).getEmailConfirmByToken(anyString());
     }
@@ -221,7 +224,7 @@ public class AuthBusinessTest {
         mockEmailConfirm.setActivated(true);
         when(emailConfirmService.getEmailConfirmByToken(anyString())).thenReturn(Optional.of(mockEmailConfirm));
 
-        assertThrows(ConflictException.class, () -> business.activate(mockActivateRequest));
+        assertThrows(ConflictException.class, () -> business.activate(mockToken));
 
         verify(emailConfirmService).getEmailConfirmByToken(anyString());
     }
@@ -234,7 +237,7 @@ public class AuthBusinessTest {
 
         when(emailConfirmService.getEmailConfirmByToken(anyString())).thenReturn(Optional.of(mockEmailConfirm));
 
-        assertThrows(GoneException.class, () -> business.activate(mockActivateRequest));
+        assertThrows(GoneException.class, () -> business.activate(mockToken));
 
         verify(emailConfirmService).getEmailConfirmByToken(anyString());
     }
@@ -274,13 +277,10 @@ public class AuthBusinessTest {
     @Test
     public void testResentActivationEmail_Success() {
         mockEmailConfirm.setActivated(false);
-        ResendActivationEmailRequest request = new ResendActivationEmailRequest();
-        request.setToken(TestData.tokenEmailConfirm);
-
         when(emailConfirmService.getEmailConfirmByToken(anyString())).thenReturn(Optional.of(mockEmailConfirm));
         when(emailConfirmService.updateEmailConfirm(any(EmailConfirm.class))).thenReturn(mockEmailConfirm);
 
-        ApiResponse<String> response = business.resendActivationEmail(request);
+        ApiResponse<String> response = business.resendActivationEmail(TestData.tokenJwt);
 
         assertTrue(response.isSuccess());
 

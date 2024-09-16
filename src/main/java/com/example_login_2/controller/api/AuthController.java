@@ -34,10 +34,9 @@ public class AuthController {
         return ResponseEntity.ok(authBusiness.login(request));
     }
 
-    @PostMapping("/activate")
-    public ResponseEntity<ApiResponse<ModelDTO>> activate(
-            @Valid @RequestBody ActivateRequest request) {
-        ApiResponse<ModelDTO> response = authBusiness.activate(request);
+    @GetMapping("/activate/{token}")
+    public ResponseEntity<ApiResponse<ModelDTO>> activate(@PathVariable String token) {
+        ApiResponse<ModelDTO> response = authBusiness.activate(token);
         return ResponseEntity.ok(response);
     }
 
@@ -46,10 +45,9 @@ public class AuthController {
         return ResponseEntity.ok(authBusiness.logout());
     }
 
-    @PostMapping("/resend-activation-email")
-    public ResponseEntity<ApiResponse<String>> resendActivationEmail(
-            @Valid @RequestBody ResendActivationEmailRequest request) {
-        return ResponseEntity.ok(authBusiness.resendActivationEmail(request));
+    @GetMapping("/resend-activation-email/{token}")
+    public ResponseEntity<ApiResponse<String>> resendActivationEmail(@PathVariable String token) {
+        return ResponseEntity.ok(authBusiness.resendActivationEmail(token));
     }
 
     @PostMapping("/forgot-password")
