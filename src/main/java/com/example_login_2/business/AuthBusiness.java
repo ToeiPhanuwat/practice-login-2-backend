@@ -10,10 +10,12 @@ import com.example_login_2.model.*;
 import com.example_login_2.service.*;
 import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 
@@ -179,31 +181,13 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<ModelDTO> getUserById() {
+    public ApiResponse<User> getUserById() {
         User user = jwtTokenService.getCurrentUserByToken();
-        Address address = user.getAddress();
-        String isActivated = String.valueOf(user.getEmailConfirm().isActivated());
 
-        ModelDTO modelDTO = new ModelDTO();
-        modelDTO
-                .setActivated(isActivated)
-                .setFirstName(user.getFirstName())
-                .setLastName(user.getLastName())
-                .setPhoneNumber(user.getPhoneNumber())
-                .setDateOfBirth(user.getDateOfBirth())
-                .setGender(user.getGender())
-                .setFileName(user.getFileName())
-                .setRole(user.getRoles().toString())
-                .setAddress(address.getAddress())
-                .setCity(address.getCity())
-                .setStateProvince(address.getStateProvince())
-                .setPostalCode(address.getPostalCode())
-                .setCountry(address.getCountry());
-
-        return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
+        return new ApiResponse<>(true, "Operation completed successfully", user);
     }
 
-    public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request) {
+    public ApiResponse<User> updateUser(MultipartFile file, UpdateRequest request) {
         User user = jwtTokenService.getCurrentUserByToken();
 
 //        if (file != null && !file.isEmpty()) {
@@ -217,20 +201,7 @@ public class AuthBusiness {
         Address address = addressService.updateAddress(user, request);
         user = authService.updateAddress(user, address);
 
-        ModelDTO modelDTO = new ModelDTO()
-                .setEmail(user.getEmail())
-                .setFirstName(user.getFirstName())
-                .setLastName(user.getLastName())
-                .setPhoneNumber(user.getPhoneNumber())
-                .setDateOfBirth(user.getDateOfBirth())
-                .setGender(user.getGender())
-                .setFileName(user.getFileName())
-                .setAddress(address.getAddress())
-                .setCity(address.getCity())
-                .setStateProvince(address.getStateProvince())
-                .setPostalCode(address.getPostalCode())
-                .setCountry(address.getCountry());
-        return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
+        return new ApiResponse<>(true, "Operation completed successfully", user);
     }
 
     public void deleteUser() {
