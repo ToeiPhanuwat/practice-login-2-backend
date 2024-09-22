@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -52,6 +51,7 @@ public class AdminControllerTest {
 
     private ModelDTO mockModelDTO;
     private ApiResponse<ModelDTO> mockResponse;
+
     @BeforeEach
     public void setUp() {
         mockModelDTO = new ModelDTO();
@@ -85,7 +85,7 @@ public class AdminControllerTest {
         when(business.getAllUser()).thenReturn(users);
 
         mockMvc.perform(get("/api/v1/admin")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id").value(1L))
@@ -131,13 +131,13 @@ public class AdminControllerTest {
         when(business.updateUser(any(MultipartFile.class), any(UpdateRequest.class), anyLong())).thenReturn(mockResponse);
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v1/admin/{id}", userId)
-                .file(mockFile)
-                .file(mockRequest)
-                .with(request -> {
-                    request.setMethod("PUT");
-                    return request;
-                })
-                .contentType(MediaType.MULTIPART_FORM_DATA))
+                        .file(mockFile)
+                        .file(mockRequest)
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestData.message))
@@ -172,7 +172,7 @@ public class AdminControllerTest {
         doNothing().when(business).deleteUser(anyLong());
 
         mockMvc.perform(delete("/api/v1/admin/{id}", userId)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         verify(business, times(1)).deleteUser(eq(userId));
@@ -190,8 +190,8 @@ public class AdminControllerTest {
         when(business.searchRoleUser(anyString())).thenReturn(users);
 
         mockMvc.perform(get("/api/v1/admin/search")
-                .param("role", role)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .param("role", role)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id").value(1L))

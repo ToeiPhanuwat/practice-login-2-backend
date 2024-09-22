@@ -17,6 +17,8 @@ public interface AuthService {
 
     User updateUser(User user);
 
+    void updateFile(User user, String fileName);
+
     @Cacheable(value = "user", key = "#id", unless = "#result == null")
     Optional<User> getUserById(Long id);
 

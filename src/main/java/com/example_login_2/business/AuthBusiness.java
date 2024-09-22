@@ -14,9 +14,9 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 @Log4j2
@@ -197,22 +197,15 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", user);
     }
 
-//    public ApiResponse<User> updateUser(MultipartFile file, UpdateRequest request) {
-//        User user = jwtTokenService.getCurrentUserByToken();
-//
-////        if (file != null && !file.isEmpty()) {
-////            request.setFileName(storageService.uploadProfilePicture(file));
-////        }
-//
-//        request.setFileName(storageService.uploadProfilePicture(file));
-//
-//        user = authService.updateUserRequest(user, request);
-//
-//        Address address = addressService.updateAddress(user, request);
-//        user = authService.updateAddress(user, address);
-//
-//        return new ApiResponse<>(true, "Operation completed successfully", user);
-//    }
+    public ApiResponse<String> updateUser(MultipartFile file) {
+        User user = jwtTokenService.getCurrentUserByToken();
+
+        String fileName = storageService.uploadProfilePicture(file);
+        if (Objects.isNull(fileName)) throw BadRequestException.noFile();
+
+        authService.updateFile(user, fileName);
+        return new ApiResponse<>(true, "Operation completed successfully", null);
+    }
 
     public void deleteUser() {
         User user = jwtTokenService.getCurrentUserByToken();

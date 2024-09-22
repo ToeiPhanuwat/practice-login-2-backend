@@ -2,7 +2,10 @@ package com.example_login_2.controller_unit_test;
 
 import com.example_login_2.business.AuthBusiness;
 import com.example_login_2.controller.ApiResponse;
-import com.example_login_2.controller.AuthRequest.*;
+import com.example_login_2.controller.AuthRequest.ForgotPasswordRequest;
+import com.example_login_2.controller.AuthRequest.LoginRequest;
+import com.example_login_2.controller.AuthRequest.PasswordResetRequest;
+import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.api.AuthController;
 import com.example_login_2.controller.request.UpdateRequest;
@@ -16,17 +19,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.nio.charset.StandardCharsets;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -47,6 +45,7 @@ public class AuthControllerTest {
     private ApiResponse<ModelDTO> mockResponse;
     private User mockUse;
     private ApiResponse<User> mockResponseUser;
+
     @BeforeEach
     public void setUp() {
         mockModelDTO = new ModelDTO();
@@ -84,8 +83,8 @@ public class AuthControllerTest {
         when(business.register(any(RegisterRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/api/v1/auth/registers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message))
@@ -103,8 +102,8 @@ public class AuthControllerTest {
         when(business.login(any(LoginRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/api/v1/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message))
                 .andExpect(jsonPath("$.data").exists());
@@ -160,8 +159,8 @@ public class AuthControllerTest {
         when(business.forgotPassword(any(ForgotPasswordRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/api/v1/auth/forgot-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message))
@@ -180,8 +179,8 @@ public class AuthControllerTest {
         when(business.resetPassword(any(PasswordResetRequest.class))).thenReturn(response);
 
         mockMvc.perform(put("/api/v1/auth/reset-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message));
@@ -209,8 +208,8 @@ public class AuthControllerTest {
         when(business.updateUser(any(UpdateRequest.class))).thenReturn(mockResponseUser);
 
         mockMvc.perform(put("/api/v1/auth")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateRequest)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message))

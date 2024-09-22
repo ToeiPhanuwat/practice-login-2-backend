@@ -52,4 +52,8 @@ public class BadRequestException extends RuntimeException {
     public static BadRequestException tokenIsMissing() {
         return new BadRequestException("Token is missing.");
     }
+
+    public static BadRequestException noFile() {
+        return new BadRequestException("File is required and cannot be empty.");
+    }
 }

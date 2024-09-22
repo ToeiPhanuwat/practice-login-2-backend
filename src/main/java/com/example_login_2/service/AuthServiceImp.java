@@ -49,6 +49,12 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
+    public void updateFile(User user, String fileName) {
+        user.setFileName(fileName);
+        authRepository.save(user);
+    }
+
+    @Override
     public Optional<User> getUserById(Long id) {
         return authRepository.findById(id);
     }

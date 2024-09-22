@@ -68,17 +68,15 @@ public class AuthController {
         return ResponseEntity.ok(authBusiness.getUserById());
     }
 
-    @PutMapping()
+    @PutMapping
     public ResponseEntity<ApiResponse<User>> updateUser(@RequestBody UpdateRequest request) {
         return ResponseEntity.ok(authBusiness.updateUser(request));
     }
 
-//    @PutMapping
-//    public ResponseEntity<ApiResponse<User>> updateUser(
-//            @RequestPart MultipartFile file,
-//            @RequestPart UpdateRequest request) {
-//        return ResponseEntity.ok(authBusiness.updateUser(file, request));
-//    }
+    @PutMapping("/file")
+    public ResponseEntity<ApiResponse<String>> updateUser(MultipartFile file) {
+        return ResponseEntity.ok(authBusiness.updateUser(file));
+    }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping
