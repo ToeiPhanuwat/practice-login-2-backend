@@ -6,6 +6,7 @@ import com.example_login_2.controller.AuthRequest.*;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.api.AuthController;
 import com.example_login_2.controller.request.UpdateRequest;
+import com.example_login_2.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,8 @@ public class AuthControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private ModelDTO mockModelDTO;
     private ApiResponse<ModelDTO> mockResponse;
+    private User mockUse;
+    private ApiResponse<User> mockResponseUser;
     @BeforeEach
     public void setUp() {
         mockModelDTO = new ModelDTO();
@@ -51,6 +54,13 @@ public class AuthControllerTest {
         mockModelDTO.setLastName("test");
 
         mockResponse = new ApiResponse<>(true, TestDate.message, mockModelDTO);
+
+        mockUse = new User();
+        mockUse.setFirstName("test");
+        mockUse.setEmail("test@gmail.com");
+        mockUse.setPassword("test");
+
+        mockResponseUser = new ApiResponse<>(true, TestDate.message, mockUse);
     }
 
     @Configuration
@@ -181,7 +191,7 @@ public class AuthControllerTest {
 
     @Test
     public void testGetUserInfo() throws Exception {
-        when(business.getUserById()).thenReturn(mockResponse);
+        when(business.getUserById()).thenReturn(mockResponseUser);
 
         mockMvc.perform(get("/api/v1/auth"))
                 .andExpect(status().isOk())
@@ -195,36 +205,18 @@ public class AuthControllerTest {
     @Test
     public void testPutUser() throws Exception {
         UpdateRequest updateRequest = new UpdateRequest();
-        updateRequest.setFileName("test.png");
-        MockMultipartFile mockRequest = new MockMultipartFile(
-                "request",
-                "request.json",
-                "application/json",
-                objectMapper.writeValueAsString(updateRequest).getBytes(StandardCharsets.UTF_8)
-        );
-        MockMultipartFile mockFile = new MockMultipartFile(
-                "file",
-                "test.png",
-                "image/png",
-                "Test content".getBytes(StandardCharsets.UTF_8)
-        );
 
-        when(business.updateUser(any(MultipartFile.class), any(UpdateRequest.class))).thenReturn(mockResponse);
+        when(business.updateUser(any(UpdateRequest.class))).thenReturn(mockResponseUser);
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v1/auth")
-                .file(mockFile)
-                .file(mockRequest)
-                .with(request -> {
-                    request.setMethod("PUT");
-                    return request;
-                })
-                .contentType(MediaType.MULTIPART_FORM_DATA))
+        mockMvc.perform(put("/api/v1/auth")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message))
                 .andExpect(jsonPath("$.data").exists());
 
-        verify(business).updateUser(any(MultipartFile.class), any(UpdateRequest.class));
+        verify(business).updateUser(any(UpdateRequest.class));
     }
 
     @Test

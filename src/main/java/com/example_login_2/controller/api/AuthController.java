@@ -33,9 +33,6 @@ public class AuthController {
     public ResponseEntity<ApiResponse<ModelDTO>> login(
             @Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authBusiness.login(request));
-//        return ResponseEntity.ok()
-////                .headers()
-//                .body(authBusiness.login(request));
     }
 
     @GetMapping("/activate/{token}")
@@ -66,22 +63,22 @@ public class AuthController {
         return ResponseEntity.ok(authBusiness.resetPassword(request));
     }
 
-//    @GetMapping("/profile")
-//    public ResponseEntity<ApiResponse<ModelDTO>> getUserProfile() {
-//        return ResponseEntity.ok(authBusiness.getUserById());
-//    }
-
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<User>> getUserProfile() {
         return ResponseEntity.ok(authBusiness.getUserById());
     }
 
-    @PutMapping
-    public ResponseEntity<ApiResponse<User>> updateUser(
-            @RequestPart MultipartFile file,
-            @RequestPart UpdateRequest request) {
-        return ResponseEntity.ok(authBusiness.updateUser(file, request));
+    @PutMapping()
+    public ResponseEntity<ApiResponse<User>> updateUser(@RequestBody UpdateRequest request) {
+        return ResponseEntity.ok(authBusiness.updateUser(request));
     }
+
+//    @PutMapping
+//    public ResponseEntity<ApiResponse<User>> updateUser(
+//            @RequestPart MultipartFile file,
+//            @RequestPart UpdateRequest request) {
+//        return ResponseEntity.ok(authBusiness.updateUser(file, request));
+//    }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping

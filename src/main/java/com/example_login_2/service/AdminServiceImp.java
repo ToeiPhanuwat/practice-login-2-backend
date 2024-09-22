@@ -36,9 +36,6 @@ public class AdminServiceImp implements AdminService {
 
     @Override
     public User updateUserRequest(User user, UpdateRequest request) {
-        if (request.getFileName() != null) {
-            user.setFileName(request.getFileName());
-        }
         user
                 .setFirstName(request.getFirstName())
                 .setLastName(request.getLastName())

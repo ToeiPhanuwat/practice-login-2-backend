@@ -36,6 +36,7 @@ public class AuthServiceImp implements AuthService {
 
         final String ROLE = "ROLE_USER";
         User user = new User()
+                .setFirstName(request.getFirstName())
                 .setEmail(request.getEmail())
                 .setPassword(bCryptPasswordEncoder.encode(request.getPassword()))
                 .setRoles(new HashSet<>(Collections.singleton(ROLE)));
@@ -54,9 +55,6 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public User updateUserRequest(User user, UpdateRequest request) {
-        if (request.getFileName() != null) {
-            user.setFileName(request.getFileName());
-        }
         user = user
                 .setFirstName(request.getFirstName())
                 .setLastName(request.getLastName())

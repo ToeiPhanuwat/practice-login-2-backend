@@ -398,7 +398,7 @@ public class AuthBusinessTest {
 
         when(jwtTokenService.getCurrentUserByToken()).thenReturn(mockUser);
 
-        ApiResponse<ModelDTO> response = business.getUserById();
+        ApiResponse<User> response = business.getUserById();
 
         assertTrue(response.isSuccess());
 
@@ -408,21 +408,17 @@ public class AuthBusinessTest {
     @Test
     public void testUpdateUser_Success() {
         UpdateRequest request = new UpdateRequest();
-        MultipartFile file = mock(MultipartFile.class);
-        String fileName = TestData.fileName;
 
         when(jwtTokenService.getCurrentUserByToken()).thenReturn(mockUser);
-        when(storageService.uploadProfilePicture(any(MultipartFile.class))).thenReturn(fileName);
         when(authService.updateUserRequest(any(User.class), any(UpdateRequest.class))).thenReturn(mockUser);
         when(addressService.updateAddress(any(User.class), any(UpdateRequest.class))).thenReturn(mockAddress);
         when(authService.updateAddress(any(User.class), any(Address.class))).thenReturn(mockUser);
 
-        ApiResponse<ModelDTO> response = business.updateUser(file, request);
+        ApiResponse<User> response = business.updateUser(request);
 
         assertTrue(response.isSuccess());
 
         verify(jwtTokenService).getCurrentUserByToken();
-        verify(storageService).uploadProfilePicture(any(MultipartFile.class));
         verify(authService).updateUserRequest(any(User.class), any(UpdateRequest.class));
         verify(addressService).updateAddress(any(User.class), any(UpdateRequest.class));
         verify(authService).updateAddress(any(User.class), any(Address.class));

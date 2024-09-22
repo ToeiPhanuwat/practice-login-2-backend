@@ -10,7 +10,6 @@ import com.example_login_2.model.*;
 import com.example_login_2.service.*;
 import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -187,14 +186,8 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", user);
     }
 
-    public ApiResponse<User> updateUser(MultipartFile file, UpdateRequest request) {
+    public ApiResponse<User> updateUser(UpdateRequest request) {
         User user = jwtTokenService.getCurrentUserByToken();
-
-//        if (file != null && !file.isEmpty()) {
-//            request.setFileName(storageService.uploadProfilePicture(file));
-//        }
-
-        request.setFileName(storageService.uploadProfilePicture(file));
 
         user = authService.updateUserRequest(user, request);
 
@@ -203,6 +196,23 @@ public class AuthBusiness {
 
         return new ApiResponse<>(true, "Operation completed successfully", user);
     }
+
+//    public ApiResponse<User> updateUser(MultipartFile file, UpdateRequest request) {
+//        User user = jwtTokenService.getCurrentUserByToken();
+//
+////        if (file != null && !file.isEmpty()) {
+////            request.setFileName(storageService.uploadProfilePicture(file));
+////        }
+//
+//        request.setFileName(storageService.uploadProfilePicture(file));
+//
+//        user = authService.updateUserRequest(user, request);
+//
+//        Address address = addressService.updateAddress(user, request);
+//        user = authService.updateAddress(user, address);
+//
+//        return new ApiResponse<>(true, "Operation completed successfully", user);
+//    }
 
     public void deleteUser() {
         User user = jwtTokenService.getCurrentUserByToken();
