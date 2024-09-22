@@ -7,10 +7,14 @@ import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.User;
 import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.net.MalformedURLException;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -74,8 +78,16 @@ public class AuthController {
     }
 
     @PutMapping("/file")
-    public ResponseEntity<ApiResponse<String>> updateUser(MultipartFile file) {
+    public ResponseEntity<ApiResponse<String>> updateUser(@RequestPart MultipartFile file) {
         return ResponseEntity.ok(authBusiness.updateUser(file));
+    }
+
+    @GetMapping("/images/{file}")
+    public ResponseEntity<Resource> getImage(@PathVariable String file) throws MalformedURLException {
+        Resource resource = authBusiness.getImage(file);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(resource);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -10,10 +10,15 @@ import com.example_login_2.model.*;
 import com.example_login_2.service.*;
 import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
@@ -210,6 +215,11 @@ public class AuthBusiness {
     public void deleteUser() {
         User user = jwtTokenService.getCurrentUserByToken();
         authService.deleteUser(user.getId());
+    }
+
+    public Resource getImage(String file) throws MalformedURLException {
+        Path filePath = Paths.get("images").resolve(file).normalize();
+        return new UrlResource(filePath.toUri());
     }
 
     private CustomUserDetails validateAndGetUserDetails() {
