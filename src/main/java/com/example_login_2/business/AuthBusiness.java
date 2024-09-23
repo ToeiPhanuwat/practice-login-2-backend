@@ -197,7 +197,7 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", mUserResponse);
     }
 
-    public ApiResponse<User> updateUser(UpdateRequest request) {
+    public ApiResponse<MUserResponse> updateUser(UpdateRequest request) {
         User user = jwtTokenService.getCurrentUserByToken();
 
         user = authService.updateUserRequest(user, request);
@@ -205,7 +205,9 @@ public class AuthBusiness {
         Address address = addressService.updateAddress(user, request);
         user = authService.updateAddress(user, address);
 
-        return new ApiResponse<>(true, "Operation completed successfully", user);
+        MUserResponse mUserResponse = userMapper.toUserResponse(user);
+
+        return new ApiResponse<>(true, "Operation completed successfully", mUserResponse);
     }
 
     public ApiResponse<String> updateUser(MultipartFile file) {

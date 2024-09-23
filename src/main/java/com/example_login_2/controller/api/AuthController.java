@@ -74,7 +74,7 @@ public class AuthController {
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse<User>> updateUser(@RequestBody UpdateRequest request) {
+    public ResponseEntity<ApiResponse<MUserResponse>> updateUser(@RequestBody UpdateRequest request) {
         return ResponseEntity.ok(authBusiness.updateUser(request));
     }
 
