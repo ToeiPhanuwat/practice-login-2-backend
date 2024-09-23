@@ -38,9 +38,9 @@ public class EmailBusiness {
 
         log.info("Token = " + emailConfirm.getToken());
 
-        String activateLink = "http://localhost:3000/api/v1/auth/activate/" + emailConfirm.getToken();
-        String reEmailLink = "http://localhost:3000/api/v1/auth/resend-activation-email/" + emailConfirm.getToken();
-        html = html.replace("${P_NAME}", "Tonson");
+        String activateLink = "http://localhost:3000/activate/" + emailConfirm.getToken();
+        String reEmailLink = "http://localhost:3000/resend-activation-email/" + emailConfirm.getToken();
+        html = html.replace("${P_NAME}", user.getFirstName());
         html = html.replace("${ACTIVATE_LINK}", activateLink);
         html = html.replace("${RE_EMAIL_LINK}", reEmailLink);
 
@@ -71,8 +71,8 @@ public class EmailBusiness {
         log.info("Token = " + user.getPasswordResetToken());
         log.info("Email User : " + user.getEmail());
 
-        String passwordResetLink = "http://localhost:3000/api/v1/auth/forgot-password/" + passwordResetToken.getToken();
-        html = html.replace("${P_NAME}", "Tonson");
+        String passwordResetLink = "http://localhost:3000/reset-password/" + passwordResetToken.getToken();
+        html = html.replace("${P_NAME}", user.getFirstName());
         html = html.replace("${EMAIL}", user.getEmail());
         html = html.replace("${PASSWORD_RESET_LINK}", passwordResetLink);
 

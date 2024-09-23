@@ -34,8 +34,9 @@ public class AuthServiceImp implements AuthService {
     public User createUser(RegisterRequest request) {
         if (authRepository.existsByEmail(request.getEmail())) throw ConflictException.createDuplicate();
 
-        final String ROLE = "ROLE_ADMIN";
+        final String ROLE = "ROLE_USER";
         User user = new User()
+                .setFirstName(request.getFirstName())
                 .setEmail(request.getEmail())
                 .setPassword(bCryptPasswordEncoder.encode(request.getPassword()))
                 .setRoles(new HashSet<>(Collections.singleton(ROLE)));
@@ -48,15 +49,18 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
+    public void updateFile(User user, String fileName) {
+        user.setFileName(fileName);
+        authRepository.save(user);
+    }
+
+    @Override
     public Optional<User> getUserById(Long id) {
         return authRepository.findById(id);
     }
 
     @Override
     public User updateUserRequest(User user, UpdateRequest request) {
-        if (request.getFileName() != null) {
-            user.setFileName(request.getFileName());
-        }
         user = user
                 .setFirstName(request.getFirstName())
                 .setLastName(request.getLastName())

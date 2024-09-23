@@ -13,6 +13,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @EnableWebSecurity
 @Configuration
@@ -39,12 +42,23 @@ public class SecurityConfig {
     };
 
     @Bean
+    CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // สร้างเพื่อกำหนดค่า CORS ให้กับ URL pattern ต่างๆ
+        CorsConfiguration config = new CorsConfiguration(); // สร้างเพื่อกำหนดนโยบาย CORS
+        config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/**", config); // กำหนดนโยบาย CORS ให้กับ URL pattern ทั้งหมด
+        return new CorsFilter(source); // สร้างและคืนค่า CorsFilter เพื่อใช้ในระบบ
+    }
+
+    @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/admin").hasRole("ADMIN")
-                        .requestMatchers(PUBLIC).permitAll().anyRequest().authenticated())
+                        .requestMatchers(PUBLIC).permitAll()
+                        .anyRequest().authenticated())
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(tokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(handling -> handling

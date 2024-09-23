@@ -5,11 +5,16 @@ import com.example_login_2.controller.ApiResponse;
 import com.example_login_2.controller.AuthRequest.*;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.UpdateRequest;
+import com.example_login_2.model.User;
 import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.net.MalformedURLException;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -34,10 +39,9 @@ public class AuthController {
         return ResponseEntity.ok(authBusiness.login(request));
     }
 
-    @PostMapping("/activate")
-    public ResponseEntity<ApiResponse<ModelDTO>> activate(
-            @Valid @RequestBody ActivateRequest request) {
-        ApiResponse<ModelDTO> response = authBusiness.activate(request);
+    @GetMapping("/activate/{token}")
+    public ResponseEntity<ApiResponse<ModelDTO>> activate(@PathVariable String token) {
+        ApiResponse<ModelDTO> response = authBusiness.activate(token);
         return ResponseEntity.ok(response);
     }
 
@@ -46,10 +50,9 @@ public class AuthController {
         return ResponseEntity.ok(authBusiness.logout());
     }
 
-    @PostMapping("/resend-activation-email")
-    public ResponseEntity<ApiResponse<String>> resendActivationEmail(
-            @Valid @RequestBody ResendActivationEmailRequest request) {
-        return ResponseEntity.ok(authBusiness.resendActivationEmail(request));
+    @GetMapping("/resend-activation-email/{token}")
+    public ResponseEntity<ApiResponse<String>> resendActivationEmail(@PathVariable String token) {
+        return ResponseEntity.ok(authBusiness.resendActivationEmail(token));
     }
 
     @PostMapping("/forgot-password")
@@ -64,16 +67,27 @@ public class AuthController {
         return ResponseEntity.ok(authBusiness.resetPassword(request));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<ModelDTO>> getUserInfo() {
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<User>> getUserProfile() {
         return ResponseEntity.ok(authBusiness.getUserById());
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse<ModelDTO>> updateUser(
-            @RequestPart MultipartFile file,
-            @RequestPart UpdateRequest request) {
-        return ResponseEntity.ok(authBusiness.updateUser(file, request));
+    public ResponseEntity<ApiResponse<User>> updateUser(@RequestBody UpdateRequest request) {
+        return ResponseEntity.ok(authBusiness.updateUser(request));
+    }
+
+    @PutMapping("/file")
+    public ResponseEntity<ApiResponse<String>> updateUser(@RequestPart MultipartFile file) {
+        return ResponseEntity.ok(authBusiness.updateUser(file));
+    }
+
+    @GetMapping("/images/{file}")
+    public ResponseEntity<Resource> getImage(@PathVariable String file) throws MalformedURLException {
+        Resource resource = authBusiness.getImage(file);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(resource);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

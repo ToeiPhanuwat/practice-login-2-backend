@@ -31,7 +31,7 @@ public class User extends BaseModel implements Serializable {
     @Column(nullable = false, length = 120)
     private String password;
 
-    @Column(length = 60)
+    @Column(nullable = false, length = 60)
     private String firstName;
 
     @Column(length = 60)

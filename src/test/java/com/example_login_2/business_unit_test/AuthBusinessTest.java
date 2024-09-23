@@ -15,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -53,6 +52,7 @@ public class AuthBusinessTest {
     private JwtToken mockJwt;
     private LoginRequest mockLoginRequest;
     private ActivateRequest mockActivateRequest;
+    private String mockToken;
     private PasswordResetRequest mockPasswordResetRequest;
     private PasswordResetToken mockPasswordResetToken;
 
@@ -81,6 +81,8 @@ public class AuthBusinessTest {
 
         mockActivateRequest = new ActivateRequest();
         mockActivateRequest.setToken(TestData.tokenEmailConfirm);
+
+        mockToken = TestData.tokenEmailConfirm;
 
         mockPasswordResetRequest = new PasswordResetRequest();
         mockPasswordResetRequest.setToken("Token reset password");
@@ -198,7 +200,7 @@ public class AuthBusinessTest {
         when(emailConfirmService.getEmailConfirmByToken(anyString())).thenReturn(Optional.of(emailConfirm));
         when(emailConfirmService.updateEnableVerificationEmail(any(EmailConfirm.class))).thenReturn(mockEmailConfirm);
 
-        ApiResponse<ModelDTO> response = business.activate(mockActivateRequest);
+        ApiResponse<ModelDTO> response = business.activate(mockToken);
 
         assertTrue(response.isSuccess());
         assertEquals("true", response.getData().getActivated());
@@ -211,7 +213,7 @@ public class AuthBusinessTest {
     public void testActivate_TokenNotFound() {
         when(emailConfirmService.getEmailConfirmByToken(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> business.activate(mockActivateRequest));
+        assertThrows(NotFoundException.class, () -> business.activate(mockToken));
 
         verify(emailConfirmService).getEmailConfirmByToken(anyString());
     }
@@ -221,7 +223,7 @@ public class AuthBusinessTest {
         mockEmailConfirm.setActivated(true);
         when(emailConfirmService.getEmailConfirmByToken(anyString())).thenReturn(Optional.of(mockEmailConfirm));
 
-        assertThrows(ConflictException.class, () -> business.activate(mockActivateRequest));
+        assertThrows(ConflictException.class, () -> business.activate(mockToken));
 
         verify(emailConfirmService).getEmailConfirmByToken(anyString());
     }
@@ -234,7 +236,7 @@ public class AuthBusinessTest {
 
         when(emailConfirmService.getEmailConfirmByToken(anyString())).thenReturn(Optional.of(mockEmailConfirm));
 
-        assertThrows(GoneException.class, () -> business.activate(mockActivateRequest));
+        assertThrows(GoneException.class, () -> business.activate(mockToken));
 
         verify(emailConfirmService).getEmailConfirmByToken(anyString());
     }
@@ -274,13 +276,10 @@ public class AuthBusinessTest {
     @Test
     public void testResentActivationEmail_Success() {
         mockEmailConfirm.setActivated(false);
-        ResendActivationEmailRequest request = new ResendActivationEmailRequest();
-        request.setToken(TestData.tokenEmailConfirm);
-
         when(emailConfirmService.getEmailConfirmByToken(anyString())).thenReturn(Optional.of(mockEmailConfirm));
         when(emailConfirmService.updateEmailConfirm(any(EmailConfirm.class))).thenReturn(mockEmailConfirm);
 
-        ApiResponse<String> response = business.resendActivationEmail(request);
+        ApiResponse<String> response = business.resendActivationEmail(TestData.tokenJwt);
 
         assertTrue(response.isSuccess());
 
@@ -398,7 +397,7 @@ public class AuthBusinessTest {
 
         when(jwtTokenService.getCurrentUserByToken()).thenReturn(mockUser);
 
-        ApiResponse<ModelDTO> response = business.getUserById();
+        ApiResponse<User> response = business.getUserById();
 
         assertTrue(response.isSuccess());
 
@@ -408,21 +407,17 @@ public class AuthBusinessTest {
     @Test
     public void testUpdateUser_Success() {
         UpdateRequest request = new UpdateRequest();
-        MultipartFile file = mock(MultipartFile.class);
-        String fileName = TestData.fileName;
 
         when(jwtTokenService.getCurrentUserByToken()).thenReturn(mockUser);
-        when(storageService.uploadProfilePicture(any(MultipartFile.class))).thenReturn(fileName);
         when(authService.updateUserRequest(any(User.class), any(UpdateRequest.class))).thenReturn(mockUser);
         when(addressService.updateAddress(any(User.class), any(UpdateRequest.class))).thenReturn(mockAddress);
         when(authService.updateAddress(any(User.class), any(Address.class))).thenReturn(mockUser);
 
-        ApiResponse<ModelDTO> response = business.updateUser(file, request);
+        ApiResponse<User> response = business.updateUser(request);
 
         assertTrue(response.isSuccess());
 
         verify(jwtTokenService).getCurrentUserByToken();
-        verify(storageService).uploadProfilePicture(any(MultipartFile.class));
         verify(authService).updateUserRequest(any(User.class), any(UpdateRequest.class));
         verify(addressService).updateAddress(any(User.class), any(UpdateRequest.class));
         verify(authService).updateAddress(any(User.class), any(Address.class));

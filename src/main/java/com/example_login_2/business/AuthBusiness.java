@@ -10,12 +10,18 @@ import com.example_login_2.model.*;
 import com.example_login_2.service.*;
 import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 @Log4j2
@@ -86,8 +92,8 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<ModelDTO> activate(ActivateRequest request) {
-        EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
+    public ApiResponse<ModelDTO> activate(String token) {
+        EmailConfirm emailConfirm = validateAndGetEmailConfirm(token);
 
         Date now = new Date();
         Date tokenExpireAt = emailConfirm.getExpiresAt();
@@ -114,8 +120,8 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Logged out successfully!", null);
     }
 
-    public ApiResponse<String> resendActivationEmail(ResendActivationEmailRequest request) {
-        EmailConfirm emailConfirm = validateAndGetEmailConfirm(request.getToken());
+    public ApiResponse<String> resendActivationEmail(String token) {
+        EmailConfirm emailConfirm = validateAndGetEmailConfirm(token);
 
         emailConfirm = emailConfirmService.updateEmailConfirm(emailConfirm);
 
@@ -179,63 +185,41 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<ModelDTO> getUserById() {
+    public ApiResponse<User> getUserById() {
         User user = jwtTokenService.getCurrentUserByToken();
-        Address address = user.getAddress();
-        String isActivated = String.valueOf(user.getEmailConfirm().isActivated());
 
-        ModelDTO modelDTO = new ModelDTO();
-        modelDTO
-                .setActivated(isActivated)
-                .setFirstName(user.getFirstName())
-                .setLastName(user.getLastName())
-                .setPhoneNumber(user.getPhoneNumber())
-                .setDateOfBirth(user.getDateOfBirth())
-                .setGender(user.getGender())
-                .setFileName(user.getFileName())
-                .setRole(user.getRoles().toString())
-                .setAddress(address.getAddress())
-                .setCity(address.getCity())
-                .setStateProvince(address.getStateProvince())
-                .setPostalCode(address.getPostalCode())
-                .setCountry(address.getCountry());
-
-        return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
+        return new ApiResponse<>(true, "Operation completed successfully", user);
     }
 
-    public ApiResponse<ModelDTO> updateUser(MultipartFile file, UpdateRequest request) {
+    public ApiResponse<User> updateUser(UpdateRequest request) {
         User user = jwtTokenService.getCurrentUserByToken();
-
-//        if (file != null && !file.isEmpty()) {
-//            request.setFileName(storageService.uploadProfilePicture(file));
-//        }
-
-        request.setFileName(storageService.uploadProfilePicture(file));
 
         user = authService.updateUserRequest(user, request);
 
         Address address = addressService.updateAddress(user, request);
         user = authService.updateAddress(user, address);
 
-        ModelDTO modelDTO = new ModelDTO()
-                .setEmail(user.getEmail())
-                .setFirstName(user.getFirstName())
-                .setLastName(user.getLastName())
-                .setPhoneNumber(user.getPhoneNumber())
-                .setDateOfBirth(user.getDateOfBirth())
-                .setGender(user.getGender())
-                .setFileName(user.getFileName())
-                .setAddress(address.getAddress())
-                .setCity(address.getCity())
-                .setStateProvince(address.getStateProvince())
-                .setPostalCode(address.getPostalCode())
-                .setCountry(address.getCountry());
-        return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
+        return new ApiResponse<>(true, "Operation completed successfully", user);
+    }
+
+    public ApiResponse<String> updateUser(MultipartFile file) {
+        User user = jwtTokenService.getCurrentUserByToken();
+
+        String fileName = storageService.uploadProfilePicture(file);
+        if (Objects.isNull(fileName)) throw BadRequestException.noFile();
+
+        authService.updateFile(user, fileName);
+        return new ApiResponse<>(true, "Operation completed successfully", null);
     }
 
     public void deleteUser() {
         User user = jwtTokenService.getCurrentUserByToken();
         authService.deleteUser(user.getId());
+    }
+
+    public Resource getImage(String file) throws MalformedURLException {
+        Path filePath = Paths.get("images").resolve(file).normalize();
+        return new UrlResource(filePath.toUri());
     }
 
     private CustomUserDetails validateAndGetUserDetails() {

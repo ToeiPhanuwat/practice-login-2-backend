@@ -84,14 +84,12 @@ public class AuthServiceTest {
     @Test
     public void testUpdateUserRequest() {
         UpdateRequest request = new UpdateRequest();
-        request.setFileName(TestData.fileName);
 
         when(repository.save(any(User.class))).thenReturn(mockUser);
 
         User user = serviceImp.updateUserRequest(mockUser, request);
 
         assertNotNull(user);
-        assertEquals(request.getFileName(), user.getFileName());
         assertEquals(mockUser.getEmail(), user.getEmail());
 
         verify(repository).save(any(User.class));

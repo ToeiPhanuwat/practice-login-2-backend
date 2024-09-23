@@ -2,10 +2,14 @@ package com.example_login_2.controller_unit_test;
 
 import com.example_login_2.business.AuthBusiness;
 import com.example_login_2.controller.ApiResponse;
-import com.example_login_2.controller.AuthRequest.*;
+import com.example_login_2.controller.AuthRequest.ForgotPasswordRequest;
+import com.example_login_2.controller.AuthRequest.LoginRequest;
+import com.example_login_2.controller.AuthRequest.PasswordResetRequest;
+import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.api.AuthController;
 import com.example_login_2.controller.request.UpdateRequest;
+import com.example_login_2.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,17 +19,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.nio.charset.StandardCharsets;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -44,6 +43,9 @@ public class AuthControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private ModelDTO mockModelDTO;
     private ApiResponse<ModelDTO> mockResponse;
+    private User mockUse;
+    private ApiResponse<User> mockResponseUser;
+
     @BeforeEach
     public void setUp() {
         mockModelDTO = new ModelDTO();
@@ -51,6 +53,13 @@ public class AuthControllerTest {
         mockModelDTO.setLastName("test");
 
         mockResponse = new ApiResponse<>(true, TestDate.message, mockModelDTO);
+
+        mockUse = new User();
+        mockUse.setFirstName("test");
+        mockUse.setEmail("test@gmail.com");
+        mockUse.setPassword("test");
+
+        mockResponseUser = new ApiResponse<>(true, TestDate.message, mockUse);
     }
 
     @Configuration
@@ -74,8 +83,8 @@ public class AuthControllerTest {
         when(business.register(any(RegisterRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/api/v1/auth/registers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message))
@@ -93,8 +102,8 @@ public class AuthControllerTest {
         when(business.login(any(LoginRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/api/v1/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message))
                 .andExpect(jsonPath("$.data").exists());
@@ -104,20 +113,15 @@ public class AuthControllerTest {
 
     @Test
     public void testActivate() throws Exception {
-        ActivateRequest request = new ActivateRequest();
-        request.setToken("test-token-activate");
+        when(business.activate(anyString())).thenReturn(mockResponse);
 
-        when(business.activate(any(ActivateRequest.class))).thenReturn(mockResponse);
-
-        mockMvc.perform(post("/api/v1/auth/activate")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(get("/api/v1/auth/activate/{token}", TestDate.token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message))
                 .andExpect(jsonPath("$.data").exists());
 
-        verify(business, times(1)).activate(any(ActivateRequest.class));
+        verify(business, times(1)).activate(anyString());
     }
 
     @Test
@@ -135,21 +139,16 @@ public class AuthControllerTest {
 
     @Test
     public void testResendActivationEmail() throws Exception {
-        ResendActivationEmailRequest request = new ResendActivationEmailRequest();
-        request.setToken("test-resend-activation-email");
-
         ApiResponse<String> response = new ApiResponse<>(true, TestDate.message, null);
 
-        when(business.resendActivationEmail(any(ResendActivationEmailRequest.class))).thenReturn(response);
+        when(business.resendActivationEmail(anyString())).thenReturn(response);
 
-        mockMvc.perform(post("/api/v1/auth/resend-activation-email")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(get("/api/v1/auth/resend-activation-email/{token}", TestDate.token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message));
 
-        verify(business).resendActivationEmail(any(ResendActivationEmailRequest.class));
+        verify(business).resendActivationEmail(anyString());
     }
 
     @Test
@@ -160,8 +159,8 @@ public class AuthControllerTest {
         when(business.forgotPassword(any(ForgotPasswordRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/api/v1/auth/forgot-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message))
@@ -180,8 +179,8 @@ public class AuthControllerTest {
         when(business.resetPassword(any(PasswordResetRequest.class))).thenReturn(response);
 
         mockMvc.perform(put("/api/v1/auth/reset-password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message));
@@ -191,7 +190,7 @@ public class AuthControllerTest {
 
     @Test
     public void testGetUserInfo() throws Exception {
-        when(business.getUserById()).thenReturn(mockResponse);
+        when(business.getUserById()).thenReturn(mockResponseUser);
 
         mockMvc.perform(get("/api/v1/auth"))
                 .andExpect(status().isOk())
@@ -205,36 +204,18 @@ public class AuthControllerTest {
     @Test
     public void testPutUser() throws Exception {
         UpdateRequest updateRequest = new UpdateRequest();
-        updateRequest.setFileName("test.png");
-        MockMultipartFile mockRequest = new MockMultipartFile(
-                "request",
-                "request.json",
-                "application/json",
-                objectMapper.writeValueAsString(updateRequest).getBytes(StandardCharsets.UTF_8)
-        );
-        MockMultipartFile mockFile = new MockMultipartFile(
-                "file",
-                "test.png",
-                "image/png",
-                "Test content".getBytes(StandardCharsets.UTF_8)
-        );
 
-        when(business.updateUser(any(MultipartFile.class), any(UpdateRequest.class))).thenReturn(mockResponse);
+        when(business.updateUser(any(UpdateRequest.class))).thenReturn(mockResponseUser);
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v1/auth")
-                .file(mockFile)
-                .file(mockRequest)
-                .with(request -> {
-                    request.setMethod("PUT");
-                    return request;
-                })
-                .contentType(MediaType.MULTIPART_FORM_DATA))
+        mockMvc.perform(put("/api/v1/auth")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value(TestDate.message))
                 .andExpect(jsonPath("$.data").exists());
 
-        verify(business).updateUser(any(MultipartFile.class), any(UpdateRequest.class));
+        verify(business).updateUser(any(UpdateRequest.class));
     }
 
     @Test
@@ -258,6 +239,7 @@ public class AuthControllerTest {
     }
 
     interface TestDate {
+        String token = "token";
         String message = "Operation completed successfully";
     }
 }

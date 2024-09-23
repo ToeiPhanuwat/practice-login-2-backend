@@ -11,6 +11,10 @@ import lombok.Setter;
 public class RegisterRequest {
 
     @NotEmpty
+    @Size(max = 60)
+    private String firstName;
+
+    @NotEmpty
     @Email
     @Size(min = 6, max = 30)
     private String email;
