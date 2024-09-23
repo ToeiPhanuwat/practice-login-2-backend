@@ -3,9 +3,11 @@ package com.example_login_2.business;
 import com.example_login_2.config.CustomUserDetails;
 import com.example_login_2.controller.ApiResponse;
 import com.example_login_2.controller.AuthRequest.*;
+import com.example_login_2.controller.AuthResponse.MUserResponse;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.*;
+import com.example_login_2.mapper.UserMapper;
 import com.example_login_2.model.*;
 import com.example_login_2.service.*;
 import com.example_login_2.util.SecurityUtil;
@@ -34,8 +36,9 @@ public class AuthBusiness {
     private final AddressService addressService;
     private final JwtBlacklistService jwtBlacklistService;
     private final EmailBusiness emailBusiness;
+    private final UserMapper userMapper;
 
-    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService, AddressService addressService, JwtBlacklistService jwtBlacklistService) {
+    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService, AddressService addressService, JwtBlacklistService jwtBlacklistService, UserMapper userMapper) {
         this.emailBusiness = emailBusiness;
         this.authService = authService;
         this.emailConfirmService = emailConfirmService;
@@ -43,6 +46,7 @@ public class AuthBusiness {
         this.storageService = storageService;
         this.jwtBlacklistService = jwtBlacklistService;
         this.addressService = addressService;
+        this.userMapper = userMapper;
     }
 
     public ApiResponse<ModelDTO> register(RegisterRequest request) {
@@ -185,10 +189,12 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<User> getUserById() {
+    public ApiResponse<MUserResponse> getUserById() {
         User user = jwtTokenService.getCurrentUserByToken();
 
-        return new ApiResponse<>(true, "Operation completed successfully", user);
+        MUserResponse mUserResponse = userMapper.toUserResponse(user);
+
+        return new ApiResponse<>(true, "Operation completed successfully", mUserResponse);
     }
 
     public ApiResponse<User> updateUser(UpdateRequest request) {

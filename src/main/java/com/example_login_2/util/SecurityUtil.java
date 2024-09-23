@@ -15,6 +15,8 @@ import java.util.Optional;
 @Log4j2
 public class SecurityUtil {
 
+    private SecurityUtil() {}
+
     public static String generateToken() {
         List<CharacterRule> rules = Arrays.asList(
 
