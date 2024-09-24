@@ -1,6 +1,5 @@
 package com.example_login_2.controller.AuthResponse;
 
-import com.example_login_2.model.Address;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,5 +25,5 @@ public class MUserResponse {
 
     private String fileName;
 
-    private Address address;
+    private String address;
 }

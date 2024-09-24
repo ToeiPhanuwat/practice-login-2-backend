@@ -2,7 +2,6 @@ package com.example_login_2.serviceUnit_unit_test;
 
 import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
-import com.example_login_2.model.Address;
 import com.example_login_2.model.User;
 import com.example_login_2.repository.AdminRepository;
 import com.example_login_2.service.AdminServiceImp;
@@ -78,20 +77,6 @@ public class AdminServiceTest {
         assertNotNull(user);
         assertEquals(mockUser.getFileName(), user.getFileName());
 
-        verify(repository).save(any(User.class));
-    }
-
-    @Test
-    public void testUpdateAddress() {
-        Address address = new Address()
-                .setAddress("555");
-        when(repository.save(any(User.class))).thenReturn(mockUser);
-
-        User user = serviceImp.updateAddress(mockUser, address);
-
-        assertNotNull(user);
-        assertNotNull(user.getAddress());
-        assertEquals(mockUser.getAddress().getAddress(), user.getAddress().getAddress());
         verify(repository).save(any(User.class));
     }
 

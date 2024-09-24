@@ -131,21 +131,6 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void testUpdateAddress() {
-        Address address = new Address()
-                .setAddress(TestData.address);
-
-        when(repository.save(any(User.class))).thenReturn(mockUser);
-
-        User user = serviceImp.updateAddress(mockUser, address);
-
-        assertNotNull(user);
-        assertEquals(address.getAddress(), user.getAddress().getAddress());
-
-        verify(repository).save(any(User.class));
-    }
-
-    @Test
     public void testUpdatePasswordResetToken() {
         String mockToken = TestData.token;
         Instant mockExpireAt = Instant.now().plus(Duration.ofMinutes(15));

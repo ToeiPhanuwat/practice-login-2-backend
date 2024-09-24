@@ -4,6 +4,7 @@ import com.example_login_2.business.AuthBusiness;
 import com.example_login_2.business.EmailBusiness;
 import com.example_login_2.controller.ApiResponse;
 import com.example_login_2.controller.AuthRequest.*;
+import com.example_login_2.controller.AuthResponse.MUserResponse;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.*;
@@ -38,8 +39,6 @@ public class AuthBusinessTest {
     @Mock
     private StorageService storageService;
     @Mock
-    private AddressService addressService;
-    @Mock
     private JwtBlacklistService jwtBlacklistService;
     @Mock
     private EmailBusiness emailBusiness;
@@ -48,7 +47,6 @@ public class AuthBusinessTest {
 
     private User mockUser;
     private EmailConfirm mockEmailConfirm;
-    private Address mockAddress;
     private JwtToken mockJwt;
     private LoginRequest mockLoginRequest;
     private ActivateRequest mockActivateRequest;
@@ -67,13 +65,10 @@ public class AuthBusinessTest {
         mockEmailConfirm = new EmailConfirm();
         mockEmailConfirm.setToken(TestData.tokenEmailConfirm);
 
-        mockAddress = new Address();
-
         mockJwt = new JwtToken();
         mockJwt.setJwtToken(TestData.tokenJwt);
 
         mockUser.setEmailConfirm(mockEmailConfirm);
-        mockUser.setAddress(mockAddress);
 
         mockLoginRequest = new LoginRequest();
         mockLoginRequest.setEmail(TestData.email);
@@ -100,8 +95,6 @@ public class AuthBusinessTest {
         when(authService.createUser(any(RegisterRequest.class))).thenReturn(mockUser);
         when(emailConfirmService.createEmailConfirm(any(User.class))).thenReturn(mockEmailConfirm);
         when(authService.updateEmailConfirm(any(User.class), any(EmailConfirm.class))).thenReturn(mockUser);
-        when(addressService.createAddress(any(User.class))).thenReturn(mockAddress);
-        when(authService.updateAddress(any(User.class), any(Address.class))).thenReturn(mockUser);
 
         ApiResponse<ModelDTO> response = business.register(request);
 
@@ -113,8 +106,6 @@ public class AuthBusinessTest {
         verify(authService).createUser(any(RegisterRequest.class));
         verify(emailConfirmService).createEmailConfirm(any(User.class));
         verify(authService).updateEmailConfirm(any(User.class), any(EmailConfirm.class));
-        verify(addressService).createAddress(any(User.class));
-        verify(authService).updateAddress(any(User.class), any(Address.class));
     }
 
     @Test
@@ -391,13 +382,12 @@ public class AuthBusinessTest {
 
     @Test
     public void testGetUserById_Success() {
-        mockUser.setAddress(mockAddress);
         mockEmailConfirm.setActivated(true);
         mockUser.setEmailConfirm(mockEmailConfirm);
 
         when(jwtTokenService.getCurrentUserByToken()).thenReturn(mockUser);
 
-        ApiResponse<User> response = business.getUserById();
+        ApiResponse<MUserResponse> response = business.getUserById();
 
         assertTrue(response.isSuccess());
 
@@ -410,17 +400,13 @@ public class AuthBusinessTest {
 
         when(jwtTokenService.getCurrentUserByToken()).thenReturn(mockUser);
         when(authService.updateUserRequest(any(User.class), any(UpdateRequest.class))).thenReturn(mockUser);
-        when(addressService.updateAddress(any(User.class), any(UpdateRequest.class))).thenReturn(mockAddress);
-        when(authService.updateAddress(any(User.class), any(Address.class))).thenReturn(mockUser);
 
-        ApiResponse<User> response = business.updateUser(request);
+        ApiResponse<MUserResponse> response = business.updateUser(request);
 
         assertTrue(response.isSuccess());
 
         verify(jwtTokenService).getCurrentUserByToken();
         verify(authService).updateUserRequest(any(User.class), any(UpdateRequest.class));
-        verify(addressService).updateAddress(any(User.class), any(UpdateRequest.class));
-        verify(authService).updateAddress(any(User.class), any(Address.class));
     }
 
     @Test

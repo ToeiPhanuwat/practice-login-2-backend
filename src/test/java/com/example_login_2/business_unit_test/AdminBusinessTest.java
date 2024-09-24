@@ -7,10 +7,8 @@ import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.ConflictException;
 import com.example_login_2.exception.NotFoundException;
-import com.example_login_2.model.Address;
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.User;
-import com.example_login_2.service.AddressService;
 import com.example_login_2.service.AdminService;
 import com.example_login_2.service.JwtTokenService;
 import com.example_login_2.service.StorageService;
@@ -34,8 +32,6 @@ import static org.mockito.Mockito.*;
 public class AdminBusinessTest {
     @Mock
     private AdminService adminService;
-    @Mock
-    private AddressService addressService;
     @Mock
     private StorageService storageService;
     @Mock
@@ -81,10 +77,6 @@ public class AdminBusinessTest {
 
     @Test
     public void testGetUserById_Success() {
-        Address address = new Address()
-                .setAddress("15/7")
-                .setUser(mockUser);
-        mockUser.setAddress(address);
         EmailConfirm emailConfirm = new EmailConfirm()
                 .setActivated(true);
         mockUser.setEmailConfirm(emailConfirm);
@@ -115,10 +107,6 @@ public class AdminBusinessTest {
 
     @Test
     public void testUpdateUser_Success() {
-
-        Address address = new Address()
-                .setAddress("15/7")
-                .setUser(mockUser);
         MultipartFile file = mock(MultipartFile.class);
         String fileName = "file.png";
         UpdateRequest request = new UpdateRequest();
@@ -127,8 +115,6 @@ public class AdminBusinessTest {
         when(adminService.getUserById(anyLong())).thenReturn(Optional.of(mockUser));
         when(storageService.uploadProfilePicture(file)).thenReturn(fileName);
         when(adminService.updateUserRequest(any(User.class), any(UpdateRequest.class))).thenReturn(mockUser);
-        when(addressService.updateAddress(any(User.class), any(UpdateRequest.class))).thenReturn(address);
-        when(adminService.updateAddress(any(User.class), any(Address.class))).thenReturn(mockUser);
 
         ApiResponse<ModelDTO> response = business.updateUser(file, request, TestData.id);
 
@@ -140,8 +126,6 @@ public class AdminBusinessTest {
         verify(adminService).getUserById(anyLong());
         verify(storageService).uploadProfilePicture(file);
         verify(adminService).updateUserRequest(any(User.class), any(UpdateRequest.class));
-        verify(addressService).updateAddress(any(User.class), any(UpdateRequest.class));
-        verify(adminService).updateAddress(any(User.class), any(Address.class));
     }
 
     @Test
