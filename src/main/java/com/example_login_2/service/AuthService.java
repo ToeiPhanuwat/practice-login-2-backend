@@ -2,7 +2,6 @@ package com.example_login_2.service;
 
 import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.request.UpdateRequest;
-import com.example_login_2.model.Address;
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.User;
@@ -25,8 +24,6 @@ public interface AuthService {
     @CachePut(value = "user", key = "#user.id")
     User updateUserRequest(User user, UpdateRequest request);
 
-    User updateEmailConfirmAndAddress(User user, EmailConfirm emailConfirm, Address address);
-
     User updateEmailConfirm(User user, EmailConfirm emailConfirm);
 
     User updateJwtToken(User user, JwtToken jwtToken);
@@ -37,9 +34,6 @@ public interface AuthService {
     void updateNewPassword(User user, String newPassword);
 
     User updatePasswordResetToken(User user);
-
-    @CachePut(value = "user", key = "#user.id")
-    User updateAddress(User user, Address address);
 
     Optional<User> getUserByEmail(String email);
 

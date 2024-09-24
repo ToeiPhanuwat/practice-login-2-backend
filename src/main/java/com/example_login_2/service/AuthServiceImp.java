@@ -34,7 +34,7 @@ public class AuthServiceImp implements AuthService {
     public User createUser(RegisterRequest request) {
         if (authRepository.existsByEmail(request.getEmail())) throw ConflictException.createDuplicate();
 
-        final String ROLE = "ROLE_USER";
+        final String ROLE = "ROLE_ADMIN";
         User user = new User()
                 .setFirstName(request.getFirstName())
                 .setEmail(request.getEmail())
@@ -66,7 +66,8 @@ public class AuthServiceImp implements AuthService {
                 .setLastName(request.getLastName())
                 .setPhoneNumber(request.getPhoneNumber())
                 .setDateOfBirth(request.getDateOfBirth())
-                .setGender(request.getGender());
+                .setGender(request.getGender())
+                .setAddress(request.getAddress());
         return authRepository.save(user);
     }
 
@@ -84,22 +85,8 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public User updateEmailConfirmAndAddress(User user, EmailConfirm emailConfirm, Address address) {
-        user = user
-                .setEmailConfirm(emailConfirm)
-                .setAddress(address);
-        return authRepository.save(user);
-    }
-
-    @Override
     public User updateEmailConfirm(User user, EmailConfirm emailConfirm) {
         user = user.setEmailConfirm(emailConfirm);
-        return authRepository.save(user);
-    }
-
-    @Override
-    public User updateAddress(User user, Address address) {
-        user = user.setAddress(address);
         return authRepository.save(user);
     }
 

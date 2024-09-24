@@ -6,9 +6,7 @@ import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.ConflictException;
 import com.example_login_2.exception.NotFoundException;
-import com.example_login_2.model.Address;
 import com.example_login_2.model.User;
-import com.example_login_2.service.AddressService;
 import com.example_login_2.service.AdminService;
 import com.example_login_2.service.JwtTokenService;
 import com.example_login_2.service.StorageService;
@@ -23,13 +21,11 @@ import java.util.List;
 public class AdminBusiness {
 
     private final AdminService adminService;
-    private final AddressService addressService;
     private final StorageService storageService;
     private final JwtTokenService jwtTokenService;
 
-    public AdminBusiness(AdminService adminService, AddressService addressService, StorageService storageService, JwtTokenService jwtTokenService) {
+    public AdminBusiness(AdminService adminService, StorageService storageService, JwtTokenService jwtTokenService) {
         this.adminService = adminService;
-        this.addressService = addressService;
         this.storageService = storageService;
         this.jwtTokenService = jwtTokenService;
     }
@@ -42,7 +38,6 @@ public class AdminBusiness {
     public ApiResponse<ModelDTO> getUserById(Long id) {
         jwtTokenService.validateJwtToken();
         User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
-        Address address = user.getAddress();
 
         ModelDTO modelDTO = new ModelDTO();
         modelDTO
@@ -53,12 +48,7 @@ public class AdminBusiness {
                 .setDateOfBirth(user.getDateOfBirth())
                 .setGender(user.getGender())
                 .setFileName(user.getFileName())
-                .setRole(user.getRoles().toString())
-                .setAddress(address.getAddress())
-                .setCity(address.getCity())
-                .setStateProvince(address.getStateProvince())
-                .setPostalCode(address.getPostalCode())
-                .setCountry(address.getCountry());
+                .setRole(user.getRoles().toString());
 
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
@@ -71,9 +61,6 @@ public class AdminBusiness {
 
         user = adminService.updateUserRequest(user, request);
 
-        Address address = addressService.updateAddress(user, request);
-        user = adminService.updateAddress(user, address);
-
         ModelDTO modelDTO = new ModelDTO()
                 .setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
@@ -81,12 +68,7 @@ public class AdminBusiness {
                 .setDateOfBirth(user.getDateOfBirth())
                 .setGender(user.getGender())
                 .setFileName(user.getFileName())
-                .setRole(user.getRoles().toString())
-                .setAddress(address.getAddress())
-                .setCity(address.getCity())
-                .setStateProvince(address.getStateProvince())
-                .setPostalCode(address.getPostalCode())
-                .setCountry(address.getCountry());
+                .setRole(user.getRoles().toString());
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 

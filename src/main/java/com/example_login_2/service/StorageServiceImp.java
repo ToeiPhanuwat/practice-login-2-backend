@@ -14,6 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -46,9 +48,9 @@ public class StorageServiceImp implements StorageService {
         String contentType = file.getContentType();
         if (contentType == null) throw BadRequestException.fileContentTypeIsNull();
 
-//        List<String> supportedTypes = Arrays.asList("image/jpeg", "image/png");
-//        if (!supportedTypes.contains(contentType))
-//            throw BadRequestException.unsupported();
+        List<String> supportedTypes = Arrays.asList("image/jpeg", "image/png");
+        if (!supportedTypes.contains(contentType))
+            throw BadRequestException.unsupported();
 
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename(), "File name must not be null"));
         try {

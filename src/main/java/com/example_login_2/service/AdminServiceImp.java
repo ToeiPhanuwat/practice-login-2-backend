@@ -2,7 +2,6 @@ package com.example_login_2.service;
 
 import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
-import com.example_login_2.model.Address;
 import com.example_login_2.model.User;
 import com.example_login_2.repository.AdminRepository;
 import org.springframework.stereotype.Service;
@@ -43,12 +42,6 @@ public class AdminServiceImp implements AdminService {
                 .setDateOfBirth(request.getDateOfBirth())
                 .setGender(request.getGender())
                 .getRoles().add(request.getRole());
-        return adminRepository.save(user);
-    }
-
-    @Override
-    public User updateAddress(User user, Address address) {
-        user = user.setAddress(address);
         return adminRepository.save(user);
     }
 

@@ -3,6 +3,7 @@ package com.example_login_2.controller.api;
 import com.example_login_2.business.AuthBusiness;
 import com.example_login_2.controller.ApiResponse;
 import com.example_login_2.controller.AuthRequest.*;
+import com.example_login_2.controller.AuthResponse.MUserResponse;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.User;
@@ -68,12 +69,12 @@ public class AuthController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<User>> getUserProfile() {
+    public ResponseEntity<ApiResponse<MUserResponse>> getUserProfile() {
         return ResponseEntity.ok(authBusiness.getUserById());
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse<User>> updateUser(@RequestBody UpdateRequest request) {
+    public ResponseEntity<ApiResponse<MUserResponse>> updateUser(@RequestBody UpdateRequest request) {
         return ResponseEntity.ok(authBusiness.updateUser(request));
     }
 

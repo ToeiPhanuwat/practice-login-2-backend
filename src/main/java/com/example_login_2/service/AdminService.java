@@ -2,7 +2,6 @@ package com.example_login_2.service;
 
 import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
-import com.example_login_2.model.Address;
 import com.example_login_2.model.User;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -26,9 +25,6 @@ public interface AdminService {
 
     @CachePut(value = "user", key = "#user.id")
     User removeRoleAndUpdate(User user, RoleUpdateRequest role);
-
-    @CachePut(value = "user", key = "#user.id")
-    User updateAddress(User user, Address address);
 
     @CacheEvict(value = "user", key = "#id")
     void deleteUser(Long id);

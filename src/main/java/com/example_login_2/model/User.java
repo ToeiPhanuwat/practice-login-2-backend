@@ -1,5 +1,6 @@
 package com.example_login_2.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -49,6 +50,9 @@ public class User extends BaseModel implements Serializable {
     @Column
     private String fileName;
 
+    @Column
+    private String address;
+
     @Embedded
     private PasswordResetToken passwordResetToken;
 
@@ -56,11 +60,6 @@ public class User extends BaseModel implements Serializable {
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column
     private Set<String> roles = new HashSet<>();
-
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "address_id", referencedColumnName = "id")
-    @JsonManagedReference
-    private Address address;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "email_confirm_id", referencedColumnName = "id")

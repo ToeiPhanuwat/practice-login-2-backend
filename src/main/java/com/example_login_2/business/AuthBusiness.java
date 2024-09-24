@@ -3,9 +3,11 @@ package com.example_login_2.business;
 import com.example_login_2.config.CustomUserDetails;
 import com.example_login_2.controller.ApiResponse;
 import com.example_login_2.controller.AuthRequest.*;
+import com.example_login_2.controller.AuthResponse.MUserResponse;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.*;
+import com.example_login_2.mapper.UserMapper;
 import com.example_login_2.model.*;
 import com.example_login_2.service.*;
 import com.example_login_2.util.SecurityUtil;
@@ -31,18 +33,18 @@ public class AuthBusiness {
     private final EmailConfirmService emailConfirmService;
     private final JwtTokenService jwtTokenService;
     private final StorageService storageService;
-    private final AddressService addressService;
     private final JwtBlacklistService jwtBlacklistService;
     private final EmailBusiness emailBusiness;
+    private final UserMapper userMapper;
 
-    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService, AddressService addressService, JwtBlacklistService jwtBlacklistService) {
+    public AuthBusiness(EmailBusiness emailBusiness, AuthService authService, EmailConfirmService emailConfirmService, JwtTokenService jwtTokenService, StorageService storageService , JwtBlacklistService jwtBlacklistService, UserMapper userMapper) {
         this.emailBusiness = emailBusiness;
         this.authService = authService;
         this.emailConfirmService = emailConfirmService;
         this.jwtTokenService = jwtTokenService;
         this.storageService = storageService;
         this.jwtBlacklistService = jwtBlacklistService;
-        this.addressService = addressService;
+        this.userMapper = userMapper;
     }
 
     public ApiResponse<ModelDTO> register(RegisterRequest request) {
@@ -50,9 +52,6 @@ public class AuthBusiness {
 
         EmailConfirm emailConfirm = emailConfirmService.createEmailConfirm(user);
         user = authService.updateEmailConfirm(user, emailConfirm);
-
-        Address address = addressService.createAddress(user);
-        user = authService.updateAddress(user, address);
 
         sendActivationEmail(user, emailConfirm);
 
@@ -185,21 +184,22 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
-    public ApiResponse<User> getUserById() {
+    public ApiResponse<MUserResponse> getUserById() {
         User user = jwtTokenService.getCurrentUserByToken();
 
-        return new ApiResponse<>(true, "Operation completed successfully", user);
+        MUserResponse mUserResponse = userMapper.toUserResponse(user);
+
+        return new ApiResponse<>(true, "Operation completed successfully", mUserResponse);
     }
 
-    public ApiResponse<User> updateUser(UpdateRequest request) {
+    public ApiResponse<MUserResponse> updateUser(UpdateRequest request) {
         User user = jwtTokenService.getCurrentUserByToken();
 
         user = authService.updateUserRequest(user, request);
 
-        Address address = addressService.updateAddress(user, request);
-        user = authService.updateAddress(user, address);
+        MUserResponse mUserResponse = userMapper.toUserResponse(user);
 
-        return new ApiResponse<>(true, "Operation completed successfully", user);
+        return new ApiResponse<>(true, "Operation completed successfully", mUserResponse);
     }
 
     public ApiResponse<String> updateUser(MultipartFile file) {
