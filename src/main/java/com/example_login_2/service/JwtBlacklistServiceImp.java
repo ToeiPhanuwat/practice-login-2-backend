@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,4 +40,13 @@ public class JwtBlacklistServiceImp implements JwtBlacklistService {
         jwtBlacklistRepository.save(newJwtBlacklist);
     }
 
+    @Override
+    public List<JwtBlacklist> getJwtBlacklistExpire(Instant currentTime) {
+        return jwtBlacklistRepository.findExpiredTokens(currentTime);
+    }
+
+    @Override
+    public void delete(JwtBlacklist jwtBlacklist) {
+        jwtBlacklistRepository.delete(jwtBlacklist);
+    }
 }

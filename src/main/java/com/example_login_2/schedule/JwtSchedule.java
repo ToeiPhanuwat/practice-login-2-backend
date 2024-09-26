@@ -1,5 +1,6 @@
 package com.example_login_2.schedule;
 
+import com.example_login_2.model.JwtBlacklist;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.User;
 import com.example_login_2.service.AuthService;
@@ -53,9 +54,23 @@ public class JwtSchedule {
     }
 
 
-    public void deleteTokenInBlacklist(JwtToken jwtToken) {
+    @Scheduled(cron = "0 13 16 * * *") //ทุกวัน เวลา 15:00น.
+    public void expiredJwtBlackList() {
+        List<JwtBlacklist> jwtBlacklists = jwtBlacklistService.getJwtBlacklistExpire(Instant.now());
 
+        if (jwtBlacklists.isEmpty()) {
+            log.info("No expired JWT tokens found in the blacklist.");
+        } else {
+            log.info("The following JWT tokens have expired and will be removed:");
+            for (JwtBlacklist jwtBlacklist : jwtBlacklists) {
+                log.info("Removing expired token ID: " + jwtBlacklist.getId());
+                deleteTokenInBlacklist(jwtBlacklist);
+            }
+        }
     }
 
-
+    public void deleteTokenInBlacklist(JwtBlacklist jwtBlacklist) {
+        jwtBlacklistService.delete(jwtBlacklist);
+        log.info("Deleted token (ID: " + jwtBlacklist.getId() + ") successfully.");
+    }
 }

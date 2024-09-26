@@ -32,8 +32,9 @@ public class UsersSchedule {
     // 6 วันในสัปดาห์ 0-6 หรือ Sun–Sat
 
     @Scheduled(cron = "0 0 15 * * *") //ทุกวัน เวลา 15:00น.
-    private void clearTheDataOfInactiveUsers() {
+    public void clearTheDataOfInactiveUsers() {
         List<User> users = emailConfirmService.getUserActivatedFalse();
+
         if (users.isEmpty()) {
             log.info("No users who haven't verified their email.");
         } else {
@@ -44,7 +45,7 @@ public class UsersSchedule {
         }
     }
 
-    private void deleteUser(User user) {
+    public void deleteUser(User user) {
         authService.deleteUser(user.getId());
         log.info("Delete user ID : " + user.getId() + " Successful");
     }
