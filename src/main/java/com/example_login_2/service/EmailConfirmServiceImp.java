@@ -5,6 +5,7 @@ import com.example_login_2.model.User;
 import com.example_login_2.repository.EmailConfirmRepository;
 import com.example_login_2.util.SecurityUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class EmailConfirmServiceImp implements EmailConfirmService {
 
     private final EmailConfirmRepository emailConfirmRepository;

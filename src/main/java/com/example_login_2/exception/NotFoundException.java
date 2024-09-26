@@ -38,7 +38,7 @@ public class NotFoundException extends RuntimeException {
     }
 
     public static NotFoundException handleNoUserInTheToken() {
-        return new NotFoundException("User associated with the JWT token not found");
+        return new NotFoundException("JWT Token not found in User");
     }
 
     public static NotFoundException addressNotFound() {

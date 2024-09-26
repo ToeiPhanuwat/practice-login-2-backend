@@ -2,6 +2,7 @@ package com.example_login_2.controller.api;
 
 import com.example_login_2.business.AdminBusiness;
 import com.example_login_2.controller.ApiResponse;
+import com.example_login_2.controller.AuthResponse.MUserResponse;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
@@ -25,22 +26,20 @@ public class AdminController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
+    public ResponseEntity<List<MUserResponse>> getUsers() {
         return ResponseEntity.ok(adminBusiness.getAllUser());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ModelDTO>> getUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<MUserResponse>> getUser(@PathVariable Long id) {
         return ResponseEntity.ok(adminBusiness.getUserById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ModelDTO>> putUser(
-            @Valid
-            @RequestPart MultipartFile file,
-            @RequestPart UpdateRequest request,
+    public ResponseEntity<ApiResponse<MUserResponse>> putUser(
+            @RequestBody UpdateRequest request,
             @PathVariable long id) {
-        return ResponseEntity.ok(adminBusiness.updateUser(file, request, id));
+        return ResponseEntity.ok(adminBusiness.updateUser(request, id));
     }
 
     @PutMapping("removeRole/{id}")

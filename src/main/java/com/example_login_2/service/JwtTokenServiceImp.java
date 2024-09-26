@@ -13,14 +13,17 @@ import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @Log4j2
+@Transactional
 public class JwtTokenServiceImp implements JwtTokenService {
 
     private final JwtTokenRepository jwtTokenRepository;
@@ -43,7 +46,7 @@ public class JwtTokenServiceImp implements JwtTokenService {
     @Override
     public JwtToken generateJwtToken(User user) {
         Instant now = Instant.now();
-        Instant expireAt = now.plus(Duration.ofDays(1));
+        Instant expireAt = now.plus(Duration.ofMinutes(5));
         String jwt = tokenize(user, now, expireAt);
         return doGenerateJwtToken(user, jwt, now, expireAt);
     }
@@ -139,5 +142,10 @@ public class JwtTokenServiceImp implements JwtTokenService {
                 .orElseThrow(UnauthorizedException::unauthorized);
         jwtTokenRepository.findUserByJwtToken(token)
                 .orElseThrow(UnauthorizedException::handleTokenlNotFound);
+    }
+
+    @Override
+    public List<JwtToken> getJwtTokenExpire(Instant currentTime) {
+        return jwtTokenRepository.findExpiredTokens(currentTime);
     }
 }

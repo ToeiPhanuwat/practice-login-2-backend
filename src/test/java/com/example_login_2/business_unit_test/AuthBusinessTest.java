@@ -252,7 +252,7 @@ public class AuthBusinessTest {
         when(jwtTokenService.getCurrentToken()).thenReturn(mockJwt);
         doNothing().when(jwtTokenService).revokedToken(any(JwtToken.class));
         doNothing().when(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-        doNothing().when(authService).removeJwtToken(any(User.class));
+        doNothing().when(authService).deleteJwtIsRevoked(any(User.class));
 
         ApiResponse<String> response = business.logout();
 
@@ -261,7 +261,7 @@ public class AuthBusinessTest {
         verify(jwtTokenService).getCurrentToken();
         verify(jwtTokenService).revokedToken(any(JwtToken.class));
         verify(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-        verify(authService).removeJwtToken(any(User.class));
+        verify(authService).deleteJwtIsRevoked(any(User.class));
     }
 
     @Test
@@ -366,7 +366,7 @@ public class AuthBusinessTest {
         when(jwtTokenService.getCurrentToken()).thenReturn(mockJwt);
         doNothing().when(jwtTokenService).revokedToken(any(JwtToken.class));
         doNothing().when(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-        doNothing().when(authService).removeJwtToken(any(User.class));
+        doNothing().when(authService).deleteJwtIsRevoked(any(User.class));
         when(jwtTokenService.generateJwtToken(any(User.class))).thenReturn(mockJwt);
 
         ApiResponse<ModelDTO> response = business.refreshJwtToken();
@@ -376,7 +376,7 @@ public class AuthBusinessTest {
         verify(jwtTokenService).getCurrentToken();
         verify(jwtTokenService).revokedToken(any(JwtToken.class));
         verify(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-        verify(authService).removeJwtToken(any(User.class));
+        verify(authService).deleteJwtIsRevoked(any(User.class));
         verify(jwtTokenService).generateJwtToken(any(User.class));
     }
 

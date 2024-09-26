@@ -22,15 +22,15 @@ public class UsersCleanup {
     }
 
     //parameter @Scheduled(cron = "")
-    // 1 วินาที
-    // 2 นาที
-    // 3 ชม.
-    // 4 วัน
-    // 5 เดือน
-    // 6 ปี
+    // 1 วินาที 0-59
+    // 2 นาที 0-59
+    // 3 ชม. 0-23
+    // 4 วัน 1-31
+    // 5 เดือน 1-12
+    // 6 วันในสัปดาห์ 0-6 หรือ Sun–Sat
 
-    @Scheduled(cron = "0 0 0 * * *") //ทุกวันตอนเที่ยงคืน
-    public void clearTheDataOfInactiveUsers() {
+    @Scheduled(cron = "0 0 15 * * *") //ทุกวัน เวลา 15:00น.
+    private void clearTheDataOfInactiveUsers() {
         List<User> users = emailConfirmService.getUserActivatedFalse();
         log.info("Removing users who haven't verified their email.");
         for (User user : users) {
@@ -38,8 +38,9 @@ public class UsersCleanup {
         }
     }
 
-    void deleteUser(User user) {
+    private void deleteUser(User user) {
         authService.deleteUser(user.getId());
         log.info("Delete user ID : " + user.getId() + " Successful");
     }
+
 }

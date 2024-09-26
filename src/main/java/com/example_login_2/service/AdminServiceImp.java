@@ -5,11 +5,13 @@ import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.User;
 import com.example_login_2.repository.AdminRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class AdminServiceImp implements AdminService {
 
     private final AdminRepository adminRepository;

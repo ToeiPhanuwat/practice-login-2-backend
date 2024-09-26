@@ -59,8 +59,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/admin").hasRole("ADMIN")
                         .requestMatchers(PUBLIC).permitAll()
                         .anyRequest().authenticated())
-                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(tokenFilter(), UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint(
                                 (request, response, authException) -> response.sendError(

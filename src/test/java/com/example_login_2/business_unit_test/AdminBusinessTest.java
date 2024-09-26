@@ -2,6 +2,7 @@ package com.example_login_2.business_unit_test;
 
 import com.example_login_2.business.AdminBusiness;
 import com.example_login_2.controller.ApiResponse;
+import com.example_login_2.controller.AuthResponse.MUserResponse;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
@@ -64,7 +65,7 @@ public class AdminBusinessTest {
         doNothing().when(jwtTokenService).validateJwtToken();
         when(adminService.getAllUsers()).thenReturn(mock);
 
-        List<User> result = business.getAllUser();
+        List<MUserResponse> result = business.getAllUser();
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -84,7 +85,7 @@ public class AdminBusinessTest {
         doNothing().when(jwtTokenService).validateJwtToken();
         when(adminService.getUserById(anyLong())).thenReturn(Optional.of(mockUser));
 
-        ApiResponse<ModelDTO> response = business.getUserById(TestData.id);
+        ApiResponse<MUserResponse> response = business.getUserById(TestData.id);
 
         assertNotNull(response);
         assertNotNull(response.getData());
@@ -107,36 +108,30 @@ public class AdminBusinessTest {
 
     @Test
     public void testUpdateUser_Success() {
-        MultipartFile file = mock(MultipartFile.class);
-        String fileName = "file.png";
         UpdateRequest request = new UpdateRequest();
 
         doNothing().when(jwtTokenService).validateJwtToken();
         when(adminService.getUserById(anyLong())).thenReturn(Optional.of(mockUser));
-        when(storageService.uploadProfilePicture(file)).thenReturn(fileName);
         when(adminService.updateUserRequest(any(User.class), any(UpdateRequest.class))).thenReturn(mockUser);
 
-        ApiResponse<ModelDTO> response = business.updateUser(file, request, TestData.id);
+        ApiResponse<MUserResponse> response = business.updateUser(request, TestData.id);
 
         assertNotNull(response);
         assertNotNull(response.getData());
-        assertNotNull(response.getData().getAddress());
 
         verify(jwtTokenService).validateJwtToken();
         verify(adminService).getUserById(anyLong());
-        verify(storageService).uploadProfilePicture(file);
         verify(adminService).updateUserRequest(any(User.class), any(UpdateRequest.class));
     }
 
     @Test
     public void testUpdateUser_UserNotFound() {
-        MultipartFile file = mock(MultipartFile.class);
         UpdateRequest request = new UpdateRequest();
 
         doNothing().when(jwtTokenService).validateJwtToken();
         when(adminService.getUserById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> business.updateUser(file, request, TestData.id));
+        assertThrows(NotFoundException.class, () -> business.updateUser(request, TestData.id));
 
         verify(jwtTokenService).validateJwtToken();
         verify(adminService).getUserById(anyLong());

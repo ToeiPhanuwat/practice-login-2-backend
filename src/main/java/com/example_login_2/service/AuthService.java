@@ -28,7 +28,9 @@ public interface AuthService {
 
     User updateJwtToken(User user, JwtToken jwtToken);
 
-    void removeJwtToken(User user);
+    void deleteJwtIsRevoked(User user);
+
+    void deleteJwtExpired(User user, JwtToken jwtToken);
 
     @CachePut(value = "user", key = "#user.id")
     void updateNewPassword(User user, String newPassword);

@@ -5,11 +5,13 @@ import com.example_login_2.model.JwtBlacklist;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.repository.JwtBlacklistRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class JwtBlacklistServiceImp implements JwtBlacklistService {
 
     private final JwtBlacklistRepository jwtBlacklistRepository;

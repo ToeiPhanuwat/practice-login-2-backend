@@ -114,7 +114,7 @@ public class AuthBusiness {
 
         User user = currentToken.getUser();
         if (user == null) throw NotFoundException.handleNoUserInTheToken();
-        authService.removeJwtToken(user);
+        authService.deleteJwtIsRevoked(user);
 
         return new ApiResponse<>(true, "Logged out successfully!", null);
     }
@@ -129,7 +129,6 @@ public class AuthBusiness {
     }
 
     public ApiResponse<ModelDTO> forgotPassword(ForgotPasswordRequest request) {
-
         User user = authService.getUserByEmail(request.getEmail())
                 .orElseThrow(NotFoundException::emailNotFound);
 
@@ -176,7 +175,7 @@ public class AuthBusiness {
 
         User user = currentToken.getUser();
         if (user == null) throw NotFoundException.handleNoUserInTheToken();
-        authService.removeJwtToken(user);
+        authService.deleteJwtIsRevoked(user);
         JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
 
         ModelDTO modelDTO = new ModelDTO()

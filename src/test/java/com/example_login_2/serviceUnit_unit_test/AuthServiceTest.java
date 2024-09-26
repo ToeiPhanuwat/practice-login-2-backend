@@ -106,7 +106,7 @@ public class AuthServiceTest {
         User user = new User()
                 .setJwtToken(jwtTokens);
 
-        serviceImp.removeJwtToken(user);
+        serviceImp.deleteJwtIsRevoked(user);
 
         assertEquals(1, user.getJwtToken().size());
         assertFalse(user.getJwtToken().get(0).isRevoked());

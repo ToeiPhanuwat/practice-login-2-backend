@@ -3,12 +3,14 @@ package com.example_login_2.service;
 import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.ConflictException;
+import com.example_login_2.exception.NotFoundException;
 import com.example_login_2.model.*;
 import com.example_login_2.repository.AuthRepository;
 import com.example_login_2.util.SecurityUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -20,6 +22,7 @@ import java.util.Optional;
 
 @Service
 @Log4j2
+@Transactional
 public class AuthServiceImp implements AuthService {
 
     private final AuthRepository authRepository;
@@ -34,7 +37,7 @@ public class AuthServiceImp implements AuthService {
     public User createUser(RegisterRequest request) {
         if (authRepository.existsByEmail(request.getEmail())) throw ConflictException.createDuplicate();
 
-        final String ROLE = "ROLE_ADMIN";
+        final String ROLE = "ROLE_USER";
         User user = new User()
                 .setFirstName(request.getFirstName())
                 .setEmail(request.getEmail())
@@ -79,9 +82,19 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public void removeJwtToken(User user) {
+    public void deleteJwtIsRevoked(User user) {
         user.getJwtToken().removeIf(JwtToken::isRevoked);
         authRepository.save(user);
+    }
+
+    @Override
+    public void deleteJwtExpired(User user, JwtToken jwtToken) {
+        if (user.getJwtToken().contains(jwtToken)) {
+            user.getJwtToken().remove(jwtToken);
+            authRepository.save(user);
+        } else {
+            throw NotFoundException.handleNoUserInTheToken();
+        }
     }
 
     @Override
