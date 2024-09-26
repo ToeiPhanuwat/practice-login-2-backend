@@ -6,17 +6,19 @@ import com.example_login_2.service.EmailConfirmService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @Log4j2
-public class UsersCleanup {
+@Transactional
+public class UsersSchedule {
 
     private final AuthService authService;
     private final EmailConfirmService emailConfirmService;
 
-    public UsersCleanup(AuthService authService, EmailConfirmService emailConfirmService) {
+    public UsersSchedule(AuthService authService, EmailConfirmService emailConfirmService) {
         this.authService = authService;
         this.emailConfirmService = emailConfirmService;
     }
@@ -32,9 +34,13 @@ public class UsersCleanup {
     @Scheduled(cron = "0 0 15 * * *") //ทุกวัน เวลา 15:00น.
     private void clearTheDataOfInactiveUsers() {
         List<User> users = emailConfirmService.getUserActivatedFalse();
-        log.info("Removing users who haven't verified their email.");
-        for (User user : users) {
-            deleteUser(user);
+        if (users.isEmpty()) {
+            log.info("No users who haven't verified their email.");
+        } else {
+            log.info("Removing users who haven't verified their email.");
+            for (User user : users) {
+                deleteUser(user);
+            }
         }
     }
 
@@ -42,5 +48,4 @@ public class UsersCleanup {
         authService.deleteUser(user.getId());
         log.info("Delete user ID : " + user.getId() + " Successful");
     }
-
 }
