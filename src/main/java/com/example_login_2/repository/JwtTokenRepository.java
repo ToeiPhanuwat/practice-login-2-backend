@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface JwtTokenRepository extends JpaRepository<JwtToken, Long> {
 
     Optional<JwtToken> findByJwtToken(String token);
+
     @Query("SELECT j.user FROM JwtToken j WHERE j.jwtToken = :jwtToken")
     Optional<User> findUserByJwtToken(@Param("jwtToken") String jwtToken);
 

@@ -1,7 +1,6 @@
 package com.example_login_2.repository;
 
 import com.example_login_2.model.JwtBlacklist;
-import com.example_login_2.model.JwtToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

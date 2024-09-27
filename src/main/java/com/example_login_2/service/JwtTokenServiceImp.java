@@ -46,7 +46,7 @@ public class JwtTokenServiceImp implements JwtTokenService {
     @Override
     public JwtToken generateJwtToken(User user) {
         Instant now = Instant.now();
-        Instant expireAt = now.plus(Duration.ofMinutes(5));
+        Instant expireAt = now.plus(Duration.ofDays(1));
         String jwt = tokenize(user, now, expireAt);
         return doGenerateJwtToken(user, jwt, now, expireAt);
     }

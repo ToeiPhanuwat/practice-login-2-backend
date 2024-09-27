@@ -2,11 +2,13 @@ package com.example_login_2.controller.api;
 
 import com.example_login_2.business.AuthBusiness;
 import com.example_login_2.controller.ApiResponse;
-import com.example_login_2.controller.AuthRequest.*;
+import com.example_login_2.controller.AuthRequest.ForgotPasswordRequest;
+import com.example_login_2.controller.AuthRequest.LoginRequest;
+import com.example_login_2.controller.AuthRequest.PasswordResetRequest;
+import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.AuthResponse.MUserResponse;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.UpdateRequest;
-import com.example_login_2.model.User;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;

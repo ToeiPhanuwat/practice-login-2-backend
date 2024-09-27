@@ -53,7 +53,7 @@ spring:
   cache:
     type: redis
     redis:
-      time-to-live: 60000
+      time-to-live: 1800000
 ---
 spring:
   config:
