@@ -11,7 +11,6 @@ import com.example_login_2.mapper.UserMapper;
 import com.example_login_2.model.User;
 import com.example_login_2.service.AdminService;
 import com.example_login_2.service.JwtTokenService;
-import com.example_login_2.service.StorageService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +21,11 @@ import java.util.List;
 public class AdminBusiness {
 
     private final AdminService adminService;
-    private final StorageService storageService;
     private final JwtTokenService jwtTokenService;
     private final UserMapper userMapper;
 
-    public AdminBusiness(AdminService adminService, StorageService storageService, JwtTokenService jwtTokenService, UserMapper userMapper) {
+    public AdminBusiness(AdminService adminService, JwtTokenService jwtTokenService, UserMapper userMapper) {
         this.adminService = adminService;
-        this.storageService = storageService;
         this.jwtTokenService = jwtTokenService;
         this.userMapper = userMapper;
     }

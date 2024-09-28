@@ -26,6 +26,7 @@ public class JwtBlacklistServiceImp implements JwtBlacklistService {
         return jwtBlacklistRepository.findByToken(token);
     }
 
+    @Transactional
     @Override
     public void saveToBlacklist(JwtToken jwtToken, String action) {
         boolean existing = getJwtBlacklist(jwtToken.getJwtToken()).isPresent();
@@ -45,6 +46,7 @@ public class JwtBlacklistServiceImp implements JwtBlacklistService {
         return jwtBlacklistRepository.findExpiredTokens(currentTime);
     }
 
+    @Transactional
     @Override
     public void delete(JwtBlacklist jwtBlacklist) {
         jwtBlacklistRepository.delete(jwtBlacklist);

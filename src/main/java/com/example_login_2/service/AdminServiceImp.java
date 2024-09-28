@@ -35,6 +35,7 @@ public class AdminServiceImp implements AdminService {
         return adminRepository.save(user);
     }
 
+    @Transactional
     @Override
     public User updateUserRequest(User user, UpdateRequest request) {
         user
@@ -47,12 +48,14 @@ public class AdminServiceImp implements AdminService {
         return adminRepository.save(user);
     }
 
+    @Transactional
     @Override
     public User removeRoleAndUpdate(User user, RoleUpdateRequest role) {
         user.getRoles().remove(role.getRole());
         return adminRepository.save(user);
     }
 
+    @Transactional
     @Override
     public void deleteUser(Long id) {
         adminRepository.deleteById(id);

@@ -25,7 +25,6 @@ import java.util.Optional;
 
 @Service
 @Log4j2
-@Transactional
 public class AuthServiceImp implements AuthService {
 
     private final AuthRepository authRepository;
@@ -54,6 +53,7 @@ public class AuthServiceImp implements AuthService {
         return authRepository.save(user);
     }
 
+    @Transactional
     @Override
     public void updateFile(User user, String fileName) {
         user.setFileName(fileName);
@@ -65,6 +65,7 @@ public class AuthServiceImp implements AuthService {
         return authRepository.findById(id);
     }
 
+    @Transactional
     @Override
     public User updateUserRequest(User user, UpdateRequest request) {
         user = user
@@ -84,12 +85,14 @@ public class AuthServiceImp implements AuthService {
         return authRepository.save(user);
     }
 
+    @Transactional
     @Override
     public void deleteJwtIsRevoked(User user) {
         user.getJwtToken().removeIf(JwtToken::isRevoked);
         authRepository.save(user);
     }
 
+    @Transactional
     @Override
     public void deleteJwtExpired(User user, JwtToken jwtToken) {
         if (user.getJwtToken().contains(jwtToken)) {
@@ -106,6 +109,7 @@ public class AuthServiceImp implements AuthService {
         return authRepository.save(user);
     }
 
+    @Transactional
     @Override
     public User updatePasswordResetToken(User user) {
         String token = SecurityUtil.generateToken();
@@ -119,6 +123,7 @@ public class AuthServiceImp implements AuthService {
         return authRepository.save(user);
     }
 
+    @Transactional
     @Override
     public void updateNewPassword(User user, String newPassword) {
         user = user
@@ -142,6 +147,7 @@ public class AuthServiceImp implements AuthService {
         return authRepository.findByPasswordResetToken_Token(token);
     }
 
+    @Transactional
     @Override
     public void deleteUser(Long id) {
         authRepository.deleteById(id);

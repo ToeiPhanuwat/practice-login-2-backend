@@ -43,6 +43,7 @@ public class JwtTokenServiceImp implements JwtTokenService {
         return jwtTokenRepository.save(jwtToken);
     }
 
+    @Transactional
     @Override
     public JwtToken generateJwtToken(User user) {
         Instant now = Instant.now();
@@ -114,6 +115,7 @@ public class JwtTokenServiceImp implements JwtTokenService {
         return jwtToken;
     }
 
+    @Transactional
     @Override
     public void revokedToken(JwtToken jwtToken) {
         jwtToken.setRevoked(true);

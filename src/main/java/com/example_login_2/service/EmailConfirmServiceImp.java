@@ -48,12 +48,14 @@ public class EmailConfirmServiceImp implements EmailConfirmService {
         return emailConfirmRepository.findByToken(token);
     }
 
+    @Transactional
     @Override
     public EmailConfirm updateEnableVerificationEmail(EmailConfirm emailConfirm) {
         emailConfirm = emailConfirm.setActivated(true);
         return emailConfirmRepository.save(emailConfirm);
     }
 
+    @Transactional
     @Override
     public EmailConfirm updateEmailConfirm(EmailConfirm emailConfirm) {
         emailConfirm = emailConfirm

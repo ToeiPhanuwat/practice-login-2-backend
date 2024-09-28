@@ -22,6 +22,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.MalformedURLException;
@@ -53,6 +54,7 @@ public class AuthBusiness {
         this.userMapper = userMapper;
     }
 
+    @Transactional
     public ApiResponse<ModelDTO> register(RegisterRequest request) {
         User user = authService.createUser(request);
 
@@ -111,6 +113,7 @@ public class AuthBusiness {
         return new ApiResponse<>(true, "Operation completed successfully", modelDTO);
     }
 
+    @Transactional
     public ApiResponse<String> logout() {
         JwtToken currentToken = jwtTokenService.getCurrentToken();
 
