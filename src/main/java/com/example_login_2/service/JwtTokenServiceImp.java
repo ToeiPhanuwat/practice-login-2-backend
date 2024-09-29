@@ -23,7 +23,6 @@ import java.util.Optional;
 
 @Service
 @Log4j2
-@Transactional
 public class JwtTokenServiceImp implements JwtTokenService {
 
     private final JwtTokenRepository jwtTokenRepository;
@@ -37,6 +36,7 @@ public class JwtTokenServiceImp implements JwtTokenService {
         this.jwtTokenRepository = jwtTokenRepository;
     }
 
+    @Transactional
     @Override
     public JwtToken firstCreate(User user) {
         JwtToken jwtToken = new JwtToken().setUser(user);

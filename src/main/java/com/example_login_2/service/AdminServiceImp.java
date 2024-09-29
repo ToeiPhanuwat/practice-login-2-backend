@@ -30,6 +30,7 @@ public class AdminServiceImp implements AdminService {
         return adminRepository.findById(id);
     }
 
+    @Transactional
     @Override
     public User updateUser(User user) {
         return adminRepository.save(user);

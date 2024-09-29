@@ -35,6 +35,7 @@ public class AuthServiceImp implements AuthService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
+    @Transactional
     @Override
     public User createUser(RegisterRequest request) {
         if (authRepository.existsByEmail(request.getEmail())) throw ConflictException.createDuplicate();
@@ -48,6 +49,7 @@ public class AuthServiceImp implements AuthService {
         return authRepository.save(user);
     }
 
+    @Transactional
     @Override
     public User updateUser(User user) {
         return authRepository.save(user);
@@ -78,6 +80,7 @@ public class AuthServiceImp implements AuthService {
         return authRepository.save(user);
     }
 
+    @Transactional
     @Override
     public User updateJwtToken(User user, JwtToken newJwtToken) {
         List<JwtToken> tokens = user.getJwtToken();
@@ -103,6 +106,7 @@ public class AuthServiceImp implements AuthService {
         }
     }
 
+    @Transactional
     @Override
     public User updateEmailConfirm(User user, EmailConfirm emailConfirm) {
         user = user.setEmailConfirm(emailConfirm);

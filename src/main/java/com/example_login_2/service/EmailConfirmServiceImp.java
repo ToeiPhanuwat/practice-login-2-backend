@@ -22,6 +22,7 @@ public class EmailConfirmServiceImp implements EmailConfirmService {
         this.emailConfirmRepository = emailConfirmRepository;
     }
 
+    @Transactional
     @Override
     public EmailConfirm createEmailConfirm(User user) {
         String token = SecurityUtil.generateToken();
