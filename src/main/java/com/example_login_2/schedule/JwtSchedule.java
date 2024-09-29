@@ -32,38 +32,41 @@ public class JwtSchedule {
     @Scheduled(cron = "0 0 14 * * *") //ทุกวัน เวลา 14:00น.
     public void expiredJwtTokenList() {
         List<JwtToken> jwtTokens = jwtTokenService.getJwtTokenExpire(Instant.now());
-        log.info("The JWT Token List has expired.");
-        for (JwtToken jwtToken : jwtTokens) {
-            deleteTokenExpired(jwtToken);
+
+        if (jwtTokens.isEmpty()) {
+            log.info("No expired JWT tokens found.");
+        } else {
+            log.info("Found {} expired JWT tokens to delete.", jwtTokens.size());
+            for (JwtToken jwtToken : jwtTokens) {
+                deleteTokenExpired(jwtToken);
+            }
         }
     }
 
     public void deleteTokenExpired(JwtToken jwtToken) {
         if (jwtToken == null) {
-            log.warn("JWT Token is. null.");
+            log.warn("JWT token is null, cannot delete.");
             return;
         }
 
         User user = jwtToken.getUser();
         if (user == null) {
-            log.info("No users related to JWT ID: " + jwtToken.getId());
+            log.info("No user associated with JWT ID: {}", jwtToken.getId());
         } else {
             authService.deleteJwtExpired(user, jwtToken);
-            log.info("Deleted token (ID: " + jwtToken.getId() + ") successfully for user ID: " + user.getId());
         }
     }
 
 
-    @Scheduled(cron = "0 13 16 * * *") //ทุกวัน เวลา 15:00น.
+    @Scheduled(cron = "0 0 15 * * *") //ทุกวัน เวลา 15:00น.
     public void expiredJwtBlackList() {
         List<JwtBlacklist> jwtBlacklists = jwtBlacklistService.getJwtBlacklistExpire(Instant.now());
 
         if (jwtBlacklists.isEmpty()) {
             log.info("No expired JWT tokens found in the blacklist.");
         } else {
-            log.info("The following JWT tokens have expired and will be removed:");
+            log.info("Found {} expired JWT tokens in the blacklist to remove.",jwtBlacklists.size());
             for (JwtBlacklist jwtBlacklist : jwtBlacklists) {
-                log.info("Removing expired token ID: " + jwtBlacklist.getId());
                 deleteTokenInBlacklist(jwtBlacklist);
             }
         }
@@ -71,6 +74,5 @@ public class JwtSchedule {
 
     public void deleteTokenInBlacklist(JwtBlacklist jwtBlacklist) {
         jwtBlacklistService.delete(jwtBlacklist);
-        log.info("Deleted token (ID: " + jwtBlacklist.getId() + ") successfully.");
     }
 }

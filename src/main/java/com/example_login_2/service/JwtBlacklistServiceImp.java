@@ -4,6 +4,7 @@ import com.example_login_2.exception.ConflictException;
 import com.example_login_2.model.JwtBlacklist;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.repository.JwtBlacklistRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +12,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @Service
 public class JwtBlacklistServiceImp implements JwtBlacklistService {
 
@@ -49,5 +51,6 @@ public class JwtBlacklistServiceImp implements JwtBlacklistService {
     @Override
     public void delete(JwtBlacklist jwtBlacklist) {
         jwtBlacklistRepository.delete(jwtBlacklist);
+        log.info("Deleted expired token (ID: {}) from blacklist.", jwtBlacklist.getId());
     }
 }

@@ -38,14 +38,17 @@ public class AuthServiceImp implements AuthService {
     @Transactional
     @Override
     public User createUser(RegisterRequest request) {
-        if (authRepository.existsByEmail(request.getEmail())) throw ConflictException.createDuplicate();
+        if (authRepository.existsByEmail(request.getEmail())) {
+            log.warn("Attempt to create duplicate user with email: {}", request.getEmail());
+            throw ConflictException.createDuplicate();
+        }
 
-        final String ROLE = "ROLE_USER";
         User user = new User()
                 .setFirstName(request.getFirstName())
                 .setEmail(request.getEmail())
                 .setPassword(bCryptPasswordEncoder.encode(request.getPassword()))
-                .setRoles(new HashSet<>(Collections.singleton(ROLE)));
+                .setRoles(new HashSet<>(Collections.singleton("ROLE_USER")));
+        log.info("Saving new user to database with email: {}", request.getEmail());
         return authRepository.save(user);
     }
 
@@ -70,6 +73,7 @@ public class AuthServiceImp implements AuthService {
     @Transactional
     @Override
     public User updateUserRequest(User user, UpdateRequest request) {
+        log.info("Updating user with ID: {}", user.getId());
         user = user
                 .setFirstName(request.getFirstName())
                 .setLastName(request.getLastName())
@@ -91,17 +95,22 @@ public class AuthServiceImp implements AuthService {
     @Transactional
     @Override
     public void deleteJwtIsRevoked(User user) {
+        log.info("Deleting revoked JWT tokens for user ID: {}", user.getId());
         user.getJwtToken().removeIf(JwtToken::isRevoked);
         authRepository.save(user);
+        log.info("Revoked tokens deleted successfully for user ID: {}", user.getId());
     }
 
     @Transactional
     @Override
     public void deleteJwtExpired(User user, JwtToken jwtToken) {
         if (user.getJwtToken().contains(jwtToken)) {
+            log.info("Deleting expired JWT token (ID: {}) for user ID: {}", jwtToken.getId() , user.getId());
             user.getJwtToken().remove(jwtToken);
             authRepository.save(user);
+            log.info("Expired token (ID: {}) deleted successfully for user ID: {}", jwtToken.getId() , user.getId());
         } else {
+            log.error("Tokne (ID: {}) not found for user ID: {}", jwtToken.getId() , user.getId());
             throw NotFoundException.handleNoUserInTheToken();
         }
     }
@@ -119,6 +128,8 @@ public class AuthServiceImp implements AuthService {
         String token = SecurityUtil.generateToken();
         Instant expiresAt = Instant.now().plus(Duration.ofMinutes(15));
 
+        log.info("Generated password reset token for user ID: {}", user.getId());
+
         PasswordResetToken passwordResetToken = new PasswordResetToken()
                 .setToken(token)
                 .setExpiresAt(expiresAt);
@@ -130,6 +141,7 @@ public class AuthServiceImp implements AuthService {
     @Transactional
     @Override
     public void updateNewPassword(User user, String newPassword) {
+        log.info("Updating password for user ID: {}", user.getId());
         user = user
                 .setPassword(bCryptPasswordEncoder.encode(newPassword))
                 .setPasswordResetToken(null);
@@ -154,6 +166,7 @@ public class AuthServiceImp implements AuthService {
     @Transactional
     @Override
     public void deleteUser(Long id) {
+        log.info("Deleting user with ID: {}", id);
         authRepository.deleteById(id);
     }
 

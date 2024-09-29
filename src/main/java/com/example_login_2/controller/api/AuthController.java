@@ -35,7 +35,7 @@ public class AuthController {
     @PostMapping("/registers")
     public ResponseEntity<ApiResponse<ModelDTO>> register(
             @Valid @RequestBody RegisterRequest request) {
-        log.info("Received user registration request: {}", request);
+        log.info("Received user registration request for email: {}", request.getEmail());
         return ResponseEntity.ok(authBusiness.register(request));
     }
 
@@ -61,7 +61,7 @@ public class AuthController {
 
     @GetMapping("/resend-activation-email/{token}")
     public ResponseEntity<ApiResponse<String>> resendActivationEmail(@PathVariable String token) {
-        log.info("Resending activation email for token: {}", token);
+        log.info("Resend activation email request received for token: {}", token);
         return ResponseEntity.ok(authBusiness.resendActivationEmail(token));
     }
 
