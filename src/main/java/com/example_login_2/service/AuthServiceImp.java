@@ -105,12 +105,12 @@ public class AuthServiceImp implements AuthService {
     @Override
     public void deleteJwtExpired(User user, JwtToken jwtToken) {
         if (user.getJwtToken().contains(jwtToken)) {
-            log.info("Deleting expired JWT token (ID: {}) for user ID: {}", jwtToken.getId() , user.getId());
+            log.info("Deleting expired JWT token (ID: {}) for user ID: {}", jwtToken.getId(), user.getId());
             user.getJwtToken().remove(jwtToken);
             authRepository.save(user);
-            log.info("Expired token (ID: {}) deleted successfully for user ID: {}", jwtToken.getId() , user.getId());
+            log.info("Expired token (ID: {}) deleted successfully for user ID: {}", jwtToken.getId(), user.getId());
         } else {
-            log.error("Token (ID: {}) not found for user ID: {}", jwtToken.getId() , user.getId());
+            log.error("Token (ID: {}) not found for user ID: {}", jwtToken.getId(), user.getId());
             throw NotFoundException.handleNoUserInTheToken();
         }
     }

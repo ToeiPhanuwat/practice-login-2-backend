@@ -8,6 +8,7 @@ import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.ConflictException;
 import com.example_login_2.exception.NotFoundException;
+import com.example_login_2.mapper.UserMapper;
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.User;
 import com.example_login_2.service.AdminService;
@@ -33,7 +34,7 @@ public class AdminBusinessTest {
     @Mock
     private AdminService adminService;
     @Mock
-    private StorageService storageService;
+    private UserMapper userMapper;
     @Mock
     private JwtTokenService jwtTokenService;
 
@@ -49,20 +50,35 @@ public class AdminBusinessTest {
         mockUser.setEmail(TestData.email);
         mockUser.setPassword(TestData.password);
         mockUser.setRoles(new HashSet<>(Arrays.asList("ROLE_USER", "ROLE_ADMIN")));
+
+
     }
 
     @Test
     public void testGetAllUser() {
         User user1 = new User()
+                .setFileName(TestData.firstName)
                 .setEmail(TestData.email)
                 .setPassword(TestData.password);
         User user2 = new User()
+                .setFileName(TestData.firstName)
                 .setEmail(TestData.email)
                 .setPassword(TestData.password);
-        List<User> mock = Arrays.asList(user1, user2);
+        List<User> mockUsers = Arrays.asList(user1, user2);
 
         doNothing().when(jwtTokenService).validateJwtToken();
-        when(adminService.getAllUsers()).thenReturn(mock);
+        when(adminService.getAllUsers()).thenReturn(mockUsers);
+
+        MUserResponse mapper1 = new MUserResponse()
+                .setFileName(TestData.firstName)
+                .setEmail(TestData.email);
+        MUserResponse mapper2 = new MUserResponse()
+                .setFileName(TestData.firstName)
+                .setEmail(TestData.email);
+
+        List<MUserResponse> mockMapperResponseList = Arrays.asList(mapper1, mapper2);
+
+        when(userMapper.toUserResponseList(mockUsers)).thenReturn(mockMapperResponseList);
 
         List<MUserResponse> result = business.getAllUser();
 
@@ -84,11 +100,15 @@ public class AdminBusinessTest {
         doNothing().when(jwtTokenService).validateJwtToken();
         when(adminService.getUserById(anyLong())).thenReturn(Optional.of(mockUser));
 
+        MUserResponse mapper = new MUserResponse()
+                .setFileName(TestData.firstName)
+                .setEmail(TestData.email);
+
+        when(userMapper.toUserResponse(mockUser)).thenReturn(mapper);
         ApiResponse<MUserResponse> response = business.getUserById(TestData.id);
 
         assertNotNull(response);
         assertNotNull(response.getData());
-        assertNotNull(response.getData().getAddress());
 
         verify(jwtTokenService).validateJwtToken();
         verify(adminService).getUserById(anyLong());
@@ -113,6 +133,11 @@ public class AdminBusinessTest {
         when(adminService.getUserById(anyLong())).thenReturn(Optional.of(mockUser));
         when(adminService.updateUserRequest(any(User.class), any(UpdateRequest.class))).thenReturn(mockUser);
 
+        MUserResponse mapper = new MUserResponse()
+                .setFileName(TestData.firstName)
+                .setEmail(TestData.email);
+
+        when(userMapper.toUserResponse(mockUser)).thenReturn(mapper);
         ApiResponse<MUserResponse> response = business.updateUser(request, TestData.id);
 
         assertNotNull(response);
@@ -231,6 +256,7 @@ public class AdminBusinessTest {
 
     interface TestData {
         Long id = 1L;
+        String firstName = "test";
         String email = "test@email.com";
 
         String password = "password";

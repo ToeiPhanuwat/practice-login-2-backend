@@ -67,7 +67,7 @@ public class JwtSchedule {
         if (jwtBlacklists.isEmpty()) {
             log.info("No expired JWT tokens found in the blacklist.");
         } else {
-            log.info("Found {} expired JWT tokens in the blacklist to remove.",jwtBlacklists.size());
+            log.info("Found {} expired JWT tokens in the blacklist to remove.", jwtBlacklists.size());
             for (JwtBlacklist jwtBlacklist : jwtBlacklists) {
                 deleteTokenInBlacklist(jwtBlacklist);
             }

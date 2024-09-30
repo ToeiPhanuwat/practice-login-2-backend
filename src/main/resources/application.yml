@@ -13,7 +13,7 @@ app:
 spring:
   profiles:
     active:
-      - dev
+      - test
 ---
 server:
   port: 1150
