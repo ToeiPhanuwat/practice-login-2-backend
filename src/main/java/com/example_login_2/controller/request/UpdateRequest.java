@@ -13,15 +13,11 @@ public class UpdateRequest {
     private String phoneNumber;
     private Date dateOfBirth;
     private String gender;
+    private String address;
 
     @Setter
     private String fileName;
 
     private String role;
 
-    private String address;
-    private String city;
-    private String stateProvince;
-    private String postalCode;
-    private String country;
 }

@@ -130,17 +130,17 @@ public class AuthBusiness {
 
     public ApiResponse<String> logout() {
         JwtToken currentToken = jwtTokenService.getCurrentToken();
-        log.info("User logout attempt with token_ID: {}", currentToken.getId());
-
-        final String ACTION = "logout";
-        jwtTokenService.revokedToken(currentToken);
-        jwtBlacklistService.saveToBlacklist(currentToken, ACTION);
 
         User user = currentToken.getUser();
         if (user == null) {
             log.error("Logout failed: No user associated with the token");
             throw NotFoundException.handleNoUserInTheToken();
         }
+
+        final String ACTION = "logout";
+        jwtTokenService.revokedToken(currentToken);
+        jwtBlacklistService.saveToBlacklist(currentToken, ACTION);
+
         authService.deleteJwtIsRevoked(user);
         log.info("User logged out successfully: {}", user.getEmail());
 
@@ -249,7 +249,7 @@ public class AuthBusiness {
         user = authService.updateUserRequest(user, request);
 
         MUserResponse mUserResponse = userMapper.toUserResponse(user);
-        log.info("User profile updated successfully for email.");
+        log.info("User profile updated successfully for email: {}", user.getEmail());
 
         return new ApiResponse<>(true, "Operation completed successfully", mUserResponse);
     }

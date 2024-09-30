@@ -39,6 +39,7 @@ public class JwtBlacklistServiceImp implements JwtBlacklistService {
                 .setRevokedAt(Instant.now())
                 .setExpiresAt(jwtToken.getExpiresAt())
                 .setAction(action);
+        log.info("JWT token revocation completed successfully.");
         jwtBlacklistRepository.save(newJwtBlacklist);
     }
 

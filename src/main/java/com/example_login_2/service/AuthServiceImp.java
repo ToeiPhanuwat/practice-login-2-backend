@@ -110,7 +110,7 @@ public class AuthServiceImp implements AuthService {
             authRepository.save(user);
             log.info("Expired token (ID: {}) deleted successfully for user ID: {}", jwtToken.getId() , user.getId());
         } else {
-            log.error("Tokne (ID: {}) not found for user ID: {}", jwtToken.getId() , user.getId());
+            log.error("Token (ID: {}) not found for user ID: {}", jwtToken.getId() , user.getId());
             throw NotFoundException.handleNoUserInTheToken();
         }
     }
@@ -166,7 +166,6 @@ public class AuthServiceImp implements AuthService {
     @Transactional
     @Override
     public void deleteUser(Long id) {
-        log.info("Deleting user with ID: {}", id);
         authRepository.deleteById(id);
     }
 

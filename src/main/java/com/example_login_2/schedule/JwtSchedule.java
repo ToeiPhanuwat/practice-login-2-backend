@@ -31,6 +31,7 @@ public class JwtSchedule {
 
     @Scheduled(cron = "0 0 14 * * *") //ทุกวัน เวลา 14:00น.
     public void expiredJwtTokenList() {
+        log.info("Schedule: Start deleting expired tokens.");
         List<JwtToken> jwtTokens = jwtTokenService.getJwtTokenExpire(Instant.now());
 
         if (jwtTokens.isEmpty()) {
@@ -40,6 +41,7 @@ public class JwtSchedule {
             for (JwtToken jwtToken : jwtTokens) {
                 deleteTokenExpired(jwtToken);
             }
+            log.info("Completed deleting expired tokens.");
         }
     }
 

@@ -46,6 +46,7 @@ public class JwtTokenServiceImp implements JwtTokenService {
     @Transactional
     @Override
     public JwtToken generateJwtToken(User user) {
+        log.info("JWT Token generation.");
         Instant now = Instant.now();
         Instant expireAt = now.plus(Duration.ofDays(1));
         String jwt = tokenize(user, now, expireAt);
@@ -60,6 +61,7 @@ public class JwtTokenServiceImp implements JwtTokenService {
                 .setIssuedAt(now)
                 .setExpiresAt(expireAt)
                 .setRevoked(false);
+        log.info("JWT token generation successful.");
         return jwtTokenRepository.save(jwtToken);
     }
 
@@ -118,32 +120,58 @@ public class JwtTokenServiceImp implements JwtTokenService {
     @Transactional
     @Override
     public void revokedToken(JwtToken jwtToken) {
+        log.info("Perform JWT token revocation");
         jwtToken.setRevoked(true);
         jwtTokenRepository.save(jwtToken);
     }
 
     @Override
     public JwtToken getCurrentToken() {
+        log.info("Fetching current token form SecurityUtil...");
         String token = SecurityUtil.getCurrentToken()
-                .orElseThrow(UnauthorizedException::unauthorized);
+                .orElseThrow(() -> {
+                    log.warn("No valid token found in SecurityUtil, unauthorized access.");
+                    return UnauthorizedException.unauthorized();
+                });
+        log.info("Fetching token successfully.");
+
         return jwtTokenRepository.findByJwtToken(token)
-                .orElseThrow(UnauthorizedException::handleTokenlNotFound);
+                .orElseThrow(() -> {
+                    log.error("Token not found in JwtTokenRepository: {}", token);
+                    return UnauthorizedException.handleTokenlNotFound();
+                });
     }
 
     @Override
     public User getCurrentUserByToken() {
         String token = SecurityUtil.getCurrentToken()
-                .orElseThrow(UnauthorizedException::unauthorized);
+                .orElseThrow(() -> {
+                    log.warn("No valid token found in SecurityUtil, unauthorized access.");
+                    return UnauthorizedException.unauthorized();
+                });
+        log.info("Fetching token successfully.");
+
         return jwtTokenRepository.findUserByJwtToken(token)
-                .orElseThrow(UnauthorizedException::handleTokenlNotFound);
+                .orElseThrow(() -> {
+                    log.error("Token not found in JwtTokenRepository: {}", token);
+                    return UnauthorizedException.handleTokenlNotFound();
+                });
     }
 
     @Override
     public void validateJwtToken() {
         String token = SecurityUtil.getCurrentToken()
-                .orElseThrow(UnauthorizedException::unauthorized);
+                .orElseThrow(() -> {
+                    log.warn("No valid token found in SecurityUtil, unauthorized access.");
+                    return UnauthorizedException.unauthorized();
+                });
+        log.info("Fetching token successfully.");
+
         jwtTokenRepository.findUserByJwtToken(token)
-                .orElseThrow(UnauthorizedException::handleTokenlNotFound);
+                .orElseThrow(() -> {
+                    log.error("Token not found in JwtTokenRepository: {}", token);
+                    return UnauthorizedException.handleTokenlNotFound();
+                });
     }
 
     @Override

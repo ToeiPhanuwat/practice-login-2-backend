@@ -34,34 +34,49 @@ public class AdminBusiness {
         jwtTokenService.validateJwtToken();
 
         List<User> users = adminService.getAllUsers();
+        log.info("Fetched all user data successfully.");
 
         return userMapper.toUserResponseList(users);
     }
 
     public ApiResponse<MUserResponse> getUserById(Long id) {
         jwtTokenService.validateJwtToken();
-        User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
+        User user = adminService.getUserById(id).orElseThrow(() -> {
+            log.warn("๊User with ID: {} not found.", id);
+            return NotFoundException.notFound();
+        });
 
         MUserResponse mUserResponse = userMapper.toUserResponse(user);
+        log.info("Fetched user profile for user ID: {}.", id);
 
         return new ApiResponse<>(true, "Operation completed successfully", mUserResponse);
     }
 
     public ApiResponse<MUserResponse> updateUser(UpdateRequest request, Long id) {
         jwtTokenService.validateJwtToken();
-        User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
+        log.info("Updating user profile with request.");
+        User user = adminService.getUserById(id).orElseThrow(() -> {
+            log.warn("User with ID: {} not found.", id);
+            return NotFoundException.tokenNotFound();
+        });
         user = adminService.updateUserRequest(user, request);
 
         MUserResponse mUserResponse = userMapper.toUserResponse(user);
+        log.info("User profile updated successfully for user ID: {}.", id);
 
         return new ApiResponse<>(true, "Operation completed successfully", mUserResponse);
     }
 
     public ApiResponse<ModelDTO> removeUserRole(RoleUpdateRequest role, Long id) {
         jwtTokenService.validateJwtToken();
-        User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
+        log.info("Deleting a user role by request.");
+        User user = adminService.getUserById(id).orElseThrow(() -> {
+            log.warn("User with ID: {} not found.", id);
+            return NotFoundException.tokenNotFound();
+        });
         if (user.getRoles().size() < 2) throw ConflictException.userHasOneRole();
         user = adminService.removeRoleAndUpdate(user, role);
+        log.info("Deleted user role successfully for user ID : {}.", id);
 
         ModelDTO modelDTO = new ModelDTO()
                 .setRole(user.getRoles().toString());
@@ -70,8 +85,13 @@ public class AdminBusiness {
 
     public void deleteUser(Long id) {
         jwtTokenService.validateJwtToken();
-        User user = adminService.getUserById(id).orElseThrow(NotFoundException::notFound);
+        log.info("Deleting users on request.");
+        User user = adminService.getUserById(id).orElseThrow(() -> {
+            log.warn("User with ID: {} not found.", id);
+            return NotFoundException.tokenNotFound();
+        });
         adminService.deleteUser(id);
+        log.info("Deleted user successfully for user ID: {}.", id);
     }
 
     public List<User> searchRoleUser(String role) {

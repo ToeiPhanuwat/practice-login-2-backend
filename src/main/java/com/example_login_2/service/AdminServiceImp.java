@@ -4,12 +4,14 @@ import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.model.User;
 import com.example_login_2.repository.AdminRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @Service
 @Transactional
 public class AdminServiceImp implements AdminService {
@@ -64,6 +66,7 @@ public class AdminServiceImp implements AdminService {
 
     @Override
     public List<User> searchRoleUser(String role) {
+        log.info("Find users with role: {} Successful.", role);
         return adminRepository.findByRoles(role);
     }
 }
