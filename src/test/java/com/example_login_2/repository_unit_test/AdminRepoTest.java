@@ -27,18 +27,21 @@ public class AdminRepoTest {
         String ADMIN = "ROLE_ADMIN";
 
         User user = new User()
+                .setFirstName("test")
                 .setEmail("test@example.com")
                 .setPassword("password")
                 .setRoles(new HashSet<>(Collections.singleton(USER)));
         authRepository.save(user);
 
         User user2 = new User()
+                .setFirstName("test")
                 .setEmail("test2@example.com")
                 .setPassword("password")
                 .setRoles(new HashSet<>(Collections.singleton(USER)));
         authRepository.save(user2);
 
         User user3 = new User()
+                .setFirstName("test")
                 .setEmail("test3@example.com")
                 .setPassword("password")
                 .setRoles(new HashSet<>(Collections.singleton(ADMIN)));

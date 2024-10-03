@@ -24,6 +24,7 @@ public class JwtTokenRepoTest {
     @Test
     public void testFindByJwtToken_Found() {
         User user = new User()
+                .setFirstName("test")
                 .setEmail("test@example.com")
                 .setPassword("password");
         User savedUser = authRepository.save(user);
@@ -54,6 +55,7 @@ public class JwtTokenRepoTest {
     @Test
     public void testFindUserByJwtToken_Found() {
         User user = new User()
+                .setFirstName("test")
                 .setEmail("test@example.com")
                 .setPassword("password");
         User savedUser = authRepository.save(user);

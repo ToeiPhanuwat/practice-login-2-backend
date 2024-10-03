@@ -13,7 +13,10 @@ import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.PasswordResetToken;
 import com.example_login_2.model.User;
-import com.example_login_2.service.*;
+import com.example_login_2.service.AuthService;
+import com.example_login_2.service.EmailConfirmService;
+import com.example_login_2.service.JwtBlacklistService;
+import com.example_login_2.service.JwtTokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -237,18 +240,12 @@ public class AuthBusinessTest {
         verify(emailConfirmService).getEmailConfirmByToken(anyString());
     }
 
-//    @Test
-//    public void testLogout_UserNotFound() {
-//        when(jwtTokenService.getCurrentToken()).thenReturn(mockJwt);
-//        doNothing().when(jwtTokenService).revokedToken(any(JwtToken.class));
-//        doNothing().when(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-//
-//        assertThrows(NotFoundException.class, () -> business.logout());
-//
-//        verify(jwtTokenService).getCurrentToken();
-//        verify(jwtTokenService).revokedToken(any(JwtToken.class));
-//        verify(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-//    }
+    @Test
+    public void testLogout_UserNotFound() {
+        when(jwtTokenService.getCurrentToken()).thenReturn(mockJwt);
+
+        assertThrows(NotFoundException.class, () -> business.logout());
+    }
 
     @Test
     public void testLogout_Success() {
@@ -350,19 +347,6 @@ public class AuthBusinessTest {
         verify(authService).getByPasswordResetToken_Token(anyString());
         verify(authService).updateNewPassword(any(User.class), anyString());
     }
-
-//    @Test
-//    public void testRefreshJwtToken_UserNotFound() {
-//        when(jwtTokenService.getCurrentToken()).thenReturn(mockJwt);
-//        doNothing().when(jwtTokenService).revokedToken(any(JwtToken.class));
-//        doNothing().when(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-//
-//        assertThrows(NotFoundException.class, () -> business.refreshJwtToken());
-//
-//        verify(jwtTokenService).getCurrentToken();
-//        verify(jwtTokenService).revokedToken(any(JwtToken.class));
-//        verify(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-//    }
 
     @Test
     public void testRefreshJwtToken_Success() {

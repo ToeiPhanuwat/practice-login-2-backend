@@ -2,7 +2,7 @@
 
 spring:
   token:
-    secret: m#MySecret5339T
+    secret: ${SECRET_JWT_SECRET:'m#MySecret5339T'}
     issuer: BackendService
 ---
 app:
@@ -13,19 +13,19 @@ app:
 spring:
   profiles:
     active:
-      - test
+      - prod
 ---
 server:
-  port: 1150
+  port: 8080
 spring:
   config:
     activate:
       on-profile:
-        - dev
+        - prod
   datasource:
-    url: jdbc:postgresql://localhost:5432/login2
-    username: postgres
-    password: Tonpostgresql04
+    url: jdbc:postgresql://${SECRET_DB_HOST}:${SECRET_DB_PORT:5432}/login2
+    username: ${SECRET_DB_USERNAME:postgres}
+    password: ${SECRET_DB_PASSWORD:Tonpostgresql04}
   jpa:
     properties:
       hibernate:
@@ -41,15 +41,15 @@ spring:
         6MB
   kafka:
     bootstrap-servers:
-      - localhost:9092
+      - ${SECRET_KAFKA_HOST:localhost}:{SECRET_KAFKA_PORT:9092}
     consumer:
       group-id: "my-login-2-app"
   jackson:
     date-format: yyyy-MM-dd
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${SECRET_REDIS_HOST:localhost}
+      port: ${SECRET_REDIS_PORT:6379}
   cache:
     type: redis
     redis:

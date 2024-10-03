@@ -132,10 +132,10 @@ public class AuthBusiness {
         JwtToken currentToken = jwtTokenService.getCurrentToken();
 
         User user = currentToken.getUser();
-//        if (user == null) {
-//            log.error("Logout failed: No user associated with the token");
-//            throw NotFoundException.handleNoUserInTheToken();
-//        }
+        if (user == null) {
+            log.error("Logout failed: No user associated with the token");
+            throw NotFoundException.handleNoUserInTheToken();
+        }
 
         final String ACTION = "logout";
         jwtTokenService.revokedToken(currentToken);
@@ -214,16 +214,11 @@ public class AuthBusiness {
         User user = currentToken.getUser();
         log.info("Refreshing JWT token for user ID: {}", user.getId());
 
-//        if (user == null) {
-//            log.error("Refresh token failed: No user associated with the token");
-//            throw NotFoundException.handleNoUserInTheToken();
-//        }
-
         final String ACTION = "refresh_token";
         jwtTokenService.revokedToken(currentToken);
         jwtBlacklistService.saveToBlacklist(currentToken, ACTION);
-
         authService.deleteJwtIsRevoked(user);
+
         JwtToken newJwtToken = jwtTokenService.generateJwtToken(user);
         log.info("JWT token refreshed successfully for user ID: {}", user.getId());
 

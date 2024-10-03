@@ -18,6 +18,7 @@ public class AuthRepoTest {
     @Test
     public void testExistsEmail() {
         User user = new User()
+                .setFirstName(TestData.firstName)
                 .setEmail(TestData.email)
                 .setPassword(TestData.password);
         User savedUser = authRepository.save(user);
@@ -39,6 +40,7 @@ public class AuthRepoTest {
     @Test
     public void testFindByEmail_Found() {
         User user = new User()
+                .setFirstName(TestData.firstName)
                 .setEmail(TestData.email)
                 .setPassword(TestData.password);
         User savedUser = authRepository.save(user);
@@ -62,6 +64,7 @@ public class AuthRepoTest {
                 .setToken(TestData.passwordResetToken);
 
         User user = new User()
+                .setFirstName(TestData.firstName)
                 .setEmail(TestData.email)
                 .setPassword(TestData.password)
                 .setPasswordResetToken(passwordResetToken);
@@ -82,6 +85,7 @@ public class AuthRepoTest {
     }
 
     interface TestData {
+        String firstName = "test";
         String email = "test@example.com";
         String password = "password";
         String passwordResetToken = "testToken";

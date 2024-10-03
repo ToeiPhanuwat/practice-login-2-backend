@@ -13,7 +13,6 @@ import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.User;
 import com.example_login_2.service.AdminService;
 import com.example_login_2.service.JwtTokenService;
-import com.example_login_2.service.StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,8 +49,6 @@ public class AdminBusinessTest {
         mockUser.setEmail(TestData.email);
         mockUser.setPassword(TestData.password);
         mockUser.setRoles(new HashSet<>(Arrays.asList("ROLE_USER", "ROLE_ADMIN")));
-
-
     }
 
     @Test
