@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public interface JwtTokenRepository extends JpaRepository<JwtToken, Long> {
@@ -16,4 +18,7 @@ public interface JwtTokenRepository extends JpaRepository<JwtToken, Long> {
     Optional<User> findUserByJwtToken(@Param("jwtToken") String jwtToken);
 
     Optional<JwtToken> findByUserId(Long userId);
+
+    @Query("SELECT j FROM JwtToken j WHERE j.expiresAt < :currentTime AND j.isRevoked = false")
+    List<JwtToken> findExpiredTokens(@Param("currentTime") Instant currentTime);
 }

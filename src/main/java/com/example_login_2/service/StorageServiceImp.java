@@ -5,6 +5,7 @@ import com.example_login_2.exception.StorageException;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +21,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
+@Transactional
 public class StorageServiceImp implements StorageService {
 
     @Value("${app.upload.path:images}")

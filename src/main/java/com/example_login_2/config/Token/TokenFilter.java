@@ -38,20 +38,6 @@ public class TokenFilter extends GenericFilterBean {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-//        String path = request.getRequestURI();
-//        if (path.startsWith("/api/v1/auth")) {
-//            filterChain.doFilter(servletRequest, servletResponse);
-//            return;
-//        }
-
-//        if (ObjectUtils.isEmpty(authorization) || !authorization.startsWith("Bearer")) {
-//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            response.setContentType("application/json");
-//            response.setCharacterEncoding("UTF-8");
-//            response.getWriter().write("{\"error\": \"Authorization header is missing or invalid\"}");
-//            return;
-//        }
-
         String authorization = request.getHeader("Authorization");
         if (ObjectUtils.isEmpty(authorization) || !authorization.startsWith("Bearer")) {
             filterChain.doFilter(servletRequest, servletResponse);

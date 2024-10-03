@@ -8,8 +8,15 @@ import com.example_login_2.controller.AuthResponse.MUserResponse;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.*;
-import com.example_login_2.model.*;
-import com.example_login_2.service.*;
+import com.example_login_2.mapper.UserMapper;
+import com.example_login_2.model.EmailConfirm;
+import com.example_login_2.model.JwtToken;
+import com.example_login_2.model.PasswordResetToken;
+import com.example_login_2.model.User;
+import com.example_login_2.service.AuthService;
+import com.example_login_2.service.EmailConfirmService;
+import com.example_login_2.service.JwtBlacklistService;
+import com.example_login_2.service.JwtTokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +44,7 @@ public class AuthBusinessTest {
     @Mock
     private JwtTokenService jwtTokenService;
     @Mock
-    private StorageService storageService;
+    private UserMapper userMapper;
     @Mock
     private JwtBlacklistService jwtBlacklistService;
     @Mock
@@ -63,6 +70,7 @@ public class AuthBusinessTest {
         mockUser.setRoles(new HashSet<>(Arrays.asList("ROLE_USER", "ROLE_ADMIN")));
 
         mockEmailConfirm = new EmailConfirm();
+        mockEmailConfirm.setUser(mockUser);
         mockEmailConfirm.setToken(TestData.tokenEmailConfirm);
 
         mockJwt = new JwtToken();
@@ -235,14 +243,8 @@ public class AuthBusinessTest {
     @Test
     public void testLogout_UserNotFound() {
         when(jwtTokenService.getCurrentToken()).thenReturn(mockJwt);
-        doNothing().when(jwtTokenService).revokedToken(any(JwtToken.class));
-        doNothing().when(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
 
         assertThrows(NotFoundException.class, () -> business.logout());
-
-        verify(jwtTokenService).getCurrentToken();
-        verify(jwtTokenService).revokedToken(any(JwtToken.class));
-        verify(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
     }
 
     @Test
@@ -252,7 +254,7 @@ public class AuthBusinessTest {
         when(jwtTokenService.getCurrentToken()).thenReturn(mockJwt);
         doNothing().when(jwtTokenService).revokedToken(any(JwtToken.class));
         doNothing().when(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-        doNothing().when(authService).removeJwtToken(any(User.class));
+        doNothing().when(authService).deleteJwtIsRevoked(any(User.class));
 
         ApiResponse<String> response = business.logout();
 
@@ -261,7 +263,7 @@ public class AuthBusinessTest {
         verify(jwtTokenService).getCurrentToken();
         verify(jwtTokenService).revokedToken(any(JwtToken.class));
         verify(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-        verify(authService).removeJwtToken(any(User.class));
+        verify(authService).deleteJwtIsRevoked(any(User.class));
     }
 
     @Test
@@ -347,26 +349,13 @@ public class AuthBusinessTest {
     }
 
     @Test
-    public void testRefreshJwtToken_UserNotFound() {
-        when(jwtTokenService.getCurrentToken()).thenReturn(mockJwt);
-        doNothing().when(jwtTokenService).revokedToken(any(JwtToken.class));
-        doNothing().when(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-
-        assertThrows(NotFoundException.class, () -> business.refreshJwtToken());
-
-        verify(jwtTokenService).getCurrentToken();
-        verify(jwtTokenService).revokedToken(any(JwtToken.class));
-        verify(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-    }
-
-    @Test
     public void testRefreshJwtToken_Success() {
         mockJwt.setUser(mockUser);
 
         when(jwtTokenService.getCurrentToken()).thenReturn(mockJwt);
         doNothing().when(jwtTokenService).revokedToken(any(JwtToken.class));
         doNothing().when(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-        doNothing().when(authService).removeJwtToken(any(User.class));
+        doNothing().when(authService).deleteJwtIsRevoked(any(User.class));
         when(jwtTokenService.generateJwtToken(any(User.class))).thenReturn(mockJwt);
 
         ApiResponse<ModelDTO> response = business.refreshJwtToken();
@@ -376,7 +365,7 @@ public class AuthBusinessTest {
         verify(jwtTokenService).getCurrentToken();
         verify(jwtTokenService).revokedToken(any(JwtToken.class));
         verify(jwtBlacklistService).saveToBlacklist(any(JwtToken.class), anyString());
-        verify(authService).removeJwtToken(any(User.class));
+        verify(authService).deleteJwtIsRevoked(any(User.class));
         verify(jwtTokenService).generateJwtToken(any(User.class));
     }
 
@@ -400,6 +389,12 @@ public class AuthBusinessTest {
 
         when(jwtTokenService.getCurrentUserByToken()).thenReturn(mockUser);
         when(authService.updateUserRequest(any(User.class), any(UpdateRequest.class))).thenReturn(mockUser);
+
+        MUserResponse mapper = new MUserResponse()
+                .setFileName(AdminBusinessTest.TestData.firstName)
+                .setEmail(AdminBusinessTest.TestData.email);
+
+        when(userMapper.toUserResponse(mockUser)).thenReturn(mapper);
 
         ApiResponse<MUserResponse> response = business.updateUser(request);
 

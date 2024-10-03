@@ -51,6 +51,7 @@ public class EmailConfirmRepoTest {
     @Test
     public void testFindByUserId_Found() {
         User user = new User()
+                .setFirstName("test")
                 .setEmail("test@example.com")
                 .setPassword("password");
         User savedUser = authRepository.save(user);
@@ -79,6 +80,7 @@ public class EmailConfirmRepoTest {
     @Test
     public void testFindByActivatedFalse_Found() {
         User user = new User()
+                .setFirstName("test")
                 .setEmail("test@example.com")
                 .setPassword("password");
         User savedUser = authRepository.save(user);
@@ -98,6 +100,7 @@ public class EmailConfirmRepoTest {
     @Test
     public void testFindByActivatedFalse_NotFound() {
         User user = new User()
+                .setFirstName("test")
                 .setEmail("test@example.com")
                 .setPassword("password");
         User savedUser = authRepository.save(user);
@@ -115,7 +118,7 @@ public class EmailConfirmRepoTest {
 
 
     interface TestData {
-        String token = "testtesttesttesttesttesttestte";
+        String token = "test";
         Date expiresAt = Date.from(Instant.now().plus(Duration.ofHours(1)));
     }
 

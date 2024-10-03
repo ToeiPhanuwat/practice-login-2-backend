@@ -3,12 +3,14 @@ package com.example_login_2.controller.AuthResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@Accessors(chain = true)
 public class MUserResponse {
 
     private String email;
@@ -26,4 +28,5 @@ public class MUserResponse {
     private String fileName;
 
     private String address;
+
 }

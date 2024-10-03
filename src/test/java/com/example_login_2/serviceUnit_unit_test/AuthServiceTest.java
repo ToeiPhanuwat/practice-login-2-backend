@@ -3,7 +3,10 @@ package com.example_login_2.serviceUnit_unit_test;
 import com.example_login_2.controller.AuthRequest.RegisterRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.ConflictException;
-import com.example_login_2.model.*;
+import com.example_login_2.model.EmailConfirm;
+import com.example_login_2.model.JwtToken;
+import com.example_login_2.model.PasswordResetToken;
+import com.example_login_2.model.User;
 import com.example_login_2.repository.AuthRepository;
 import com.example_login_2.service.AuthServiceImp;
 import com.example_login_2.util.SecurityUtil;
@@ -106,7 +109,7 @@ public class AuthServiceTest {
         User user = new User()
                 .setJwtToken(jwtTokens);
 
-        serviceImp.removeJwtToken(user);
+        serviceImp.deleteJwtIsRevoked(user);
 
         assertEquals(1, user.getJwtToken().size());
         assertFalse(user.getJwtToken().get(0).isRevoked());

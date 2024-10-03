@@ -5,6 +5,7 @@ import com.example_login_2.model.JwtToken;
 import com.example_login_2.model.User;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public interface JwtTokenService {
@@ -33,4 +34,5 @@ public interface JwtTokenService {
 
     void revokedToken(JwtToken jwtToken);
 
+    List<JwtToken> getJwtTokenExpire(Instant currentTime);
 }

@@ -2,23 +2,23 @@ package com.example_login_2.business_unit_test;
 
 import com.example_login_2.business.AdminBusiness;
 import com.example_login_2.controller.ApiResponse;
+import com.example_login_2.controller.AuthResponse.MUserResponse;
 import com.example_login_2.controller.ModelDTO;
 import com.example_login_2.controller.request.RoleUpdateRequest;
 import com.example_login_2.controller.request.UpdateRequest;
 import com.example_login_2.exception.ConflictException;
 import com.example_login_2.exception.NotFoundException;
+import com.example_login_2.mapper.UserMapper;
 import com.example_login_2.model.EmailConfirm;
 import com.example_login_2.model.User;
 import com.example_login_2.service.AdminService;
 import com.example_login_2.service.JwtTokenService;
-import com.example_login_2.service.StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,7 +33,7 @@ public class AdminBusinessTest {
     @Mock
     private AdminService adminService;
     @Mock
-    private StorageService storageService;
+    private UserMapper userMapper;
     @Mock
     private JwtTokenService jwtTokenService;
 
@@ -54,17 +54,30 @@ public class AdminBusinessTest {
     @Test
     public void testGetAllUser() {
         User user1 = new User()
+                .setFileName(TestData.firstName)
                 .setEmail(TestData.email)
                 .setPassword(TestData.password);
         User user2 = new User()
+                .setFileName(TestData.firstName)
                 .setEmail(TestData.email)
                 .setPassword(TestData.password);
-        List<User> mock = Arrays.asList(user1, user2);
+        List<User> mockUsers = Arrays.asList(user1, user2);
 
         doNothing().when(jwtTokenService).validateJwtToken();
-        when(adminService.getAllUsers()).thenReturn(mock);
+        when(adminService.getAllUsers()).thenReturn(mockUsers);
 
-        List<User> result = business.getAllUser();
+        MUserResponse mapper1 = new MUserResponse()
+                .setFileName(TestData.firstName)
+                .setEmail(TestData.email);
+        MUserResponse mapper2 = new MUserResponse()
+                .setFileName(TestData.firstName)
+                .setEmail(TestData.email);
+
+        List<MUserResponse> mockMapperResponseList = Arrays.asList(mapper1, mapper2);
+
+        when(userMapper.toUserResponseList(mockUsers)).thenReturn(mockMapperResponseList);
+
+        List<MUserResponse> result = business.getAllUser();
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -84,11 +97,15 @@ public class AdminBusinessTest {
         doNothing().when(jwtTokenService).validateJwtToken();
         when(adminService.getUserById(anyLong())).thenReturn(Optional.of(mockUser));
 
-        ApiResponse<ModelDTO> response = business.getUserById(TestData.id);
+        MUserResponse mapper = new MUserResponse()
+                .setFileName(TestData.firstName)
+                .setEmail(TestData.email);
+
+        when(userMapper.toUserResponse(mockUser)).thenReturn(mapper);
+        ApiResponse<MUserResponse> response = business.getUserById(TestData.id);
 
         assertNotNull(response);
         assertNotNull(response.getData());
-        assertNotNull(response.getData().getAddress());
 
         verify(jwtTokenService).validateJwtToken();
         verify(adminService).getUserById(anyLong());
@@ -107,36 +124,35 @@ public class AdminBusinessTest {
 
     @Test
     public void testUpdateUser_Success() {
-        MultipartFile file = mock(MultipartFile.class);
-        String fileName = "file.png";
         UpdateRequest request = new UpdateRequest();
 
         doNothing().when(jwtTokenService).validateJwtToken();
         when(adminService.getUserById(anyLong())).thenReturn(Optional.of(mockUser));
-        when(storageService.uploadProfilePicture(file)).thenReturn(fileName);
         when(adminService.updateUserRequest(any(User.class), any(UpdateRequest.class))).thenReturn(mockUser);
 
-        ApiResponse<ModelDTO> response = business.updateUser(file, request, TestData.id);
+        MUserResponse mapper = new MUserResponse()
+                .setFileName(TestData.firstName)
+                .setEmail(TestData.email);
+
+        when(userMapper.toUserResponse(mockUser)).thenReturn(mapper);
+        ApiResponse<MUserResponse> response = business.updateUser(request, TestData.id);
 
         assertNotNull(response);
         assertNotNull(response.getData());
-        assertNotNull(response.getData().getAddress());
 
         verify(jwtTokenService).validateJwtToken();
         verify(adminService).getUserById(anyLong());
-        verify(storageService).uploadProfilePicture(file);
         verify(adminService).updateUserRequest(any(User.class), any(UpdateRequest.class));
     }
 
     @Test
     public void testUpdateUser_UserNotFound() {
-        MultipartFile file = mock(MultipartFile.class);
         UpdateRequest request = new UpdateRequest();
 
         doNothing().when(jwtTokenService).validateJwtToken();
         when(adminService.getUserById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> business.updateUser(file, request, TestData.id));
+        assertThrows(NotFoundException.class, () -> business.updateUser(request, TestData.id));
 
         verify(jwtTokenService).validateJwtToken();
         verify(adminService).getUserById(anyLong());
@@ -237,6 +253,7 @@ public class AdminBusinessTest {
 
     interface TestData {
         Long id = 1L;
+        String firstName = "test";
         String email = "test@email.com";
 
         String password = "password";

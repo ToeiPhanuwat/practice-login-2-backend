@@ -14,8 +14,10 @@ import java.util.Optional;
 public interface AuthService {
     User createUser(RegisterRequest request);
 
+    @CachePut(value = "user", key = "#user.id")
     User updateUser(User user);
 
+    @CachePut(value = "user", key = "#user.id")
     void updateFile(User user, String fileName);
 
     @Cacheable(value = "user", key = "#id", unless = "#result == null")
@@ -28,9 +30,12 @@ public interface AuthService {
 
     User updateJwtToken(User user, JwtToken jwtToken);
 
-    void removeJwtToken(User user);
+    @CachePut(value = "user", key = "#user.id")
+    void deleteJwtIsRevoked(User user);
 
     @CachePut(value = "user", key = "#user.id")
+    void deleteJwtExpired(User user, JwtToken jwtToken);
+
     void updateNewPassword(User user, String newPassword);
 
     User updatePasswordResetToken(User user);
