@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-@Transactional
 public class StorageServiceImp implements StorageService {
 
     @Value("${app.upload.path:images}")

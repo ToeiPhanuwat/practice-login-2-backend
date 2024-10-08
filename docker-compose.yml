@@ -1,0 +1,8 @@
+services:
+  backend:
+    container_name: login-2
+    image: practice/login2:latest
+    env_file:
+      - .env
+    ports:
+      - 8080:8080

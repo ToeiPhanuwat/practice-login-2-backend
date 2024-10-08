@@ -13,7 +13,6 @@ import java.util.Optional;
 
 @Log4j2
 @Service
-@Transactional
 public class AdminServiceImp implements AdminService {
 
     private final AdminRepository adminRepository;
